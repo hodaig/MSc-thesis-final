@@ -2,10 +2,70 @@
 %TODO Hodai: find the correct word for "guarded automata"
 %TODO Hodai: mybe add the symucopter project
 
-\documentclass[11pt]{article}
+\documentclass[ twoside, 12pt ]{article}
+%\linespread{1.5}
+\usepackage[onehalfspacing]{setspace}
+\usepackage[margin=1cm]{caption}
+
+\usepackage[left=4cm,right=1.5cm,top=1.5cm,bottom=1.5cm]{geometry}
+%\usepackage[margin=1in,footskip=3in]{geometry}
+
+\usepackage{array}
+\usepackage{url}
+\usepackage{cite}
+\usepackage{subfigure}
+\usepackage{float}
 
 \usepackage{graphicx}
-\usepackage{tikz}
+\graphicspath{{./img/}}
+
+\usepackage{hyperref} % makes table of contents links
+\hypersetup{
+    colorlinks=true, %set true if you want colored links
+    linktoc=all,     %set to all if you want both sections and subsections linked
+    %linkcolor=blue,  %choose some color if you want links to stand out
+    %citecolor=black,
+}
+
+%%%%%%%% Package for source-code listing %%%%%%%%%%%%
+\usepackage{pdfpages}
+\usepackage{textcomp,listings}
+\definecolor{javared}{rgb}{0.6,0,0} % for strings
+\definecolor{javagreen}{rgb}{0.25,0.5,0.35} % comments
+\definecolor{javapurple}{rgb}{0.5,0,0.35} % keywords 
+
+\lstset{
+    language=Java,
+    frame=lines,
+    captionpos=b,
+    basicstyle=\color{blue!30!black!90!green} \ttfamily, % print whole listing small
+    keywordstyle=\color{javapurple}\bfseries,%\underbar, underlined bold black keywords
+    identifierstyle=, % nothing happens
+    commentstyle=\color{javagreen}, % white comments
+    stringstyle=\color{javared}, % type for strings
+    showstringspaces=false, % no special string spaces
+    mathescape=true, % allow math typesetting in listings
+    upquote=true,
+}
+%%%%%%%% Package for source-code listing %%%%%%%%%%%%
+
+
+%%%%%%%% Packages for drawing diagrams %%%%%%%%%%%%%%%
+\usepackage{tikz,ifthen}
+\usetikzlibrary{arrows,automata,positioning }
+\tikzstyle{block}=[rectangle, draw, thin, inner sep=3pt, text centered, 
+%drop shadow, 
+fill=orange!20!yellow!20] 
+\tikzstyle{pre}=[<-,shorten <=1pt,>=stealth']
+\tikzstyle{post}=[->,shorten >=1pt,>=stealth'] 
+\tikzstyle{bi}=[<->,shorten >=1pt,shorten <=1pt,>=stealth'] 
+\tikzstyle{every initial by arrow}=[initial text={},initial distance=1em,post]
+%\tikzstyle{every state}=[minimum size=0.4cm,drop shadow,fill=orange!20!yellow!20]
+\tikzstyle{transition}= [post,shorten >=1pt,node distance=2cm, inner sep=2pt,bend angle=20]
+\tikzstyle{box}=[rectangle,draw=black, thick, inner sep=3pt, text centered]
+
+%Hodai part
+%\usepackage{tikz}
 \usetikzlibrary{shapes.geometric, arrows, automata, positioning}
 \tikzstyle{recNode} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, rounded corners=0.1cm, draw=black]
 \tikzstyle{recNodeB} = [recNode, draw=blue, fill=blue!10,text=blue!20!black]
@@ -16,35 +76,106 @@
 \tikzstyle{arrowB} = [thick,->,>=stealth,draw=blue]
 \tikzstyle{arrowG} = [ultra thick,->,>=stealth,draw=red, dashed]
 
-\newcommand{\comment}[1]{}
+%%%%%%%% Package for drawing diagrams %%%%%%%%%%%%%%%
 
+\newcommand\esti{{\lstinline'estimate'}}
+\newcommand\simu{{\lstinline'simulate'}}
+\renewcommand\j[1]{{\lstinline'#1'}}
+
+\usepackage[english]{babel}
+%\usepackage{graphicx}
+\usepackage{amssymb}
+%\usepackage{caption}
+%\usepackage{MnSymbol}
+
+\RequirePackage{pgf,pgffor}
+
+\usepackage[mathcal]{euscript}
+%%% END LaTeX-Packages ----------------------------------
+
+%\usepackage{amsthm}
+\usepackage{mathtools}
+%\usepackage{setspace}
+\newcommand\tuple[1]{\langle #1 \rangle}
+
+\newcommand\sSF[1]{$\Diamond$\footnote{SF: \sout{#1}}}
+\newcommand\sIL[1]{$\Diamond$\footnote{IL: \sout{#1}}}
+\newcommand\sMA[1]{$\Diamond$\footnote{MA: \sout{#1}}}
+\newcommand\sGW[1]{$\Diamond$\footnote{GW: \sout{#1}}}
+
+
+\newcommand\SF[1]{$\bigstar$\footnote{SF: #1}}
+\newcommand\IL[1]{$\bigstar$\footnote{IL: #1}}
+\newcommand\MA[1]{$\bigstar$\footnote{MA: #1}}
+\newcommand\GW[1]{$\bigstar$\footnote{GW: #1}}
+
+\newcommand\R{{\mathbb R}}
+\newcommand\N{{\mathbb N}}
+\newcommand\must{$\mathtt{must}$}
+\newcommand\bad{$\mathtt{bad}$}
+\newcommand\code[1]{{\small \sf #1}}
+
+%%% LaTeX definitions -----------------------------------------
+\newtheorem{thm}{Theorem}
+\newtheorem{dfn}[thm]{Definition}
+\newtheorem{con}[thm]{Construction}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{claim}[thm]{Claim}
+\newtheorem{remark}{Remark}
+
+\DeclareMathOperator*{\guard}{guard}
+\DeclareMathOperator*{\sensor}{sen}
+\DeclareMathOperator*{\actuator}{act}
+
+\newcommand{\mathsym}[1]{{}}
+\newcommand{\unicode}[1]{{}}
+
+\newcommand{\M}{{\mathcal{M}}}
+%%% END own LaTeX definitions ---------------------------
+
+
+%%%%%%%% utils %%%%%%%%
+\newcommand{\comment}[1]{}
 \newcommand{\uncomment}[1]{#1}
 
-
-\usepackage{url}
 
 \author{Hodai Goldman}
 % (Hodaig@cs.bgu.ac.il) \\ \\Department of Computer Science, \\Ben-Gurion University of the Negev, Beer Sheva, Israel \\ \\Supervisor: Dr. Gera Weiss}
 \date{\today}
-\title{\LARGE {\bf Computational resource management of multi channel controller}}
-
-\usepackage{hyperref} % makes table of contents links
-\hypersetup{
-    colorlinks=true, %set true if you want colored links
-    linktoc=all,     %set to all if you want both sections and subsections linked
-    %linkcolor=blue,  %choose some color if you want links to stand out
-    %citecolor=black,
-}
+\title{\LARGE {\bf Computational Resource Management of Multi-Channel Controller}}
 
 \begin{document}
 \begin{titlepage}
 \maketitle
 \end{titlepage}
 
-\tableofcontents
+\begin{titlepage}
+    \tableofcontents
+    %\newpage
+\end{titlepage}
 
 \section{Introduction}
-\subsection{motivation and overview}
+\subsection{Option 1: Intro From Paper}
+Cyber-physical systems (CPS) technologies of integrating software and control are at the heart of many critical applications (see~\cite{lee2008cyber} for a review of such applications). 
+These technologies aim at handling issues that emerge when the interaction of software and hardware brakes the traditional abstraction layers: when researchers and practitioners are required to consider a unified view that includes both software and hardware. An example of such an issue is the challenge of dynamic assignment of computational resources to software based controllers discussed in, e.g.,~\cite{arzen2000introduction,tabuada2007event,weiss2007automata}. While the computation burden required by the control loops can be ignored in many situations, this is not always the case. A main motivating example studied in this paper is vision based control, where computer vision algorithms acquire state information to be used in a feedback loop (see, e.g.,~\cite{das2002vision,shakernia1999landing,Efraim2017}). Unlike conventional sensors such as accelerometers, gyros, compasses, etc., a visual sensor requires significant processing of the acquired image to prepare the state information for feedback. Since typical cyber-physical application, such as robot control, consist of many control loops, responsible for different aspects of the system, that run simultaneously and share the same computational resources, computer vision algorithms cannot always be invoked in full power. Alternatively, we propose in this paper a mechanism to dynamically trade CPU consumption vs. measurement accuracy so that data acquisition algorithms run in full power only when the control loop requires accurate data. 
+
+A main challenge in forming mechanisms for the integration of software and control lies in the design of efficient interfaces for integrating the engineering diciplines involved (see, e.g.,~\cite{weiss2007automata}). Components with clearly specified APIs, such as Java library classes, allow designers to build
+complex systems effectively in many application domains.  The key to such modular development is
+that each component can be designed, analyzed, and tested without the knowledge of other
+components or the underlying computing platform. When the system contains components with
+real-time requirements, the notion of an interface must include the requirements regarding
+resources, and existing programming languages provide little support for this.  Consequently,
+current development of real-time embedded software requires significant low-level manual effort for
+debugging and component assembly (cf.~\cite{Lee00,IEEE03,HS06}).  This has motivated 
+researchers to develop compositional approaches and interface notions for real-time scheduling (see, e.g.,~\cite{RS01,dH01,MF01,CAHS03,SL08,SLBS04,TWS06,DBLP:conf/lctrts/AuerbachBIKRRT07}).
+
+
+In this paper we present an approach, a proof-of-concept implementation, and a case study in scheduling computations in embedded control systems. The proposed design is based on the automata based scheduling approach, suggested in~\cite{weiss2007automata,RTComposer,AW08,ESNAASHARI20102410,liu2013synthesis}, where automata are proposed as interfaces that allow the dynamicity and efficiency of desktop operating systems with the predictability of real-time operating systems. The approach allows for components to specify the CPU resources that they need in a way that gives an application agnostic scheduler the freedom to choose schedules at run-time such that the needs of all the components are taken into account, even of components that were added only at run-time.  The main contributions of this paper relative to the earlier work in this direction is:
+(1) We propose an extension of the automata based scheduling framework that allows to direct the schedule based on the state of the controllers; (2) We propose a technique, based on the theory of Kalman Filters, for designing reactively scheduled controllers; (3) We report on our experience with improving the performance of a real-time, vision-based, control system (a drone that stabilizes itself in front of a window).
+
+The rest of the paper is organized as follows: In Section~\ref{sec:architecture} we outline the general software approach and the methodologies developed in our research. In Section~\ref{sec:simulation} we present the technical details of the proposed approach using a simulation. The case study is presented in Section~\ref{sec:caseStady} with a description of the engineering setup and the data we collected for the evaluation of the approach.
+
+\subsection{Option 2: Motivation and Overview}
 \label{sec:Background}
 Today's computer power allows for consolidation of controllers towards systems where a single computer regulates many control loops, each with its varying needs of computation resources.
 This brings two research challenges that we intend to attack in this thesis:
@@ -75,7 +206,7 @@ We show how allocate resources by \textbf{current} needs give better resoults th
  
 \section{Problem Statement}
 \label{sec:Problem}
-We are concentrate on close feedback control loop based systems as shown in Figure~\ref{fig:control loop}. 
+We are concentrate on feedback control loop based systems as shown in Figure~\ref{fig:control loop}. 
 We assume a close feedback control loop where the physical plant, \textit{System} state ($x$), is monitored via an array of sensors (\textit{Sensing}) which produce raw data ($y$) that represents noisy sample of some functions of the state variables. 
 We assume uncertainty observations from the sensors so, after sensing, an entity called \textit{State Estimator} aggregates the raw data from all the sensors and makes an educated estimation ($\hat{x}$) of the current state. Then the \textit{Control Law} entity generates the controller outputs ($u$), control the actuators, to change the state of the system in order close the gap between the current estimated state and the reference desire state (\textit{Input} $r$).
 
@@ -85,6 +216,19 @@ Note that in order to ensure that the controlled plant is always properly mainta
 
 We show how to achieve better performance and better resource utilization for control systems by using richer and more flexible requirements model for the tasks.
 Specifically, we develop tools and methodologies such that control engineers are able to specify more accurately the requirement features of their control tasks, that the scheduler will use for executing dynamic resource assignment that will, at the same time, guarantee required control performance and will be efficient in its use of computational resources. 
+
+In this thesis, for analysis we assume a general \textit{linear dynamical system} discretized in the time domain.
+At each discrete time increment, the true state $x_k$ is evolved from the previews state $x_{k-1}$ according to:
+$$ x_{k}=Ax_{k-1} + Bu_{k} + w_{k} $$
+Where,
+$A$ is the state transition model which is applied to the previous state $x_{k−1}$, $B$ is the control-input model which is applied to the control vector $u_k$, and $w_k$ is the process noise which is assumed to be drawn from a zero mean normal distribution with covariance $Q_k$.
+At time $k$ an observation (or measurement) $y_k$ of the true state $x_k$ is made according to:
+$$y_k=Cx_k+v_k$$
+Where,
+$C$ is the observation model which maps the true state space into the observed space and $v_k$ is the observation noise which is assumed to be zero mean Gaussian white noise with covariance $R_k$.
+
+
+
 
 \begin{figure}[]
     \centering
@@ -108,9 +252,68 @@ Specifically, we develop tools and methodologies such that control engineers are
     \label{fig:control loop}}
 \end{figure}
 
+\section{The proposed approach(From paper)}
+\label{sec:architecture}
+
+As proposed in earlier work on automata based scheduling (\cite{weiss2007automata,RTComposer,AW08}) we aim at a development process where a system is built as a composition of a set of components where each component is a software module (a set of procedures) accompanied with an automaton. Our addition here is that we allow the automata to be guarded, i.e., each automaton acts as a specification of a reactive system that tells the scheduler which functions of a component it may run in each slot depending on the dynamic state of the controllers. A second addition is that we have implemented the approach as an enhancement of the internal scheduler of the ArduPilot Mega (APM) open source unmanned vehicle autopilot software suite~(\url{ardupilot.org}). A third contribution of the paper is a proposal of a specific way to use the automata based scheduling framework with a Kalman filter. We elaborate on each of these in the following subsections:
+
+\subsection{Guarded Automata as Interfaces for Control and Scheduling}
+%TODO - hodai: maybe prefere say "state values" or "state atribute value" instead of "numbers"
+As our goal is to allow dynamic selection of the computation load in the feedback loops based on the states of the systems, we start with a general software architecture in which each component (implementation of a specific feedback loop) is represented by a code module (in our case, a class in C++) and an automaton that specifies when to invoke its methods. The transition relation of the automaton depends, in addition to the current state, also on data produced by the estimator of the feedback loop (we experimented with different options for this data, as discussed below).
+
+The motivations of using automata as described above are: (1) Automata allow for a rich specification language; (2) It is easy to construct schedules that obey the specification with negligible computational burden; (3) Automata theory gives a solid framework for composing the specifications of competing requirements for analysis and for schedule synthesis. 
+
+In this paper we focus on the first two motivations in the above list. The third is discussed in details in earlier papers on automata based scheduling and is the focus of another paper that we are preparing where we describe some analysis techniques we have developed for guarded automata.   
+
+\subsection{Implementation in an Auto Pilot Software}
+As our main case study is in flight control, we chose the ArduPilot Mega
+(APM) platform for experiments. To this end, we implemented a basic automata based scheduler for this platform. The built-in task scheduling specification in APM consist of a table as shown in Figure~\ref{fig:apm-scheduler}. This table is easy to maintain and to adjust, but it is used under an assumption that there is enough CPU power to run all the tasks in the specified frequencies. APM does contain a mechanism to handle overruns, by moving tasks to the next window when there is not enough time to run them now, but the system is designed under the assumption that this only happen in rare situations.
+
+To allow a reactive scheduler that runs different modes of the software-based controllers depending on their state, we replaced the scheduling table in our version of the APM with automata that specify when to run the tasks. Note that automata allow for specifying the requirements that the table represents, using simple circular automata without guards (see, e.g., \cite{weiss2007automata}). Automata, however, can model more advanced scheduling instructions with very little addition to the complexity of the scheduler, as we will demonstrate in Section~\ref{sec:simulation} and in Section~\ref{sec:caseStady} below.
+
+\begin{figure}
+    \scriptsize
+    \begin{lstlisting}
+    /*
+    scheduler table - all regular tasks apart from
+    the fast_loop() should be listed here, along 
+    with how often they should be called (in 10ms 
+    units) and the maximum time they are expected 
+    to take (in microseconds)
+    */
+    static const AP_Scheduler::Task 
+    scheduler_tasks[] PROGMEM = {
+    { update_GPS,            2,     900 },
+    { update_nav_mode,       1,     400 },
+    { medium_loop,           2,     700 },
+    { update_altitude,      10,    1000 },
+    { fifty_hz_loop,         2,     950 },
+    { run_nav_updates,      10,     800 },
+    { slow_loop,            10,     500 },
+    { gcs_check_input,       2,     700 },
+    { gcs_send_heartbeat,  100,     700 },
+    { gcs_data_stream_send,  2,    1500 },
+    { gcs_send_deferred,     2,    1200 },
+    { compass_accumulate,    2,     700 },
+    { barometer_accumulate,  2,     900 },
+    { super_slow_loop,     100,    1100 },
+    { perf_update,        1000,     500 }
+    };
+    \end{lstlisting}
+    \caption{APM scheduling specification}
+    \label{fig:apm-scheduler} 
+\end{figure}
 
 
-\section{Architecture: Automata Base Scheduler}
+\subsection{Integration With a Kalman Filter}
+The third layer of the approach we propose is based on the observation that a standard Kalman filter produces information that can be used to guide the automata of the components. 
+
+As we will elaborate in the description of the simulations and of the case study below, we propose to schedule the functions that implement algorithms for sensing and for actuation based on the error variance of the estimation that a Kalman filter provides. 
+
+
+
+\section{Architecture: Automata Base Scheduler (From proposal)}
+
 
 \begin{figure}[]
     \centering
@@ -171,11 +374,11 @@ Specifically, we develop tools and methodologies such that control engineers are
 \end{figure}
 
 As describe in Section~\ref{sec:Problem} control systems have two main parts: \textit{state estimation} and \textit{controller}. 
-All the common used techniques for controllers, e.g PID, are relatively low resources consumers and there is no real justification of optimizing it, but this is not always the case for estimation process, some times there are heavy computational tasks as part of state estimation task, this refers to both the estimator and sensing stage.
+The common used techniques for controllers, e.g PID, are relatively low resources consumers and there is no real justification of optimizing it, but this is not always the case for estimation process, some times there are heavy computational tasks as part of state estimation task, this refers to both the estimator and sensing stage.
 The sensor can be complex computations of Global Positioning System (GPS) in small processor or even camera with heavy computer vision.
 % TODO
 Those sensing task need to run in real-time and can interfere with rest of the system tasks.
-In out architecture we concentrate more in those heavy sensing processes in order to improve the resource utilization and control performance.
+In our architecture we concentrate more in those heavy sensing processes in order to improve the resource utilization and control performance.
 %One wide used example is the use of computer vision in UAV's 
 (See~\ref{state estimation & why choose the window mission})
 
@@ -375,73 +578,404 @@ The estimated estimation error ($estVar$ in the figure) is, in this case, the es
 Each of this operation modes ($s_{0.7}$ and $s_{0.2}$) have different accuracy, specified by $var(v)$ in Figure~\ref{fig:hybrid_loop}, and if we want to get optimal estimation the state estimator mast be configure correspondingly, i.e., the sensing error variance should be adjusted to the correct value ($var(s_{0.7})$), an easy solution for specifying the different configurations is by the guarded automata shown in Figure~\ref{fig:sched_estimator_auto}, which defines two operation modes of the state estimator, $est_1$ and $est_2$, that correspond to $var(s_{0.7})$ and $var(s_{0.2})$. So of course if we sense in mode $s_{0.7}$ we must estimate with mode $est_1$ that has the correct configurations for $s_{0.7}$, and if we sense in mode $s_{0.2}$ we must estimate with mode $est_2$.
 
 
+\section{A demonstration of the approach in simulation}
+\label{sec:simulation}
+%TODO - explain that we developing an idea that culd in the future become a tool
 
+Our approach for using automata for scheduling resources in software based controllers is based on the observation that in most systems the computational load is in the implementation of the sensors and actuators, not in the implementation of the controllers that usually consist of quick arithmetic manipulation of a small amount of variables. We therefore focus our attention on allowing a trade-off between CPU usage of sensors and actuators and their accuracy. %In this paper, as a main motivating example, we focus on the case of visual sensors that employ image processing algorithms.
 
+%As said in Section~\ref{sec:architecture}, we propose to implement the resource scheduling decisions using automata that control which procedures are invoked in the control loops. More specifically, for sensors or actuators that require heavy computations, such as vision based sensors, we propose that the software engineers develop several modes of sensing, each consumes a different amount of CPU and provides a different level of accuracy. 
 
-\subsubsection{Automata Operation}
-% TODO - mybe as apendex 
-\subsubsection{GOAL Tool}
-% TODO - mybe as apendex 
-\subsubsection{Scheduler Prototype}
-% TODO - mybe as apendex 
+Formally, we assume that each of the physical processes we control is a Linear Time Invariant (LTI) system with a known model, as depicted in Figure~\ref{fig:simulink}. The inaccuracies of the sensors and of the actuators are modeled as additive Gaussian noise with a known variance. As a basis for scheduling, we assume that each sensor (and, possibly, also the actuators) can be scheduled to operate in one of a range of modes at each computation slot, each mode consuming a certain percentage of the CPU and giving a certain variance of the measurement (or actuation) noise.
 
+\begin{figure}%[htbp]
+    \centerline{\includegraphics[width=85mm]{SimulinkModel.jpg}}
+    \caption{A Simulink model demonstrating the proposed approach.}
+    \label{fig:simulink}
+\end{figure}
 
+The scheduling of the modes, for each of the components, is governed by the automata based scheduler as depicted in Figure~\ref{fig:simulink}. We propose to use a standard Kalman filter as a tool to gather the information that guides the state evolution of the automata, as follows. The filter gets as input the actuations,  measurements, and the variance of the measurement noise. We assume that the measurament noise is a static function (represented here as a translation table) of the mode chosen by the scheduler. The output of the Kalman filter is fed to the scheduler that uses it for advancing the states of the automata. In the Simulink model depicted in Figure~\ref{fig:simulink}, the covariance matrix of the disturbance, which in this case is $1 \times 1$ matrix consisting of the noise variance, is fed to the Kalman filter (as its $R$ input) and to the block that multiplies the Gaussian noise by the variance (the product of a white noise with unit variance and a constant $v$ yields a Gaussian noise with variance $v$).
 
+We ran the model depicted in Figure~\ref{fig:simulink} with the linear time invariant system
+\begin{eqnarray*}
+    x(k+1) &=& \begin{pmatrix}        1.3  & -0.5  & 0.1 \\
+        1    & 0     & 0 \\
+        0    & 1     & 0
+    \end{pmatrix}x(k)+ 
+    \begin{pmatrix}
+        -0.4 \\
+        0.6\\
+        0.5\end{pmatrix} u(k) \\
+    y(k)&=& \begin{pmatrix}1 & 0 &0\end{pmatrix}x(k)
+\end{eqnarray*}
+taken from \url{mathworks.com/help/control/examples/kalman-filter-design.html}. As seen in Figure~\ref{fig:simulink}, we injected a sinusoidal input (with $amplitude=bias=frequency=1$) to this system. 
+The actuation noise, depicted on the left, is with a unit variance. 
 
-\section{Proof of Concept}
-\label{sec:concept}
+The `Automata Based Scheduler' block is designed to set the variance of the sensing noise dynamically to be either $0.25$ or $1$ at each step of the simulation. This models a sensor that has two modes of operation: a mode with high accuracy, that produces normally distributed measurement errors with low variance, and a mode with low accuracy that produces normally distributed measurement errors with low variance. We assume, for the performance measurements presented below, that the CPU consumption of each mode is $\%CPU=1.1-errVar$, where $errVar$ is the variance of measurement errors in the mode.
 
-%explain that we developing an idea that culd in the future become a tool
+We ran this model with three versions of the `Automata Based Scheduler' block. The first version, called `High' in Table~\ref{tbl:sim-results}, is where the block acts simply as the constant $1$, ignoring its inputs altogether. Similarly, the term `Low' in the table refers to an implementation where the block is the constant $0$. These two implementations model the constant schedules, where the sensor is operated in one mode along the whole execution. These two schedules are compared to a third implementation, called 'Aut. Based' in the table, where the block implements the schedule given by the automaton:
+\begin{center}
+    \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=6cm,
+    semithick]
+    
+    \node[initial,state] (A)                 {$0$};
+    \node[state]         (B) [right of=A]    {$1$};
+    
+    \path (A) edge [bend left]             node {$|y-\hat{y}|\geq1$} (B)
+    (A) edge [loop below] node {$|y-\hat{y}|<1$} (A);
+    
+    \path (B) edge [bend left]             node {$|y-\hat{y}|\leq 1/2$} (A)
+    (B) edge [loop above] node {$|y-\hat{y}|>1/2$} (B);
+    
+    \end{tikzpicture}
+\end{center}
 
-\subsection{Simulations}
-% TODO - this part is a litle bil lie
-% show some matlab simulations of hybrid systems, that have beter resoults with variable time slots
+%A = [1.1269   -0.4940    0.1129,
+%1.0000         0         0,
+%0    1.0000         0];
+%
+%B = [-0.3832
+%0.5919
+%0.5191];
+%
+%C = [1 0 0];
 
-\subsection{Experiment: Vision based controllers for drones}
+\begin{table}
+    \centering
+    \begin{tabular}{ |  l  | c | c | c | }
+        \hline
+        &  High & Low & Aut. Based \\ \hline \hline
+        \%CPU                    & 85 & 10  & 46 \\ \hline
+        mean of $|x -\hat{x}|$ & 0.97 & 1.24 & 1.08 \\ \hline
+    \end{tabular}
+    \caption{Simulation results.}
+    \label{tbl:sim-results}
+\end{table}
+
+The results of the simulation, summarized in Table~\ref{tbl:sim-results}, show, as expected, that the CPU consumption is much lower (0.1) when using the low-quality version of the sensing algorithm and is higher (0.85) when the high-quality version of the sensing algorithm is used. The performance of the estimation, in terms of the mean distance between $x$ and $\hat x$, is better with the high-quality version (0.97) than it is with the low-quality version (1.24). More interestingly, we can see that the experiment with the automaton that switches between the two sensor modes yields performance that is close to the performance of the high-quality sensing algorithm, using much less CPU. This demonstrates how automata based reactive scheduling can allow for new ways to balance performance and computational resources in software based controllers. 
+
+%\begin{enumerate}
+%    
+%    \item \textbf{Controller design:} Based on the separation principle, we propose to design the controller to achieve the control objectives assuming a perfect observation. In practice, this may not be feasible because controller designs such as PID require a system to experiment with. In this case, as demonstrated in the case-study below (see Section~\ref{sec:caseStady}), we propose to work with one of the observation modes. If the system is close to linear, this should result with a near optimal design.
+%    
+%    \item \textbf{Observers design:} Specification of sensor modes and observers design
+%    
+%    \item \textbf{Performance analysis:} Now, we can perform some experiments with the different observer modes and analyze transient behaviors. Specifically, as shown in the case study~\ref{sec:caseStady_analysis}, we can measure how long it takes for the error to accumulate after switching to a lesser observation mode and formulate how this error affects the control objectives.
+%
+%    \item \textbf{Scheduling automata design:} Base on the analysis we can specify the resource scheduling requirements in the form of \textit{specification automaton}. The goal is to design flexible specification that allow dynamic scheduling in order to adapt the environment and the system state, this will improve the system efficient.
+%
+%\end{enumerate}
+
+\section{Case Study: Stabilizing a quadrotor in front of a window}
+\label{sec:caseStady}
 % overview of why we use vision example
-To test our concepts, we will examine the implementation of an autonomously flying quad-rotor in the context of an agriculture case study. Specifically, we will implement a quad-rotor that flies in corridors and greenhouses by a vision based feedback. The challenge in this case study, from our perspective, is that image processing is a heavy computational task that requires careful scheduling in order to preserve the system predictability and stability.
 
-The current state-of-the-art solution for involving heavy computational tasks such as vision in the control system is simply by adding computational power to the system (use faster processors), usually much more than needed, in order to eliminate the chance of loosing predictability.
-Some, more conservative, control engineers prefers to isolate the heavy computation from the core control loop by allocating one of the processor's core for that task, or even run the vision processing on a different computer (APM, for example suggests to use image processing by adding a dedicated computer board~\cite{APM}).
+%TODO - Window test case problem
+The case study we used to test our concept is the development of a controller that stabilizes a quadrotor in front of a window (see, e.g.,~\url{rpg.ifi.uzh.ch/aggressive_flight.html}).
+We implemented an autonomous controller for that task and evaluated its performance.
 
-In Section~\ref{sec:Research Plan} we propose an alternative framework for such systems, to be implement in the proposed thesis, that allows to integrate the heavy computations in the control loop in an efficient way that, we believe, will allow fo cutting the costs involved in adding a dedicated boards or in dedicating a computation core.
+The part of the controller that we focused on is the vision based position controller. Specifically, the main controller, that we will describe below, uses a standard low-level angular controller and a simple image processing algorithm that identifies the position of the corners of the window in the image plane\footnote{In the experiment, to simplify the image processing algorithm, we marked the corners of the window with led lights.}. Its goal is to regulate the position of the quadrotor by tilting it. Note that rotations of the quadrotor generate a more-or-less proportional accelerations in a corresponding direction, hence we can approximate the system with a linear model. A main challenge for this controller is that the computer vision algorithm takes significant time to compute relative to the fast control loop. We can decrease computation time by lowering the resolution, but this also increases the measurement noise. We will demonstrate how reactive scheduling of the resolution can serve for balancing resource consumption vs. control performance in this system.
+
+\subsection{Observer Design}
+\label{sec:Observer Design}
+We first implemented an observer based on the work of Efraim~\cite{Efraim17}. The observer gets the positions of the widow corners from the image (see Section~\ref{sec:Experiment setup} for more details), %enumerated clockwise starting from the top left corner noted by $p_1,p_2,p_3,p_4$, 
+and extracts the following four quantities based on the shape and location of the window corners in the image plane: %$S_x$, $S_y$, $V_d$ and $sz$, as follows.
+\textbf{Center of mass:} $S_x$ and $S_y$ represent the window ``center of mass'' along the $x$ and $y$ axes of the image, respectively, normalized to the range of $[-1,1]$.
+These values are used for controlling the roll angle and the altitude of the drone, respectively. 
+\textbf{Window size:} $sz$ is the sum of the vertical edges of the window. It is used to measure the distance of the drone from the window~\footnote{We used a fixed size window and converted $sz$ to distance (in meters in our case) based on the size of the window. In the general case the units of distance are relative to the window size.}.
+\textbf{Vertical difference:} $V_d = {((y_1-y_4)-(y_2-y_3))}/{((y_1-y_4)+(y_2-y_3))}$, were $y_i$ is the vertical position of the widow corners in the image in the range of $[-1,1]$, enumerated clockwise starting from the top left corner. It is used to measure the angular position of the drone in relation to the window. % ($\theta$), then $\theta$ and $sz$ are used to calculate the horizontal position parallel to the window surface ($x$ position) of the drone (see Figure~\ref{fig:axis}). 
+
+%TODO - hodai say: not sure how to define this note:
+%TODO - Gera says: I don't understand what you tried to say with this remark. I sugget to remove it...
+%TODO - Hodai: the observer assume a system model and an sensing model, i need to mote them some ware because I'm referint to them.
+%\begin{remark}
+%    We assume that process state ($x$) is governed by the linear~\footnote{We approximated the non-linear system by a linear difference equation.} stochastic difference equation:
+%    $$x_{k}=Ax_{k-1} + Bu_{k} + w_{k}$$
+%    And the measurement ($z_k$) at time $k$ is:
+%    $$z_k=Cx_k+v_k$$
+%    The random variables $w_k$ and $v_k$ represent the process and measurement noise (respectively).
+%\end{remark}
+
+As common in engineering practices, we pass these numbers to a filter that gives us a more informed state estimation. 
+In theory, as demonstrated in the simulation in Section~\ref{sec:simulation}, we should use Kalman filter estimator for best state estimation. As we deal with a non-linear system here, and because the process noise distribution is not known (it is significantly affected by the varying state of the battery), and because Kalman filter adds complexity in the code, we propose to use a complementary filter.
+A complementary filter is actually a steady-state Kalman filter for a certain class of filtering problems~\cite{complementaryVSKalman}.
+Specifically, in our case study, we implemented a two steps estimator that: (1) \textit{predicts} the current state evolved from the previous state (denoted by $\hat{x}_{k|k-1}$) using a linearized model of the system, and then \textit{updates} the prediction with current state measurement from the image, denoted by $y_k$.
+The result of the estimation, denoted by $\hat{x}_{k|k}$, is a complementary filter of the prediction ($\hat{x}_{k|k-1}$) and the measured state ($C^{-1}y_k$)~\footnote{The matrix $C$ is the measurement matrix as shown in the model at Figure~\ref{fig:simulink}}:
+$ \hat{x}_{k|k} = K \hat{x}_{k|k-1} + (1-K) C^{-1}y_k $ were $K$ is constant that equals the Kalman filter gain ($K_k$) at a steady-state.
+
+The image processing algorithms can run in different operation modes, each mode with different accuracy (see Section~\ref{sec:Analysis}).
+The constant $K$ represents the ratio between the variance of the process noise and the variance of the measurement noise. To achieve best performance, we define a separate value of $K$ for each mode.
+
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width=80mm]{axis.jpg}}
+    \caption{The coordinate system and the rotation axes of the drone.}
+    \label{fig:axis}
+\end{figure}
 
 
-%TODO - fix it
-\subsubsection{Sensors}
-\label{sec:sensors}
-%Anitime reserch of zilbershtain (\cite{Shlomo})
-%contract based
-%http://ardupilot.org/copter/docs/common-mouse-based-optical-flow-sensor-adns3080.html
+\subsection{Controller Design}
 
-\textit{Computer~Vision~Based~Sensor} is the module that is responsible for taking a picture or a series of pictures and produce measurements of quantities such as speed and position relative to the environment.
-In our research we will use the \textit{Computer~Vision} in order to detect two dimensional movement in the camera surface (i.e., the drone speed).
-There are many such algorithms (called optical flow) differing in running times and in accuracy. Usually more invested time leads to more accuracy.
+In this experiment, we consider the task of hovering in front of the window. The controller objective is to hover parallel to the window (center of $z$ axis in Figure~\ref{fig:axis}) at the altitude of the window within distance of two meters in front of the window ($y=x=0 , z=2$) and face pointed to the center of the window (yaw angle).
+We consider this point as the origin and the coordinates are according to Figure~\ref{fig:axis}.
 
-In our case we need to be able to control the \textit{Computer~Vision} running time and to have some good knowledge of the solution accuracy in order to achieve optimal state estimation (see Section~\ref{sec:estimator}).
-We assume that the \textit{Computer~Vision} error is distributed normally, and we will use the error variance as a measure of accuracy. 
-We believe that this is a reasonable assumption because the estimated speed is usually computed as the avarage of of many independent random variables, as follows. Optic flow algorithms usually go by identifying similar regions in consecutive pictures and then averaging the distances that each feature ``traveled''. Assuming that the error in measurement of each feature is independent of the other errors, we get that the total error is the average of independent random variables. Then, by the law of large numbers, we get that the error should have a normal distribution. We will validate this assumption by experimentation with different parameters of different algorithms.
+The controller consists of four independent feedback loops: altitude, yaw, pitch, and roll.
+The pitch and the roll controllers are copies of the same attitude controller which gets as input the required pitch or roll angel, respectively. These controllers runs in parallel to a position controller that maintains the required distance ($z$ position) and displacement ($x$ position) relative to the window, the position level controller outputs the required angle (acceleration) to the attitude controller as show in Figure~\ref{fig:controllerStracture}.
+All the control loops regulate the position or attitude relative to the window.
+The inertial (pitch and roll) feedback for the low level controller is generated by the existing \textit{Attitude and Heading Reference system} (AHRS) library of ArduPilot (see Section~\ref{sec:Experiment setup}) and the position feedback ($x$, $y$, and $z$ position) came directly from the observer described in Section~\ref{sec:Observer Design}.
 
-%TODO - reed a litle the article (\cite{UPenn-Pant}) and re-write the next.
-%TODO - check if Anitime reserch (\cite{Shlomo}) can fit here.
-%TODO - Make sure that we use the terms contract-base and any-time correctly
-In order to control the running time, we will use anytime based algorithms~\cite{Shlomo} and will mainly concentrate on ``contract based" vision algorithms proposed by Pant~\cite{UPenn-Pant}.
-This type of algorithms run until we stop them, and when we stop them they will provide a solution with accuracy that is a monotonic function of the amount of time it was running. That way we can control the solution accuracy by controlling the running time.
-In our implementation, in order to lower the complexity, we will pre-define few specific ``operation modes" of the \textit{Computer~Vision} task, that differ by their running time and they are identified by a pair $\langle RunTime, Variance \rangle$ where $Variance$ is the error variance of running time $RunTime$.
+Based on the \textit{principle of separation of estimation and control}, we can use that controller regardless of the measurement quality. We implemented a basic Proportional Integral Derivative (PID~\cite{aastrom2006advanced}) controller and tuned the parameters by trial and error using the highest resolution observer.
 
 
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width=85mm]{two_level_controller.jpg}}
+    \caption{Attitude and position controller consisting of a two level, cascaded, structure.}
+    \label{fig:controllerStracture}
+\end{figure}
 
-\comment{
-\subsection{Nano-Satellite}
-Another case study we will examine is the control of a nano-satellite. Specifically, we will examine how our new approach can be applied in the context of scheduling the sensing tasks of IAI (Israel Aerospace Industries) nano satellites. Their satellites are controlled by a small, relatively slow, processor and the developers say that a central issue in programing the satellite is how to schedule sensing tasks.
-The current approach they are using is to periodically schedule all the sensing task every iteration, and they say that, because of sensor redundancy, this is the main computational consumption and is becoming to be too much for the capabilities of their processor.
 
-We think that much of the sensing is unnecessary and that the controlling task can be achieved without ``most up-to-date" information. Some times we can base on good estimation of the sensing value or even use the last value. As a secondary goal to our main goal of designing a good architecture for vision based drones (our main case study), we will also check the possibility to improve the nano-satellite issue with our framework.
-}
+%%%%%%%%%%% Specification Automata %%%%%%%%%%%%%
+\subsection{Analysis and Specification Automata}
+\label{sec:Analysis}
+
+Since the objective of the system is to maintain stable hovering in front of the window, performances is measured by the amount of deviation from the center line of the window in the critical axis $x$, i.e., we want to minimize $\left| x \right|$ (see Figure~\ref{fig:axis}). Our goal is to achieve maximum performance with minimal amount of processing time. Obviously, both goals cannot be achieved together. We therefor aim at achieving a good trade-off between processing resources and quality of measurement. The focus is on the main consumer of computation resources: the image processing algorithm.
+We aim at taking resources (high CPU time) only when needed. By this, we will reduce the average CPU usage without significantly affecting the performance.
+Specifically in our case study, we switch between camera resolutions dynamically during the flight. The observer modes, discussed above, correspond to image resolutions (see Section~\ref{sec:Observer Design}).
+For simplicity, we consider in this paper only two modes: \textit{High quality} with resolution of 960p and \textit{Low quality} with resolution of 240p.
+
+Looking at the test results shown in Table~\ref{tab:results}, we see that the high quality observation mode provides mean error tolerance of 9.5\textit{cm}~\footnote{All lengths are measured in centimeter.}  (in the $x$ axis) with the cost of 30\% CPU usage.
+On the other hand, the low quality mode provides mean error of 30\textit{cm} (three times the error obtained in the high quality mode) using only 2.1\% CPU usage~\footnote{The CPU usage percentage is the average: (total time spend in image processing)/(total flight time). }.
+
+We explain next several approaches we applied in the design of a \textit{reactive scheduling specification} that combines the advantages of both the high and the low resolution sensing modes.
+
+%displacement ($x_{k|k}$) schedulers
+We first examined a straight-forward scheduler based directly on the current position (the $x$ axis of $\hat{x}_{k|k}$). Using the simple guarded automaton $A_{x}$ presented in Figure~\ref{fig:test_automata}, we defined a dynamic observer that chooses the mode (high or low sensing quality) based on the absolute value of the $x$ axis of $\hat{x}_{k|k}$. If the drone is closer to the center line of the window, denoted by $|x| < T_x$, we consider it as a ``safe'' state and go to the mode called $L$ that schedules the low quality image.
+Similarly, a state is considered ``BAD'' when the drone is far, denoted by $|x| > T_x$. In this case, we take high quality images in order to ``fix'' the state.
+The threshold $T_x$ can be changed to tune the desired performances and processing time trade-off.
+See Section~\ref{sec:results} for the data we collected by experiments to validate that this indeed achieves the required goals. 
+% Results shows good improvement in term of resource utilization (see Section~\ref{sec:results}). 
+
+%error ($y_{k|k}$) schedulers
+In a second experiments set, we used the $A_{err}$ automaton presented in Figure~\ref{fig:test_automata}. This automaton is similar to $A_x$ with the difference that it switches states based on $\tilde{y}_{k|k}$ value  defined as:
+
+\begin{dfn}
+    \textit{Measurement post-fit residual} $\tilde{y}_{k|k}$, is the difference between the expected measurement, $C\hat{x}_{k|k}$, and the measured state, $y_k$,: $\tilde{y}_{k|k} = |  C\hat{x}_{k|k} - y_k |$.%~\footnote{ Measurement post-fit residual $\tilde{y}_{k|k}$ is also defined by the Kalman filter.}.
+\end{dfn}
+
+The motivation to use this indicator comes form looking at the low quality experiment graph, shown in Figure~\ref{fig:testPlot}. We can see that $\tilde{y}_{k|k}$ growth is proportional to the deviation from the center of the window (in the $x$ axis). We can also see that the growth in $\tilde{y}_{k|k}$ precedes the growth in $x$. This means that we can use $\tilde{y}_{k|k}$ values to predict deviations in $x$.
+
+
+In $A_{err}$ the observer operates in low quality when $\tilde{y}_{k|k} < T_{l}$ (``GOOD'' state) and switches to high quality when $\tilde{y}_{k|k} > T_{h}$ (``BAD'' state).
+The thresholds $T_{l}$ and $T_{h}$ were initially taken from the low and the high quality graphs and fine tuned by experiments. 
+Different $T_{l}$ and $T_{h}$ give different trade-offs of performances and processing time.
+In Section~\ref{sec:results} we show that this dynamic observer gives almost the same performance as the high quality observer with a reduction of a factor of two in the processing load.
+
+%complex / agregated schedulers (3-4 states)
+The expressiveness of automata allows for creating even more complex scheduling specification. We can, for example, combine the approaches of both $A_{err}$ and $A_{x}$.
+In Figure~\ref{fig:test_automata} there is two examples of such combinations. $A_{comp1}$ tries to save unnecessary CPU usage while the drone is in ``safe'' state, close to the center. It activates $A_{err}$ only if the drone goes far from the center ($T_{x}$cm from the origin).
+$A_{comp2}$ adds another constraint: if the drone goes even farther away ($T_{x2}$cm from the origin) it schedules only high resolution to bring it back to safety.
+The results show even better resource utilization.
+
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width=90mm]{errorVsPosition.jpg}}
+    \caption{This figure shows in the bottom plot the position of the quadrotor during the flight time and in the top plot the $\left| \tilde{y}_{k|k} \right|$ value during the flight. During the flight we manually switched between low and high resolution for further analysis. The modes (high or low) are separated by vertical lines, were the leftmost is high resolution then low and so on.}
+    \label{fig:testPlot}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%% automata %%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\tikzset{every edge/.append style={font=\small}}
+\tikzset{every node/.append style={font=\small}}
+\begin{figure}[htbp]
+    %\captionsetup{width=0.4\textwidth}
+    \centering
+    \begin{tabular}{c c}
+        
+        % by error
+        \begin{tikzpicture}[node distance=2.5cm,auto]
+        \node (A) [state, accepting] {$\{L\}$};
+        \node (B) [state, accepting] [right of=A] {$\{H\}$};
+        
+        \path[->] (A) edge [loop above] node {$|\tilde{y}_{k|k}| < T_l$} (A);
+        \path[->] (A) edge [bend left] node {$|\tilde{y}_{k|k}| > T_l$} (B);
+        \path[->] (B) edge [bend left] node {$|\tilde{y}_{k|k}| < T_h$} (A);
+        \path[->] (B) edge [loop above] node {$|\tilde{y}_{k|k}| > T_h$} (B);
+        %\path[->] (B) edge [bend left] node {$s_{0.7} \wedge est_1$} (A);
+        \end{tikzpicture}
+        
+        &
+        
+        % by displacement (|x|)
+        \begin{tikzpicture}[node distance=2.5cm,auto]
+        \node (A) [state, accepting] {$\{L\}$};
+        \node (B) [state, accepting] [right of=A] {$\{H\}$};
+        
+        \path[->] (A) edge [loop above] node {$|x| < T_x$} (A);
+        \path[->] (A) edge [bend left] node {$|x| > T_x$} (B);
+        \path[->] (B) edge [bend left] node {$|x| < T_x$} (A);
+        \path[->] (B) edge [loop above] node {$|x| > T_x$} (B);
+        %\path[->] (B) edge [bend left] node {$s_{0.7} \wedge est_1$} (A);
+        \end{tikzpicture}
+        
+        \\
+        \LARGE{$A_{err}$} & \LARGE $A_x$ \\[10pt]
+        \hline
+        
+        % 3 state
+        \multicolumn{2}{c}{
+            \begin{tikzpicture}[node distance=3.5cm,auto]
+            \node (A) [state, accepting] {$\{L\}$};
+            \node (B) [state, accepting] [right of=A] {$\{L\}$};
+            \node (C) [state, accepting] [right of=B] {$\{H\}$};
+            
+            \path[->] (A) edge [loop below] node {$|x| < T_x$} (A);
+            \path[->] (A) edge [bend left] node {$|x| > T_x$} (B);
+            \path[->] (B) edge [bend left, above] node {$|x| < T_x$} (A);
+            \path[->] (B) edge [loop below] node {$|x| > T_x \wedge |\tilde{y}_{k|k}| < T_l$} (B);
+            
+            \path[->] (B) edge [bend left] node {$|x| > T_x \wedge |\tilde{y}_{k|k}| < T_l$} (C);
+            \path[->] (C) edge [bend left, above] node {$ |\tilde{y}_{k|k}| < T_h$} (B);
+            \path[->] (C) edge [loop below] node {$ |\tilde{y}_{k|k}| > T_h$} (C);
+            %\path[->] (B) edge [bend left] node {$s_{0.7} \wedge est_1$} (A);
+            \end{tikzpicture}
+        }
+        
+        \\ 
+        \multicolumn{2}{c}{\LARGE $A_{comp1}$}\\[10pt]
+        \hline
+        
+        % 4 state
+        %TODO - Hodai say: this is non-deterministic automata for sipmlicity
+        \multicolumn{2}{c}{
+            \begin{tikzpicture}[node distance=3.5cm,auto]
+            \node (A) [state, accepting] {$\{L\}$};
+            \node (B) [state, accepting] [right of=A] {$\{L\}$};
+            \node (C) [state, accepting] [right of=B] {$\{H\}$};
+            \node (D) [state, accepting] [below=1cm of B] {$\{H\}$};
+            
+            \path[->] (A) edge [loop below] node {$|x| < T_{x1}$} (A);
+            \path[->] (A) edge [bend left] node {$|x| > T_{x1}$} (B);
+            \path[->] (B) edge [bend left, above] node {$|x| < T_{x1}$} (A);
+            
+            \path[->] (B) edge [loop above] node {$else$} (B);
+            
+            \path[->] (B) edge [bend left] node {$|x| > T_{x2}$} (C);
+            \path[->] (C) edge [bend left, above] node {$|x| < T_{x2}$} (B);
+            \path[->] (C) edge [loop below] node {$|x| > T_{x2}$} (C);
+            
+            \path[->] (B) edge [bend left] node {$|\tilde{y}_{k|k}| > T_l$} (D);
+            \path[->] (D) edge [bend left] node {$|\tilde{y}_{k|k}| < T_h$} (B);
+            \path[->] (D) edge [loop left] node {$|\tilde{y}_{k|k}| > T_h$} (D);
+            \end{tikzpicture}
+        }
+        \\
+        \multicolumn{2}{c}{\LARGE $A_{comp2}$}\\
+        
+        
+    \end{tabular}
+    
+    \caption{The main Automata we used for the requirements specifications in the experiments. 
+        \newline $A_{err}$ uses the \textit{measurement post-fit residual} ($\tilde{y}_{k|k}$), if $|\tilde{y}_{k|k}|$ is too small then the next iteration will use small resolution image ($L$), and if it is too large the high resolution will be used, $T_l$ and $T_h$ are the transition thresholds.
+        $A_x$ operates similar to $A_{err}$, only it uses the current position (the $x$ part of $\hat{x}_{k|k}$) instead of $\tilde{y}_{k|k}$, with the threshold $T_x$.
+        $A_{comp1}$ and $A_{comp2}$ area composition of the ideas in $A_{err}$ and in $A_x$.}
+    
+    \label{fig:test_automata}
+\end{figure}
+
+
+%%%%%%%%%%% results %%%%%%%%%%%%%
+\section{Results}
+\label{sec:results}
+
+Table~\ref{tab:results} summarizes the result of the flight experiments made using the specification automata described in Section~\ref{sec:Analysis}.
+The first column ``\% CPU'' represents processing time usage by the image processing task.
+The second column ``$mean(|$x$|)$'' is the average distance of the drone from the origin in centimeters.
+All the statistics shown in the table are from real indoor experiment flights. Each experiment consists of a flight (between one and two minutes) recorded using an \textit{OptiTrack} system (see Section~\ref{sec:Experiment setup}) and data from the software itself.
+
+We see that, using reactive scheduling methods, we can adjust the trade-off between performance and CPU usage. As expected, if we use \textbf{only high} resolution mode we get the best performance but need much \%CPU. On the other hand, the \textbf{only low} resolution mode barely use the processor but the performance are low and unsatisfying for indoor flights.
+
+In Table~\ref{tab:results}, automata number 3,4 and 5 are the implementation of $A_{x}$ automaton as describe in Section~\ref{sec:Analysis} with the threshold values of 10, 20 and 30cm respectively.
+Those schedulers demonstrate that even a simple scheduling scheme, that schedules the expensive image processing task only when it is most needed, improves the performance. Scheduler number 3 achieves almost the same performance as the only high resolution scheduler but saves half of the CPU time. Scheduler automata 4 and 5 provide different trade-offs.
+
+The $A_{err}$ automaton (shown in Figure~\ref{fig:test_automata}), which bases its transitions on $\tilde{y}_{k|k}$, appears to be even more effective.
+We tested this automaton with ($T_l=10 , T_h=20$) and ($T_l=10 , T_h=15$) thresholds as shown by schedulers 6 and 7 respectively in Table~\ref{tab:results}.
+They are using even less CPU time but still achieve fairly impressive performance.
+The more complex schedulers contribute even more to the performance and utilization. Scheduler $A_{comp1}$ for example achieves a little better resource utilization.
+The methodology we are proposing is to tune the thresholds and to enrich the automata, as we did, until satisfactory CPU utilization and performance are achieved.
+
+Another advantage we achieved using the dynamic schedulers, beyond allowing better performance to computation load balance, is reactiveness. The  scheduling scheme we are proposing allows the system to adapts itself to changes in environmental conditions, demonstrated as follows.
+We experimented in exposing the flying drone to time-varying wind conditions. 
+Specifically, we created artificial wind by turning  on a fan while the drone was flying. The scheduler was the $A_{err}$ automaton with the thresholds $T_l=10$ and $T_h=15$ (number~7 in Table~\ref{tab:results}).
+Figure~\ref{fig:windPlot} shows data collected in one of the flights with the CPU usage and the displacement of the drone along the flight. The first part of the flight, colored in blue, is indoor flight without any external wind. The second part, colored in red, is a flight with the disturbance caused by the wind of the fan. We can clearly see increasing CPU usage when there is wind. We can also see that the wind does not affect the displacement, as the increased accuracy of the sensor compensates for it. The mean displacement ($mean(|x|$) in this experiment was 11.8cm which is very close to the displacement without the wind, and the average CPU usage increased to  13.2\% from 11.7\%. This experiment further demonstrates our idea: resources can be allocated only when needed.
+
+\begin{table}[htbp]
+    \caption{Test Results}
+    \begin{center}
+        \begin{tabular}{c  | m{10em} |  m{4em} | m{5em} }
+            %\begin{tabular}{m{6em} |  c c c}
+            \hline
+            %\textbf{Observer}& CPU usage (\%)  & Mean displacement ($x$ axis) & Max displacement ($x$ axis)\\
+            & \textbf{Schedule}& \textbf{\% CPU}  & \textbf{mean(|$x$|) (cm)} \\
+            \hline
+            (1)& Only High & 30.9\% & 9.5\\
+            \hline
+            (2)& Only Low & 2.1\% & 30.0\\
+            \hline
+            (3)& $A_{x}$  ($T_x=10$) & 16.6\% & 10.9\\
+            \hline
+            (4)& $A_{x}$  ($T_x=20$)  & 14.0\% & 14.1  \\
+            \hline
+            (5)& $A_{x}$  ($T_x=30$)  & 8.9\% & 17.4  \\
+            \hline
+            (6)& $A_{err}$ \newline ($T_l=10 , T_h=20$) & 10.3\% & 14.9 \\
+            \hline
+            (7)& $A_{err}$ \newline ($T_l=10 , T_h=15$) & 11.7\% & 11.3 \\
+            \hline
+            (8)& $A_{comp1}$ \newline ($T_x=10$ , $T_l=10$ , $T_h=15$)  & 8.8\% & 12.9 \\
+            \hline
+            (9)& $A_{comp2}$ \newline ($T_{x1}=10$ , $T_{x2}=30$ , $T_l=10$ , $T_h=15$)   & 10.4\% & 12.7 \\
+            \hline
+            
+        \end{tabular}
+        \label{tab:results}
+    \end{center}
+\end{table}
+
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width=90mm]{windPlot15.jpg}}
+    \caption{This figure demonstrates how the reactive scheduler adapt to the environment changes, in particular, to change of the wind. The upper part shows the average CPU usage during the flight, and the bottom is the true position at the same time. The first part of the flight (the left Blue graph) is without any external wind and in the rest of the flight (right red graph)  the drone was exposed to artificial wind (using a fan). Note that when the drone is exposed to wind it uses more CPU to compensate for the disturbance.}
+    \label{fig:windPlot}
+\end{figure}
+
+
+
+\section{Scheduler Prototype}
+% TODO - mybe as apendex 
+\subsection{Automata Operation}
+% TODO - mybe as apendex 
+\subsection{GOAL Tool}
+% TODO - mybe as apendex 
 
 
 \section{Testing Environment}
-\label{sec:tests}
+\subsection{Experiment setup (From Paper)}
+\label{sec:Experiment setup}
+
+In order to perform the experiments we used an of-the-shelf quadrotor with a \textit{raspberry-pi}~(\url{www.raspberrypi.org}) board with the \textit{navio2}~(\url{emlid.com/navio/}) shield. We implemented the controllers and the schedulers as libraries for the ArduPilot Mega (APM) autopilot software.
+%ArduPilot Mega (APM) is an open source unmanned vehicle autopilot software suite~(\url{ardupilot.org}).
+%\textit{Navio2} (\url{emlid.com/introducing-navio2}) is extension board (shield) for the \textit{Raspberry pi} platform, it provides the nessesary interfaces such as remote control inputs and motors output, and it's equipped with on-board Micro Electro
+%Mechanical System (MEMS) sensors, specifically, rate gyros and accelerometers.
+
+We used the standard raspberry-pi camera with a modified driver to allow for dynamic resolution switching. % and modified driver for eficient recording in the window
+%The camera frame rate is always 30 frames per second, and before taking each picture the scheduler defined the operation resolution of the camera.
+In order to simplify the image processing algorithm, we marked the four corners of the window with four illuminated balls. This allowed us to apply a simple minded corner detection algorithm: 
+look for a blob of burned pixels and calculate the ``center of mass'' of all those pixels as a window corner. Higher resolution give us a more accurate measurement of corner ``center of mass''.
+
+In order to evaluate the performance, we needed to know the accurate position of the drone during the flight. For this purpose, we used the \textit{OptiTrack} (\url{optitrack.com}) system 
+consisting of an array of high-speed tracking cameras that provide low latency and high accuracy position and attitude tracking of the drone. The data from the \textit{OptiTrack} system is considered in this paper as the ground truth.
+
+
 \subsection{APM Controlled Quad-copter}
 \subsection{Vision based Autonomous In-Door Flying}
 
@@ -463,14 +997,21 @@ We believe that this is a reasonable assumption because the estimated speed is u
 In order to control the running time, we will use anytime based algorithms~\cite{Shlomo} and will mainly concentrate on ``contract based" vision algorithms proposed by Pant~\cite{UPenn-Pant}.
 This type of algorithms run until we stop them, and when we stop them they will provide a solution with accuracy that is a monotonic function of the amount of time it was running. That way we can control the solution accuracy by controlling the running time.
 In our implementation, in order to lower the complexity, we will pre-define few specific ``operation modes" of the \textit{Computer~Vision} task, that differ by their running time and they are identified by a pair $\langle RunTime, Variance \rangle$ where $Variance$ is the error variance of running time $RunTime$.
-\subsection{Reference Measurement: Optitrack system}
-\subsection{Test Results}
+\subsection{Reference Measurement with OptiTrack System}
 
 
 \section{Conclusions and Future Work}
 % use real vision
 % develop the framwork
 % invent mathematical / aupomatic technics to create the automata
+
+We introduced a new approach for resource allocation that allows dynamic scheduling where resources are only allocated when needed.
+
+We presented a compositional design strategy using rich automata based interface between software components and the task scheduler. We also proposed how to use this design in the context of software control systems using the data provided by standard filters.
+We demonstrated the advantages of the resulting dynamic schedulers in terms of control performance and resource utilization. These advantages are demonstrated both in simulations and with a real case-study.
+
+The use of automata allows to compose and to analyze the scheduling characteristics. As future work, we plan to apply automata theory and, more specifically, the theory of hybrid automata to develop new techniques and tools for automatic generation of specification automata. The input for this construction can be a specification of the dynamical system that we want to control and a specification of the required close-loop characteristics. 
+
 
 \section{Apendix}
 \subsection{Kalman Filter and State Estimation}
@@ -543,232 +1084,16 @@ In order to adjust the sensor error variance, each time step the scheduler will 
 APM, the control software that we will use, is already using kalman filter as the state estimator, so we only need to adjust the existing module to the variable sensor error variance, and to send the estimation error variance to the scheduler (see Section~\ref{sec:scheduler}).
 }
 
+\subsection{Raspberry-Pi Camera Driver}
+%TODO - problems and solutions
+\subsection{TODO}
 \subsection{TODO}
 
 
-\comment{
-\section{Research Plan}
-\label{sec:Research Plan}
-Our research plan consists of: (1) Designing a methodology for effective allocation of computational resources in real-time control systems; and then (2) Demonstrating our methodology with a framework for developing such systems and with a case study. The details of these two steps are elaborated below.
+%ACKNOWLEDGMENTS are optional
+%\section*{Acknowledgments}
+%Acknowledgement goes here.
 
-
-
-
-\subsection{The proposed methodology}
-\label{sec:our proposal}
-%TODO - re-write, probably need to be renamed to arcitecture
-
-The general methodology that we will develop is illustrated in Figure~\ref{fig:general_hybrid_loop}.
-The methodology comes to support an efficient scheduling protocols in modern control systems consisting of a computer that runs many tasks that implement the control laws of independent control loops. 
-The current state of art, as describrd above and we observed, e.g., in the code of the APM~\cite{APM}, is that the designers of each control loop specify a fixed rate for invocations of the corresponding control task.
-%That methodology is based on modern controller architecture where the system has multiple controlling tasks (control loops) and a scheduler that schedule the task as they demand.
-% TODO: Use the terminology of the figure
-In our methodology, shown in Figure~\ref{fig:general_hybrid_loop}, there is a richer interaction between the \textit{Scheduler} and the control loops. We suggest that each control loop (blue components) will tell the resource allocator (\textit{scheduler}) of its level of certainty and that the allocator will base its allocation of CPU time based on this data. This can be useful on its own sake or together with a mathematical analysis that allows to use this feedback mechanism to certify some pre-defined specifications of state certainty or stability is maintained.
-
-Our proposed methodology is general and may be applicable in a wide range of applications. However, in this initial phase of the research, we believe that it is better to focus on a specific sub-domain and in handling all technical issues in order to prove the concept.
-In this thesis we will develop and implement the, more specific, framework shown in Figure~\ref{fig:hybrid_loop}: a vision based controller for drone. 
-
-As shown in Figure~\ref{fig:hybrid_loop}, the suggested control system framework consists of an interaction between the tasks scheduler and the control loops, in this case the estimation task (\textit{State~Estimation}) accuracy strongly depends on the sensing task (\textit{Computer~Vision}) and they both collaborate with the \textit{scheduler} in order to achieve their \textbf{control objectives} (g.e. stability).
-In this framework the scheduler is part of the control logic and therefore it can make scheduling decisions based on the current control state, the scheduling of \textit{Computer~Vision} task depends on the accuracy of state estimation.
-For example, if the vision is clear, the \textit{Computer~Vision} will produce good measurement of the \textit{System} and therefore good accuracy will be achieved so the \textit{Scheduler} can allocate less computation time to the heavy \textit{Computer~Vision} task and still remain stable while allocating more CPU to others control loops or to background tasks (like navigation).
-
-We will use an existing open-source implementation of drone software as a basis for our experimentation. However, the above collaboration requires to re-adjust some parts of the control system, e.g. the \textit{State~Estimator} needs to work with variable error variance of \textit{Computer~Vision} measurement,  the \textit{Computer~Vision} needs to be able run within variable time limits, and the tasks pre-defined requirements need to be re-adjusted in order to define the relation between tasks such as \textit{Computer~Vision} and \textit{State~Estimator}.
-Below we will dive in each part of the above system (Figure~\ref{fig:hybrid_loop}) and explain how it will be adjusted (changed) and how we will achieve that adjustment in our demonstration.
-
-%Finally, we need to re-consider the system Analyzing technique because variable sensing characteristics (\textit{Computer~Vision} time limits) will lead to variable estimation characteristics... %TODO - complete and fix this paragraph or remove it
-
-\subsubsection{Sensors (\textit{Computer~Vision~Based~Sensor})}
-\label{sec:sensors}
-%Anitime reserch of zilbershtain (\cite{Shlomo})
-%contract based
-%http://ardupilot.org/copter/docs/common-mouse-based-optical-flow-sensor-adns3080.html
-
-\textit{Computer~Vision~Based~Sensor} is the module that is responsible for taking a picture or a series of pictures and produce measurements of quantities such as speed and position relative to the environment.
-In our research we will use the \textit{Computer~Vision} in order to detect two dimensional movement in the camera surface (i.e., the drone speed).
-There are many such algorithms (called optical flow) differing in running times and in accuracy. Usually more invested time leads to more accuracy.
-
-In our case we need to be able to control the \textit{Computer~Vision} running time and to have some good knowledge of the solution accuracy in order to achieve optimal state estimation (see Section~\ref{sec:estimator}).
-We assume that the \textit{Computer~Vision} error is distributed normally, and we will use the error variance as a measure of accuracy. 
-We believe that this is a reasonable assumption because the estimated speed is usually computed as the avarage of of many independent random variables, as follows. Optic flow algorithms usually go by identifying similar regions in consecutive pictures and then averaging the distances that each feature ``traveled''. Assuming that the error in measurement of each feature is independent of the other errors, we get that the total error is the average of independent random variables. Then, by the law of large numbers, we get that the error should have a normal distribution. We will validate this assumption by experimentation with different parameters of different algorithms.
-
-%TODO - reed a litle the article (\cite{UPenn-Pant}) and re-write the next.
-%TODO - check if Anitime reserch (\cite{Shlomo}) can fit here.
-%TODO - Make sure that we use the terms contract-base and any-time correctly
-In order to control the running time, we will use anytime based algorithms~\cite{Shlomo} and will mainly concentrate on ``contract based" vision algorithms proposed by Pant~\cite{UPenn-Pant}.
-This type of algorithms run until we stop them, and when we stop them they will provide a solution with accuracy that is a monotonic function of the amount of time it was running. That way we can control the solution accuracy by controlling the running time.
-In our implementation, in order to lower the complexity, we will pre-define few specific ``operation modes" of the \textit{Computer~Vision} task, that differ by their running time and they are identified by a pair $\langle RunTime, Variance \rangle$ where $Variance$ is the error variance of running time $RunTime$.
-
-\subsubsection{State Estimator}
-\label{sec:estimator}
-% kalman filter & ...
-% seperation rule of kalman
-
-In cases where we have uncertain observations (inaccurate sensors), e.g. the computer vision measurement, we prefer to make some \textbf{educated estimation} of the current state based on the uncertain observations rather than just consider the last observation as the current state.
-This \textbf{educated estimation} of the current state is the main goal of the \textit{State~Estimator} block.
-This block receives the raw data from the sensors and produce an estimation of the current state.
-
-In this thesis we will use well known optimal estimator called Kalman filter, or, more generally, extended Kalman filter (EKF) which is the nonlinear version of Kalman filter.
-The algorithm works in a two-step process. In the prediction step, the Kalman filter produces estimates of the current state variables, along with their uncertainties. Once the outcome of the next measurement is observed, these estimates are updated using a weighted average, with more weight being given to estimates with higher certainty~\cite{Kalman-filter}. 
-
-In order to produce optimal estimation with Kalman filter, one of the parameter that we need to consider in our calculation is the variance of the sensor error.
-But in our new framework the sensor (vision based sensor) have variable error variance for each time slot, this means that we need to have also variable state estimators correspondingly.
-In order to adjust the sensor error variance, each time step the scheduler will inform the state estimator about the new error variance, and the state estimator will use corresponding parameters to make the next estimation.
-
-APM, the control software that we will use, is already using kalman filter as the state estimator, so we only need to adjust the existing module to the variable sensor error variance, and to send the estimation error variance to the scheduler (see Section~\ref{sec:scheduler}).
-
-\subsubsection{Control Tasks} 
-\label{sec:control}
-The control task itself (\textit{Control Law} in Figure~\ref{fig:general_hybrid_loop}) is responsible for reducing the difference between the current state ($x$) where $\tilde{x} = x+ ``estimation~error"$ (in Figure~\ref{fig:general_hybrid_loop}) and the target state ($u$ in Figure~\ref{fig:general_hybrid_loop}), by manipulating the drone motors speed.
-
-%Optimal estimation or optimal control low is not guarantee the overall  optimal feedback controller, but as Kalman prove, 
-The control task is usually a very low CPU consumer and been well studied~\cite{Bennett,Cervin}. Hence, in the proposed thesis, we will not focus on the control task and will use the existing controller that APM are using.
-APM use a commonly used and well known technique from control theory called PID, A proportional-integral-derivative controller.
-In this technique the control output is based on the physical knowledge of the system dynamics, and have three variable parameters (P, I and D) that define the controller convergence behavior.
-
-We also plan to try to use an ``adjustable'' LQR (Linear-quadratic regulator) control, as follows.
-LQR is an optimal controller that take into account the level of certainty of the state estimation. 
-Is usually a hard task to know the certainty of estimation, but in our case we need to calculate it anyway, and we mark it as $var(x-\tilde{x})$.
-We will make LQR ``adjustable'' in the sense that each iteration the controller will consider the new (variable) $var(x-\tilde{x})$. This is similar to the architecture we proposed for the estimator.
-We will check if adjustable LQR has significant advantages over PID in cases were we have variable certainty of estimation.
-
-\subsubsection{Computation Resource Scheduler: Automata Based Scheduler}
-\label{sec:scheduler}
-
-Real-time systems are mostly composed of multiple real-time tasks, tasks with time constraint, for example task that must response within specified time constraints.
-The purpose of schedulers in such systems is to allocate the limited computational resources (CPU time) within all the task in the system. To do so, we need a well defined interface between the real-time tasks and the scheduler.
-
-The most common way of describing the requirements of a real-time component is to specify a period, sometimes along with a deadline, which gives the frequency at which the component must execute. The designer of the component makes sure that the performance objectives are met as long as the component is executed consistent with its period. The scheduler guarantees that all components get enough resources.
-%not directly in this article
-Specifying resource requirements using periods has advantages due to simplicity and analyzability, but has limited expressiveness, as elaborated in~\cite{RTComposer}. 
-%For example, a specification such as “execute the component every 5ms” does not say whether the scheduler should or should not execute it more frequently if enough computing resources are available, and if a component has multiple methods, say, for different control tasks, each needing a different period, the requirement cannot be naturally captured by a single period.
-
-In this thesis one of the main goals, as we said above in Section~\ref{sec:Research Plan}, is to develop a methodology for allocation resources. We will focus on proposing way for engineers to describe the requirements of a real-time component.
-To simplify, we will assume that the resource is allocated in discrete slots of some fixed duration in the style of time-triggered architecture~\cite{RTComposer}.
-We will develop automata based (hybrid automata) methodologies and schedulers based on the work of Alur~\cite{RTComposer} and Bukra~\cite{Merav}, and will demonstrate with measurable data how they improve the performance of real flying drones (see Section~\ref{sec:results}).
-%We will use finite automata over infinite words as specification framework for resource requirements, automata can be more expressive, for describe more specific requirements, and they are composable, it is easy to compose all the tasks requirements into one automata. 
-
-We will use hybrid automata as specification framework for resource requirements.
-Hybrid automata is a variation of finite automata for real-valued continuously progressing words~\cite{hibrid-systems}.
-Automata can be more expressive for describing specific requirements, and they are composable, i.e., it is easy to compose all the tasks requirements into an integrated automaton.
-In our setting, the hybrid automata define continuous (fixed period) operation modes, represented by the automata state, and the condition of mode changing (mode transition) are denoted by the edges in the automata.
-The operation mode directly define a set of tasks that will be executed in the time slot (for example $s_{0.7}$ in Figure~\ref{fig:sched_sense_auto}).
-We can stay at a single mode for some iterations, in this case the same tasks will be scheduled in each iteration. 
-We can also take \textbf{discrete mode transition} in order to change operation mode after few iterations and schedule different set of tasks, for example, in Figure~\ref{fig:sched_sense_auto} the edge $(m_1,m_2)$ says that if the previous iteration mode was $m_1$ and $estVar < 0.7$ we can change the mode and schedule the set $\{s_{0.2}\}$ in the next iteration.
-
-Each infinite path on the composed hybrid automata (not necessarily with infinitely many mode transitions) represents a schedule that satisfy all the tasks requirements. 
-In this architecture the scheduler only need to ``walk through'' the composed automata, this is, of course, a fast and easy computational task. 
-In order to assure that we do not exceed the time slot duration, each task will have pre-defined maximum duration time like ``deadline'' in the traditional architecture. Now we can verify that every possible scheduling step can execute within a single time slot, in other words, every mode of the composed automata can be executed in a single time slot, by simply summing the ``deadlines'' of all the tasks in the mode tasks set.
-%we can summarize the total slot ``deadline'' as follows:\\
-%$\forall mode~e ~~(\sum_{t \in Guard(e)} deadline(t) ) \leq slot~duration$ \\
-If we find a mode that goes beyond the maximum duration we can remove it from the automata so we never exceed the time slot duration.
-
-
-\begin{figure}[]
-    \centering
-    
-    \begin{tikzpicture}[node distance=4cm, text centered, auto]
-        \node (A) [state, accepting, text width=1cm, initial] {$m_1$ $\{s_{0.7}\}$};
-        \node (B) [state, accepting, text width=1cm] [right of=A] {$m_2$ $\{s_{0.2}\}$};
-        \node (C) [state, accepting, text width=1cm] [right of=B] {$m_3$ $\{s_{0.2}\}$};
-        
-        \path[->] (A) edge [loop above] node {$true$} (A);
-        %\path[->] (A) edge [bend left] node {$\neg est_{bad} \wedge s_{0.2}$} (B);
-        \path[->] (A) edge [bend left] node {$estVar < 0.7$} (B);
-        \path[->] (B) edge [bend left] node {$true$} (A);
-        %\path[->] (B) edge [loop above] node {$\neg var3$} (B);
-        %\path[->] (B) edge [bend left] node {$est_{good} \wedge s_{0.2}$} (C);
-        \path[->] (B) edge [bend left] node {$ estVar < 0.3$} (C);
-        %\path[->] (C) edge [loop above] node {$var1$} (C);
-        \path[->] (C) edge [bend left=60] node {$true$} (A);
-                
-
-    \end{tikzpicture}
-    
-    \caption{Example of guarded automata for our vision based sensor task, in this example the task has two operation modes, $\mathbf{s_{0.7}}$ which need 70\% of the time slot but is more accurate vision computation and $\mathbf{s_{0.2}}$ which is less accurate but faster (need only 20\% of the slot).
-    The value of $estVar$ is $var(x-\tilde{x})$ of the previous iteration.
-    Every time slot exactly one of the modes will be executed.
-    \label{fig:sched_sense_auto}}
-\end{figure}
-
-\begin{figure}[]
-    \centering
-    
-    \begin{tikzpicture}[node distance=4cm,auto]
-        \node (A) [state, accepting, initial] {$\{est_1\}$};
-        \node (B) [state, accepting] [right of=A] {$\{est_2\}$};
-        
-        \path[->] (A) edge [loop above] node {$s_{0.7}$} (A);
-        \path[->] (B) edge [bend left] node {$s_{0.7}$} (A);
-        %\path[->] (A) edge [bend left] node {$s_{0.2} \wedge est_2$} (B);
-        %\path[->] (B) edge [loop above] node {$s_{0.2} \wedge est_2$} (B);
-        \path[->] (A) edge [bend left] node {$s_{0.2}$} (B);
-        \path[->] (B) edge [loop above] node {$s_{0.2}$} (B);
-        %\path[->] (B) edge [bend left] node {$s_{0.7} \wedge est_1$} (A);
-
-    \end{tikzpicture}
-    
-    \caption{Example of guarded automata for our state estimator, in this example the estimator has two operation modes, $\mathbf{est_1}$ correspond to $\mathbf{s_{0.7}}$ and $\mathbf{est_2}$ correspond to $\mathbf{s_{0.2}}$~(see Figure \ref{fig:sched_sense_auto}).
-    \label{fig:sched_estimator_auto}}
-\end{figure}
-
-Let us demonstrate the proposed automata based interface using the system depicted in Figure~\ref{fig:hybrid_loop}.
-Assume we have two operation modes of the vision based sensor: (1) $s_{0.7}$ a very accurate operation mode that takes 70\% of the time slot to execute, that is of course a significant amount of time, and (2) $s_{0.2}$ a less accurate operation mode but takes only 20\% of the slot.
-In each time slot we can execute one of them and get the sensing process done, but if we use only $s_{0.7}$ every time slot we may not have enough time to execute all the tasks. On the other hand, if we use only $s_{0.2}$ we will have inferior estimates.
-Figure~\ref{fig:sched_sense_auto} shows an example of a guarded automata that guides the schedule. With this automata we can express rich specifications. 
-In this example, execute $s_{0.7}$ is always allowed but if we need faster sensing we can use $s_{0.2}$ but only once in a row if the estimation error is not extremely bad~(if~$var(x-\tilde{x}) < 0.7$), or even twice in a row if the estimation error is good~(if~$var(x-\tilde{x}) < 0.3$).
-
-The estimated estimation error ($estVar$ in the figure) is, in this case, the estimation error variance ($var(x-\tilde{x})$ in Figure~\ref{fig:hybrid_loop}). 
-%if $var(x-\tilde{x})$ is small then $est_{good} = true$, if is normal then $est_{normal} = true$ end $est_{bad} = true$ if $var(x-\tilde{x})$ is  bigger then some boundary.
-\\This value ($estVar~=~var(x~-~\tilde{x})$) is calculated by the state estimator task (Section~\ref{sec:estimator}) and is passed to the scheduler as discussed before.
-
-Each of this operation modes ($s_{0.7}$ and $s_{0.2}$) have different accuracy, specified by $var(v)$ in Figure~\ref{fig:hybrid_loop}, and if we want to get optimal estimation the state estimator mast be configure correspondingly, i.e., the sensing error variance should be adjusted to the correct value ($var(s_{0.7})$), an easy solution for specifying the different configurations is by the guarded automata shown in Figure~\ref{fig:sched_estimator_auto}, which defines two operation modes of the state estimator, $est_1$ and $est_2$, that correspond to $var(s_{0.7})$ and $var(s_{0.2})$. So of course if we sense in mode $s_{0.7}$ we must estimate with mode $est_1$ that has the correct configurations for $s_{0.7}$, and if we sense in mode $s_{0.2}$ we must estimate with mode $est_2$.
-
-\section{Preliminary Work and Results}
-\label{sec:results}
-In this preliminary phase we searched for the appropriate environment for experimentation. After research we decided to use Raspberry~Pi with the navio~\cite{navio} board based drone with the commonly used and open-source controller software APM~\cite{APM}.
-We managed to build and fly the complete drone, we dived into the APM code, we understand the code structure, and we are familiar with the relevant parts that we want to change.
-
-We now have a clear picture of our research plan for the near future in order to get basic results with the new scheduling framework.
-In summary, our research plan is describe in Table~\ref{tab:Research-plan}.
-
-\begin{table}[]
-    \centering
-    \label{tab:Research-plan}
-    
-    \begin{tabular}{ | p{8cm} | p{1.7cm} | p{1.8cm} |}
-        \hline
-        Task  & Expected work time & completion (\%) \\ \hline
-        Choose the appropriate development environment. (APM based drones) & one month & \textbf{100\%}  \\ \hline
-         
-        Be familiar with the development environment, and make sure that we are able to adapt the system to our needs. & three month & \textbf{90\%} \\ \hline
-          
-        Plan all the control components in order to achieve our case study goals. (see Sections~\ref{sec:estimator}, \ref{sec:sensors} and \ref{sec:control}) & three months & \textbf{100\%} \\ \hline
-         
-        Plan the new scheduler detail behavior, and it’s interaction with the control components. (see Section~\ref{sec:scheduler}) & two months & \textbf{90\%} \\ \hline
-         
-        Detail planing of the scheduler interface implementation and adaptation in the code. & one month & \textbf{80\%} \\ \hline
-         
-        Implement the new scheduler and replace the original APM scheduler (manually transform each task periodical requirements to automata based requirements). & two weeks & 0\% \\ \hline
-         
-        Develop and implement the vision based sensor component. We plan to base on the buit-in Matlab vision abilities and use SimuCopter~\cite{SimuCopter}
-        to integrate it in the APM program. & 1-2 months. & 20\% \\ \hline
-         
-        Grub statistics data and fine-tuning the vision component. & one month & 0\% \\ \hline
-         
-        Adjust the state estimator as explain in Section~\ref{sec:estimator}, and combine all together using the new scheduler. & two weeks & 0\% \\ \hline
-         
-        Check with a wide range of environmental conditions and a wide range of requirements (automatas), and of course grub and summarize the results. & two months & 0\% \\ \hline
-        
-        Write the thesis report. & two months & 10\% \\ \hline
-    \end{tabular}
-    
-    \caption{Research plan}
-\end{table}
-
-As part of the preliminary work we developed (with two undergraduate students, as part of their final project in software engineering) the \textbf{SimuCopter}~\cite{SimuCopter} framework that allows to program our drone  (or any other APM based drones) directly by Matlab Simulink model, using a code generation logic.
-We will add to that framework interfaces and tools for using our new scheduler capabilities embedded in the simulink diagrams, and give the control engineers a complete tool for developing control software. We also experimented with iplementing computer vision algorithms with this tool.
-
-}
 %\begin{samepage}
     \bibliographystyle{plain}
     \bibliography{hodai_thesis}{}
