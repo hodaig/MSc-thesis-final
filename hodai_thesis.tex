@@ -154,10 +154,9 @@ fill=orange!20!yellow!20]
     %\newpage
 \end{titlepage}
 
-\section{Introduction}
-\subsection{Option 1: Intro From Paper}
+\section{Introduction} % from paper
 Cyber-physical systems (CPS) technologies of integrating software and control are at the heart of many critical applications (see~\cite{lee2008cyber} for a review of such applications). 
-These technologies aim at handling issues that emerge when the interaction of software and hardware brakes the traditional abstraction layers: when researchers and practitioners are required to consider a unified view that includes both software and hardware. An example of such an issue is the challenge of dynamic assignment of computational resources to software based controllers discussed in, e.g.,~\cite{arzen2000introduction,tabuada2007event,weiss2007automata}. While the computation burden required by the control loops can be ignored in many situations, this is not always the case. A main motivating example studied in this paper is vision based control, where computer vision algorithms acquire state information to be used in a feedback loop (see, e.g.,~\cite{das2002vision,shakernia1999landing,Efraim2017}). Unlike conventional sensors such as accelerometers, gyros, compasses, etc., a visual sensor requires significant processing of the acquired image to prepare the state information for feedback. Since typical cyber-physical application, such as robot control, consist of many control loops, responsible for different aspects of the system, that run simultaneously and share the same computational resources, computer vision algorithms cannot always be invoked in full power. Alternatively, we propose in this paper a mechanism to dynamically trade CPU consumption vs. measurement accuracy so that data acquisition algorithms run in full power only when the control loop requires accurate data. 
+These technologies aim at handling issues that emerge when the interaction of software and hardware brakes the traditional abstraction layers: when researchers and practitioners are required to consider a unified view that includes both software and hardware. An example of such an issue is the challenge of dynamic assignment of computational resources to software based controllers discussed in, e.g.,~\cite{arzen2000introduction,tabuada2007event,weiss2007automata}. While the computation burden required by the control loops can be ignored in many situations, this is not always the case. A main motivating example studied in this thesis is vision based control, where computer vision algorithms acquire state information to be used in a feedback loop (see, e.g.,~\cite{das2002vision,shakernia1999landing,Efraim2017}). Unlike conventional sensors such as accelerometers, gyros, compasses, etc., a visual sensor requires significant processing of the acquired image to prepare the state information for feedback. Since typical cyber-physical application, such as robot control, consist of many control loops, responsible for different aspects of the system, that run simultaneously and share the same computational resources, computer vision algorithms cannot always be invoked in full power. Alternatively, we propose in this thesis a mechanism to dynamically trade CPU consumption vs. measurement accuracy so that data acquisition algorithms run in full power only when the control loop requires accurate data. 
 
 A main challenge in forming mechanisms for the integration of software and control lies in the design of efficient interfaces for integrating the engineering diciplines involved (see, e.g.,~\cite{weiss2007automata}). Components with clearly specified APIs, such as Java library classes, allow designers to build
 complex systems effectively in many application domains.  The key to such modular development is
@@ -166,17 +165,15 @@ components or the underlying computing platform. When the system contains compon
 real-time requirements, the notion of an interface must include the requirements regarding
 resources, and existing programming languages provide little support for this.  Consequently,
 current development of real-time embedded software requires significant low-level manual effort for
-debugging and component assembly (cf.~\cite{Lee00,IEEE03,HS06}).  This has motivated 
+debugging and component assembly (cf.~\cite{Lee00,IEEE03,HS06}). This has motivated 
 researchers to develop compositional approaches and interface notions for real-time scheduling (see, e.g.,~\cite{RS01,dH01,MF01,CAHS03,SL08,SLBS04,TWS06,DBLP:conf/lctrts/AuerbachBIKRRT07}).
 
-
-In this paper we present an approach, a proof-of-concept implementation, and a case study in scheduling computations in embedded control systems. The proposed design is based on the automata based scheduling approach, suggested in~\cite{weiss2007automata,RTComposer,AW08,ESNAASHARI20102410,liu2013synthesis}, where automata are proposed as interfaces that allow the dynamicity and efficiency of desktop operating systems with the predictability of real-time operating systems. The approach allows for components to specify the CPU resources that they need in a way that gives an application agnostic scheduler the freedom to choose schedules at run-time such that the needs of all the components are taken into account, even of components that were added only at run-time.  The main contributions of this paper relative to the earlier work in this direction is:
+In this thesis we present an approach, a proof-of-concept implementation, and a case study in scheduling computations in embedded control systems. The proposed design is based on the automata based scheduling approach, suggested in~\cite{weiss2007automata,RTComposer,AW08,ESNAASHARI20102410,liu2013synthesis}, where automata are proposed as interfaces that allow the dynamicity and efficiency of desktop operating systems with the predictability of real-time operating systems. The approach allows for components to specify the CPU resources that they need in a way that gives an application agnostic scheduler the freedom to choose schedules at run-time such that the needs of all the components are taken into account, even of components that were added only at run-time. The main contributions of this thesis relative to the earlier work in this direction is:
 (1) We propose an extension of the automata based scheduling framework that allows to direct the schedule based on the state of the controllers; (2) We propose a technique, based on the theory of Kalman Filters, for designing reactively scheduled controllers; (3) We report on our experience with improving the performance of a real-time, vision-based, control system (a drone that stabilizes itself in front of a window).
 
-The rest of the paper is organized as follows: In Section~\ref{sec:architecture} we outline the general software approach and the methodologies developed in our research. In Section~\ref{sec:simulation} we present the technical details of the proposed approach using a simulation. The case study is presented in Section~\ref{sec:caseStady} with a description of the engineering setup and the data we collected for the evaluation of the approach.
+%The rest of the thesis is organized as follows: In Section~\ref{sec:architecture} we outline the general software approach and the methodologies developed in our research. In Section~\ref{sec:simulation} we present the technical details of the proposed approach using a simulation. The case study is presented in Section~\ref{sec:caseStady} with a description of the engineering setup and the data we collected for the evaluation of the approach.
 
-\subsection{Option 2: Motivation and Overview}
-\label{sec:Background}
+\comment{ % pc vs realtime scheduler (from proposal)
 Today's computer power allows for consolidation of controllers towards systems where a single computer regulates many control loops, each with its varying needs of computation resources.
 This brings two research challenges that we intend to attack in this thesis:
 \begin{itemize}
@@ -193,7 +190,8 @@ Similar views are expressed also in other papers~\cite{RTComposer,Shlomo,UPenn-P
  
 Desktop type operating systems, like Windows and Linux, schedule for computational efficiency but do not allow for worst-case performance guarantees. Real-time operating systems, on the other hand, sacrifice some efficiency for timing predictability, but the type of timing guarantees that such systems provide usually are not directly guaranteeing the control performance of the system. 
 When using such operating systems for control, engineers usually apply controllers that work in a fixed periodic manner witch the control behavior becomes deterministic and control performance can be guaranteed. This is not efficient because resources can be better utilized if controllers act at higher frequencies only when needed.
-
+}
+\comment{ % this work contribution (from proposal)
 In this work we show how to combine the efficiency of dynamic scheduling with the predictability of real-time scheduling, in a way that is more suitable for control systems then periods and deadlines.
 We show that applying control computations at dynamically adjustable periodic, and with variable computational demands, based on real-time information, allows for better utilization of the computational resources and therefor better control performance.
 
@@ -202,22 +200,15 @@ In practice most of the real-time control systems designs consists of to separat
 Although those two parts are constantly affected by each other they barely communicate, this lead to static (constant) scheduling regardless of the current state or needs of the system.
 In this thesis we develop an architecture design for control systems in witch the scheduler (2) is aware of the current state of the system, and makes \textit{state depended} scheduling for that state. 
 We show how allocate resources by \textbf{current} needs give better resoults than allocate resources for the \textbf{worst-case} needs.
-
+}
  
 \section{Problem Statement}
 \label{sec:Problem}
-We are concentrate on feedback control loop based systems as shown in Figure~\ref{fig:control loop}. 
-We assume a close feedback control loop where the physical plant, \textit{System} state ($x$), is monitored via an array of sensors (\textit{Sensing}) which produce raw data ($y$) that represents noisy sample of some functions of the state variables. 
-We assume uncertainty observations from the sensors so, after sensing, an entity called \textit{State Estimator} aggregates the raw data from all the sensors and makes an educated estimation ($\hat{x}$) of the current state. Then the \textit{Control Law} entity generates the controller outputs ($u$), control the actuators, to change the state of the system in order close the gap between the current estimated state and the reference desire state (\textit{Input} $r$).
+During this thesis we are concentrate on feedback control loop based systems as shown in Figure~\ref{fig:control loop}. 
+We assume a close (feedback) control loop where the physical plant, \textit{System} state $x$, is monitored via an array of sensors (\textit{Sensing}) which produce measurements array $y$ that represents noisy sample of some functions of the state variables. 
+We assume uncertainty observations from the sensors so, after sensing, an entity called \textit{State Estimator} aggregates the measurements from all the sensors ($y$ array) and makes an educated estimation ($\hat{x}$) of the current state. Then the \textit{Control Law} entity generates the controller outputs ($u$), control the actuators, to change the state of the system in order close the gap between the current estimated state and the reference desire state (\textit{Input} $r$).
 
-The current state-of-the-art computer embedded control systems, as descibed e.g. in~\cite{Celvin}, are developed as follows, control engineers first design control tasks (control and estimation tasks) as periodic computations, then they specify the required periodic frequency for the task, and then software engineers design a scheduler that ensures the periodic frequency requirements are met. 
-The last step is usually done using pre-computed knowledge of the expected (maximum) duration of the tasks.
-Note that in order to ensure that the controlled plant is always properly maintained, for example engine temperature never exceeds maximal safe temperature, the periodic frequency must be tuned for the worst-case state that the system might be in.
-
-We show how to achieve better performance and better resource utilization for control systems by using richer and more flexible requirements model for the tasks.
-Specifically, we develop tools and methodologies such that control engineers are able to specify more accurately the requirement features of their control tasks, that the scheduler will use for executing dynamic resource assignment that will, at the same time, guarantee required control performance and will be efficient in its use of computational resources. 
-
-In this thesis, for analysis we assume a general \textit{linear dynamical system} discretized in the time domain.
+In this thesis, for analysis, we assume a general \textit{linear dynamical system} discretized in the time domain.
 At each discrete time increment, the true state $x_k$ is evolved from the previews state $x_{k-1}$ according to:
 $$ x_{k}=Ax_{k-1} + Bu_{k} + w_{k} $$
 Where,
@@ -227,8 +218,12 @@ $$y_k=Cx_k+v_k$$
 Where,
 $C$ is the observation model which maps the true state space into the observed space and $v_k$ is the observation noise which is assumed to be zero mean Gaussian white noise with covariance $R_k$.
 
+The current state-of-the-art cyber-physical control systems, as descibed e.g. in~\cite{Celvin}, are developed as follows, control engineers first design control tasks (control and estimation tasks) as periodic computations, then they specify the required periodic frequency for the task, and then software engineers design a scheduler that ensures the periodic frequency requirements are met. 
+The last step is usually done using pre-computed knowledge of the expected (maximum) duration of the tasks.
+Note that in order to ensure that the controlled plant is always properly maintained, for example engine temperature never exceeds maximal safe temperature, the periodic frequency must be tuned for the worst-case state that the system might be in.
 
-
+We show how to achieve better performance and better resource utilization for control systems by using richer and more flexible requirements model for the tasks.
+Specifically, we develop tools and methodologies such that control engineers are able to specify more accurately the requirement features of their control tasks, that the scheduler will use for executing dynamic resource assignment that will, at the same time, guarantee required control performance and will be efficient in its use of computational resources. 
 
 \begin{figure}[]
     \centering
@@ -247,31 +242,78 @@ $C$ is the observation model which maps the true state space into the observed s
         \draw [arrowB] (estimator) -| node[left] { $\hat{x}$} (control);
     \end{tikzpicture}
     
-    \caption{A typical close feedback control loop where the physical plant (\textit{System}) is monitored via an array of sensors (\textit{Sensing}) which produce noisy sample of the state variables $y$. 
-    And after sensing, \textit{State Estimator} aggregates the raw data from all the sensors and produce estimation of the current state $\hat{x}$. Then the \textit{Control Law} produce output to the actuators ($u$) in order to close the gap between the current estimated state and the reference state ($r$).
+    \caption{A typical feedback control loop where the physical plant (\textit{System}) is monitored via an array of sensors (\textit{Sensing}) which produce noisy sample of the state variables $y$. 
+    And after sensing, \textit{State Estimator} aggregates the measurements from all the sensors and produce estimation of the current state $\hat{x}$. Then the \textit{Control Law} produce output to the actuators ($u$) in order to close the gap between the current estimated state and the reference state ($r$).
     \label{fig:control loop}}
 \end{figure}
 
-\section{The proposed approach(From paper)}
+\section{The proposed approach} % (from paper)
 \label{sec:architecture}
 
-As proposed in earlier work on automata based scheduling (\cite{weiss2007automata,RTComposer,AW08}) we aim at a development process where a system is built as a composition of a set of components where each component is a software module (a set of procedures) accompanied with an automaton. Our addition here is that we allow the automata to be guarded, i.e., each automaton acts as a specification of a reactive system that tells the scheduler which functions of a component it may run in each slot depending on the dynamic state of the controllers. A second addition is that we have implemented the approach as an enhancement of the internal scheduler of the ArduPilot Mega (APM) open source unmanned vehicle autopilot software suite~(\url{ardupilot.org}). A third contribution of the paper is a proposal of a specific way to use the automata based scheduling framework with a Kalman filter. We elaborate on each of these in the following subsections:
+%TODO - verify we are not lying here
+As proposed in earlier work on automata based scheduling (\cite{weiss2007automata,RTComposer,AW08}) we aim at a development process where a system is built as a composition of a set of components where each component is a software module (a set of procedures) accompanied with an automaton. Our addition here is that we allow the automata to be guarded, i.e., each automaton acts as a specification of a reactive system that tells the scheduler which functions of a component it may run in each slot depending on the \textbf{dynamic state} of the controllers. A second addition is that we have implemented the approach as an enhancement of the internal scheduler of the ArduPilot Mega (APM)~\cite{APM} open source unmanned vehicle autopilot software suite. A third contribution of this thesis is a proposal of a specific way to use the automata based scheduling framework with a Kalman filter. We elaborate on each of these in the following subsections:
+
+\subsection{Architecture}
+% TODO: Use the terminology of the figure
+
+In our methodology, we use rich component specification represented by automata.
+As presented above, the first advantage of this technique is the ability of the scheduler to ``react'' the state of the system, therefore we need more intense interaction between the \textit{Scheduler} and the control loops in particularly with the estimator.
+The architecture of control system as we believe, is illustrated in Figure~\ref{fig:general_hybrid_loop}.
+The architecture, that is based on modern controller architecture where the system has multiple controlling tasks, comes to support an efficient scheduling protocols in modern control systems consisting of a processor that runs all the tasks of many independent control loops in the system. 
+Each control loop (blue components in Figure~\ref{fig:general_hybrid_loop}) will tell the \textit{scheduler} of its level of certainty ($P = var(\hat{x} - x)$) and the scheduler will allocate resource (processor time) based on this data, meaning the \textit{scheduler} allocate resource dynamically based on the system current needs rather than the worst case needs, making the scheduler an active part of the control loop.
+
+%TODO - probably need to be in the Tests section
+Our methodology is general and may be applicable in a wide range of applications. However, in this initial phase of the research, we focus on a specific sub-domain and in handling all technical issues in order to prove the concept.
+%In this thesis we develop and implement a vision based controller for drone (see Section~\ref{sec:tests}) and analyze the concept with it.
+
+\begin{figure}[h]
+    \centering
+    
+    \begin{tikzpicture}[node distance=2cm]
+    \node (in) [eNode] {};
+    \node (control) [recNodeB, right of=in, xshift=1.5cm] {Control Law};
+    \node (sys) [recNodeB, right of=control, xshift=4cm] {System};
+    \node (sensor) [recNodeB, below of=sys, xshift=1.9cm, yshift=-0.5cm] {Sensing};
+    \node (estimator) [recNodeB, below of=control, yshift=-0.5cm] {State Estimation};
+    \node (sched) [recNodeG, below of=estimator, xshift=3.5cm, text width=3cm] {Automata Based Scheduler};
+    
+    \draw [arrowB] (in) -- node[above] {refference} node[below] {($r$)} (control);
+    \draw [arrowB] (control) -- node[above] {actuation} node[below] {($u$)} (sys);
+    \draw [arrowB] (sys) -| node[right,text width=1cm] {output ($x$)} (sensor);
+    \draw [arrowB] (sensor) -- node[above] {sensed data (noisy)} node[below] {$(y = Cx +v$)} (estimator);
+    \draw [arrowB] (estimator) -- node[left,text width=2cm] {state \newline estimation} node[right] {($\hat{x}$)} (control);
+    
+    \draw [arrowG] (estimator) |- node[left,text width=2cm] {quality of estimation ($P$)} (sched);
+    
+    \draw [arrowG] (sched) -| node[right,text width=2cm] {computation resources ($\langle time,var(v) \rangle$)} (sensor);
+    %\draw [arrowG] (sched) -| node[right] {$\langle time,var(v) \rangle$} (sensor);
+    
+    \draw [arrowG] (sched) --  node[right] {$var(v)$} (estimator);
+    
+    \end{tikzpicture}
+    
+    \caption{The controller framework we implement, Each control loop (depicted in blue) informs the resource allocator (Scheduler) of its quality of estimation, the \textit{scheduler} will allocate CPU time accordingly in order to maintain valid estimation quality. 
+        Specifically for the Sensing processes, for example in our case \textit{Computer Vision} task, the guard automaton specify the required sensing quality ($var(v)$) which determines the required execution time ($time$). The Sensing alocation is noted by $\langle time,var(v) \rangle$.
+        %The underlying assumption here is that the noise in the sensed data is a function of the amount of computation resources. We assume that the more resources are invested in sensing the better (less noisy) sensed data is obtained.
+        \label{fig:general_hybrid_loop}}
+\end{figure}
 
 \subsection{Guarded Automata as Interfaces for Control and Scheduling}
-%TODO - hodai: maybe prefere say "state values" or "state atribute value" instead of "numbers"
 As our goal is to allow dynamic selection of the computation load in the feedback loops based on the states of the systems, we start with a general software architecture in which each component (implementation of a specific feedback loop) is represented by a code module (in our case, a class in C++) and an automaton that specifies when to invoke its methods. The transition relation of the automaton depends, in addition to the current state, also on data produced by the estimator of the feedback loop (we experimented with different options for this data, as discussed below).
 
 The motivations of using automata as described above are: (1) Automata allow for a rich specification language; (2) It is easy to construct schedules that obey the specification with negligible computational burden; (3) Automata theory gives a solid framework for composing the specifications of competing requirements for analysis and for schedule synthesis. 
 
-In this paper we focus on the first two motivations in the above list. The third is discussed in details in earlier papers on automata based scheduling and is the focus of another paper that we are preparing where we describe some analysis techniques we have developed for guarded automata.   
+%TODO - mybe reference to future work section
+In this thesis we focus on the first two motivations in the above list. The third is discussed in details in earlier works on automata based scheduling and is the focus of future paper that we are preparing where we describe some analysis techniques we have developed for guarded automata.   
 
 \subsection{Implementation in an Auto Pilot Software}
-As our main case study is in flight control, we chose the ArduPilot Mega
-(APM) platform for experiments. To this end, we implemented a basic automata based scheduler for this platform. The built-in task scheduling specification in APM consist of a table as shown in Figure~\ref{fig:apm-scheduler}. This table is easy to maintain and to adjust, but it is used under an assumption that there is enough CPU power to run all the tasks in the specified frequencies. APM does contain a mechanism to handle overruns, by moving tasks to the next window when there is not enough time to run them now, but the system is designed under the assumption that this only happen in rare situations.
+As our main case study is in flight control (see Section~\ref{sec:caseStady}), we chose the ArduPilot Mega (APM) platform for experiments~\cite{APM}. To this end, we implemented a basic automata based scheduler for this platform. The built-in task scheduling specification in APM consist of a table as shown in Figure~\ref{fig:apm-scheduler}. This table is easy to maintain and to adjust, but it is used under an assumption that there is enough CPU power to run all the tasks in the specified frequencies. APM does contain a mechanism to handle overruns, by moving tasks to the next window when there is not enough time to run them now, but the system is designed under the assumption that this only happen in rare situations.
+%TODO - maybe add APM section in apendex describing this scheduler with image
 
 To allow a reactive scheduler that runs different modes of the software-based controllers depending on their state, we replaced the scheduling table in our version of the APM with automata that specify when to run the tasks. Note that automata allow for specifying the requirements that the table represents, using simple circular automata without guards (see, e.g., \cite{weiss2007automata}). Automata, however, can model more advanced scheduling instructions with very little addition to the complexity of the scheduler, as we will demonstrate in Section~\ref{sec:simulation} and in Section~\ref{sec:caseStady} below.
+%TODO - were gose the detail of the automaton operations
 
-\begin{figure}
+\begin{figure}[]
     \scriptsize
     \begin{lstlisting}
     /*
@@ -304,16 +346,47 @@ To allow a reactive scheduler that runs different modes of the software-based co
     \label{fig:apm-scheduler} 
 \end{figure}
 
-
 \subsection{Integration With a Kalman Filter}
 The third layer of the approach we propose is based on the observation that a standard Kalman filter produces information that can be used to guide the automata of the components. 
 
-As we will elaborate in the description of the simulations and of the case study below, we propose to schedule the functions that implement algorithms for sensing and for actuation based on the error variance of the estimation that a Kalman filter provides. 
+As we will elaborate in the description of the simulations and of the case study below, we propose to schedule the functions that implement algorithms for sensing and for actuation based on the error variance of the estimation that a Kalman filter provides, the idea is to operate different sensing modes in order to regulate the estimation error variance, see Section~\ref{sec:kalman} for Kalman-filter characteristics. 
+%TODO - maybe add paragraph with details and examples in the real word
+%TODO - we can show diferent prespectives: 1. offline scheduling using only $P$, 2. online scheduling using $\tilde{y_k|k}$ with the explenation that in the real world the errors are not always normal.
+
+%In this framework the scheduler is part of the control logic and therefore it can make scheduling decisions based on the current control state, the scheduling of \textit{Computer~Vision} task depends on the accuracy of state estimation.
+%For example, if the vision is clear, the \textit{Computer~Vision} will produce good measurement of the \textit{System} and therefore good accuracy will be achieved so the \textit{Scheduler} can allocate less computation time to the heavy \textit{Computer~Vision} task and still remain stable while allocating more CPU to others control loops or to background tasks (like navigation).
 
 
 
+
+
+
+%TODO - continue here!
 \section{Architecture: Automata Base Scheduler (From proposal)}
 
+As describe in Section~\ref{sec:Problem} control systems have two main parts: \textit{state estimation} and \textit{controller}. 
+The common used techniques for controllers, e.g PID, are relatively low resources consumers and there is no real justification of optimizing it, but this is not always the case for estimation process, some times there are heavy computational tasks as part of state estimation task, this refers to both the estimator and sensing stage.
+The sensor can be complex computations of Global Positioning System (GPS) in small processor or even camera with heavy computer vision.
+% TODO
+Those sensing task need to run in real-time and can interfere with rest of the system tasks.
+In our architecture we concentrate more in those heavy sensing processes in order to improve the resource utilization and control performance.
+%One wide used example is the use of computer vision in UAV's 
+(See~\ref{state estimation & why choose the window mission})
+
+\comment{ %move to preveius section
+
+%TODO - i think fig:general_hybrid_loop is Unnecessary and fig:hybrid_loop is enough 
+The architecture of control system as we believe, is illustrated in Figure~\ref{fig:general_hybrid_loop}.
+The architecture, that is based on modern controller architecture where the system has multiple controlling tasks, comes to support an efficient scheduling protocols in modern control systems consisting of a processor that runs all the tasks of many independent control loops in the system. 
+The current state of art, as described above and as we observed, e.g. in the code of APM~\cite{APM}, is that the designers of each task, control or estimation task, specify a fixed rate for invocations of the corresponding task (called \textit{period}).
+% TODO: Use the terminology of the figure
+In our methodology, there is a richer and more intense interaction between the \textit{Scheduler} and the control loops. Each control loop (blue components in the Figure~\ref{fig:general_hybrid_loop}) will tell the \textit{scheduler} of its level of certainty ($P = var(\hat{x} - x)$) and the allocator will allocate resource (processor time) based on this data, meaning the \textit{scheduler} allocate resource dynamically based on the system current needs rather than the worst case needs.
+%TODO - ?? what next centence mean? needed?
+%TODO: This can be useful on its own sake or together with a mathematical analysis that allows to use this feedback mechanism to certify some pre-defined specifications of state certainty or stability is maintained.
+
+%TODO - probably need to be in the Tests section
+Our methodology is general and may be applicable in a wide range of applications. However, in this initial phase of the research, we focus on a specific sub-domain and in handling all technical issues in order to prove the concept.
+In this thesis we develop and implement a vision based controller for drone (see Section~\ref{sec:tests}) and analyze the concept with it.
 
 \begin{figure}[]
     \centering
@@ -340,7 +413,7 @@ As we will elaborate in the description of the simulations and of the case study
     \end{tikzpicture}
     
     \caption{A general scheduling framework. Each control loop (depicted in blue) informs the resource allocator (Scheduler) of its quality of estimation and the allocator allocates accordingly the computation resources among all the control loops, in order to maintain valid estimation quality. 
-    %The underlying assumption here is that the noise in the sensed data is a function of the amount of computation resources. We assume that the more resources are invested in sensing the better (less noisy) sensed data is obtained.
+        %The underlying assumption here is that the noise in the sensed data is a function of the amount of computation resources. We assume that the more resources are invested in sensing the better (less noisy) sensed data is obtained.
         \label{fig:general_hybrid_loop}}
 \end{figure}
 
@@ -372,28 +445,8 @@ As we will elaborate in the description of the simulations and of the case study
     \caption{The controller framework we will implement, the \textit{scheduler} will allocate CPU time ($\langle time,var(v) \rangle$) for the \textit{Computer Vision} task base on the state estimation certainty using guarded Automata.
         \label{fig:hybrid_loop}}
 \end{figure}
-
-As describe in Section~\ref{sec:Problem} control systems have two main parts: \textit{state estimation} and \textit{controller}. 
-The common used techniques for controllers, e.g PID, are relatively low resources consumers and there is no real justification of optimizing it, but this is not always the case for estimation process, some times there are heavy computational tasks as part of state estimation task, this refers to both the estimator and sensing stage.
-The sensor can be complex computations of Global Positioning System (GPS) in small processor or even camera with heavy computer vision.
-% TODO
-Those sensing task need to run in real-time and can interfere with rest of the system tasks.
-In our architecture we concentrate more in those heavy sensing processes in order to improve the resource utilization and control performance.
-%One wide used example is the use of computer vision in UAV's 
-(See~\ref{state estimation & why choose the window mission})
-
-%TODO - i think fig:general_hybrid_loop is Unnecessary and fig:hybrid_loop is enough 
-The architecture of control system as we believe, is illustrated in Figure~\ref{fig:general_hybrid_loop}.
-The architecture, that is based on modern controller architecture where the system has multiple controlling tasks, comes to support an efficient scheduling protocols in modern control systems consisting of a processor that runs all the tasks of many independent control loops in the system. 
-The current state of art, as described above and as we observed, e.g. in the code of APM~\cite{APM}, is that the designers of each task, control or estimation task, specify a fixed rate for invocations of the corresponding task (called \textit{period}).
-% TODO: Use the terminology of the figure
-In our methodology, there is a richer and more intense interaction between the \textit{Scheduler} and the control loops. Each control loop (blue components in the Figure~\ref{fig:general_hybrid_loop}) will tell the \textit{scheduler} of its level of certainty ($P = var(\hat{x} - x)$) and the allocator will allocate resource (processor time) based on this data, meaning the \textit{scheduler} allocate resource dynamically based on the system current needs rather than the worst case needs.
-%TODO - ?? what next centence mean? needed?
-%TODO: This can be useful on its own sake or together with a mathematical analysis that allows to use this feedback mechanism to certify some pre-defined specifications of state certainty or stability is maintained.
-
-%TODO - probably need to be in the Tests section
-Our methodology is general and may be applicable in a wide range of applications. However, in this initial phase of the research, we focus on a specific sub-domain and in handling all technical issues in order to prove the concept.
-In this thesis we develop and implement a vision based controller for drone (see Section~\ref{sec:tests}) and analyze the concept with it.
+ 
+}
 
 %TODO - probably need to be in the Tests section
 TODO - need to fix here!!!
@@ -951,6 +1004,7 @@ Figure~\ref{fig:windPlot} shows data collected in one of the flights with the CP
 
 
 \section{Scheduler Prototype}
+\subsection{Formal Definition of Guarded (specification) automata}
 % TODO - mybe as apendex 
 \subsection{Automata Operation}
 % TODO - mybe as apendex 
@@ -999,7 +1053,7 @@ This type of algorithms run until we stop them, and when we stop them they will 
 In our implementation, in order to lower the complexity, we will pre-define few specific ``operation modes" of the \textit{Computer~Vision} task, that differ by their running time and they are identified by a pair $\langle RunTime, Variance \rangle$ where $Variance$ is the error variance of running time $RunTime$.
 \subsection{Reference Measurement with OptiTrack System}
 
-
+\section{Related Work}
 \section{Conclusions and Future Work}
 % use real vision
 % develop the framwork
