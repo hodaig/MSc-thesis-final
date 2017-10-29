@@ -437,6 +437,45 @@ The automaton try to formalize the expression: ``use `High' mode only after obse
 
 The results of the simulation, summarized in Table~\ref{tbl:sim-results}, show, as expected, that the CPU consumption is much lower (0.1) when using the low-quality version of the sensing algorithm and is higher (0.85) when the high-quality version of the sensing algorithm is used. The performance of the estimation, in terms of the mean distance between $x$ (the real state) and $\hat x$ (the Kalman filter estimated state), is better with the high-quality version (0.97) than it is with the low-quality version (1.24). More interestingly, we can see that the experiment with the automaton that switches between the two sensor modes yields performance that is close to the performance of the high-quality sensing algorithm, using much less CPU. This demonstrates how automata based reactive scheduling can allow for new ways to balance performance and computational resources in software based controllers. 
 
+\section{Case Study: Stabilizing a Quad-rotor in Front of a Findow}
+\label{sec:caseStady}
+% overview of why we use vision example
+
+The case study we used to test our concept is the development of a controller that stabilizes a quadrotor in front of a window (see, e.g.,~\url{rpg.ifi.uzh.ch/aggressive_flight.html}).
+We implemented an autonomous controller for that task and evaluated its performance.
+
+The part of the controller that we focused on is the vision based position controller. Specifically, the main controller, that we will describe below, uses a standard low-level angular controller and a simple image processing algorithm that identifies the position of the corners of the window in the image plane\footnote{In the experiment, to simplify the image processing algorithm, we marked the corners of the window with led lights.}. Its goal is to regulate the position of the quadrotor by tilting it. Note that rotations of the quadrotor by a small angle generate a more-or-less proportional accelerations in a corresponding direction, hence we can approximate the system with a linear model. A main challenge for this controller is that the computer vision algorithm takes significant time to compute relative to the fast control loop. We can decrease computation time by lowering the resolution, but this also increases the measurement noise. We will demonstrate how reactive scheduling of the resolution can serve for balancing resource consumption vs. control performance in this system.
+
+\subsection{Observer Design}
+\label{sec:Observer Design}
+We first implemented an observer based on the work of Efraim~\cite{Efraim17}. The observer gets the positions of the widow corners from the image (see Section~\ref{sec:Experiment setup} for more details), %enumerated clockwise starting from the top left corner noted by $p_1,p_2,p_3,p_4$, 
+and extracts the following four quantities based on the shape and location of the window corners in the image plane: %$S_x$, $S_y$, $V_d$ and $sz$, as follows.
+\textbf{Center of mass:} $S_x$ and $S_y$ represent the window ``center of mass'' along the $x$ and $y$ axes of the image, respectively, normalized to the range of $[-1,1]$.
+These values are used for controlling the yaw angle and the altitude of the drone, respectively. Means the drone is always facing the center of the window and at the altitude of the center of the window. 
+\textbf{Window size:} $sz$ is the sum of the vertical edges of the window. It is used to measure the distance of the drone from the window~\footnote{We used a fixed size window and converted $sz$ to distance (in meters in our case) based on the size of the window. In the general case the units of distance are relative to the window size.}.
+\textbf{Vertical difference:} $V_d = {((y_1-y_4)-(y_2-y_3))}/{((y_1-y_4)+(y_2-y_3))}$, were $y_i$ is the vertical position of the widow corners in the image in the range of $[-1,1]$, enumerated clockwise starting from the top left corner. It is measure the angular position of the drone in relation to the window (parallel to the ground) and used to control the position of the drone among the $x$ axis.
+Note that although $V_d$ is not directly measure the linear $x$ position of the drone, we can estimate the linear $x$ position by simple geometry:
+as show in Figure~\ref{fig:V_v-geomerty} $x = l * \sin (V_d)$ were $l$ (distance from window) can be calculated from $sz$. I our case because $V_d$ is usually relatively small we approximate it by $x = l * V_d$.
+
+%TODO - add fig:V_v-geomerty
+
+As common in engineering practices, we pass these numbers to a filter that gives us a more informed state estimation. 
+In theory, as demonstrated in the simulation in Section~\ref{sec:simulation}, we should use Kalman filter estimator for best state estimation. As we deal with a non-linear system here, and because the process noise distribution is not known (it is significantly affected by the varying state of the battery), and because Kalman filter adds complexity in the code, we use a complementary filter.
+A complementary filter is actually a steady-state Kalman filter for a certain class of filtering problems~\cite{complementaryVSKalman}.
+Specifically, in our case study, we implemented a two steps estimator that: (1) \textit{predicts} the current state evolved from the previous state (denoted by $\hat{x}_{k|k-1}$) using a linearized model of the system, and then \textit{updates} the prediction with current state measurement from the image, denoted by $y_k$.
+The result of the estimation, denoted by $\hat{x}_{k|k}$, is a complementary filter of the prediction ($\hat{x}_{k|k-1}$) and the measured state ($C^{-1}y_k$)~\footnote{The matrix $C$ is the measurement matrix as shown in the model at Figure~\ref{fig:simulink}}:
+$ \hat{x}_{k|k} = K \hat{x}_{k|k-1} + (1-K) C^{-1}y_k $ were $K$ is constant that equals the Kalman filter gain ($K_k$) at a steady-state, see Section~\ref{sec:kalman} for detail information.
+%TODO check if some of this need to be moved to Section~\ref{sec:kalman}
+%TODO add section on the system linearized model
+
+The image processing algorithms can run in different operation modes, each mode with different accuracy (see Section~\ref{sec:Analysis}).
+The constant $K$ represents the ratio between the variance of the process noise and the variance of the measurement noise. To achieve best performance, we define a separate value of $K$ for each mode.
+
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width=100mm]{axis.jpg}}
+    \caption{The coordinate system and the rotation axes of the drone, the position axis ($x$, $y$ and $z$) are in relation to the window, ``Yaw'' angle is the horizontal angle of the center of the window related to the front of the drone, ``pitch'' and ``roll'' are angles of the drone itself (calculated from the inertial sensors only).}
+    \label{fig:axis}
+\end{figure}
 
 
 
@@ -446,53 +485,6 @@ The results of the simulation, summarized in Table~\ref{tbl:sim-results}, show, 
 
 
 %TODO - continue here!
-\section{Case Study: Stabilizing a quadrotor in front of a window}
-\label{sec:caseStady}
-% overview of why we use vision example
-
-%TODO - Window test case problem
-The case study we used to test our concept is the development of a controller that stabilizes a quadrotor in front of a window (see, e.g.,~\url{rpg.ifi.uzh.ch/aggressive_flight.html}).
-We implemented an autonomous controller for that task and evaluated its performance.
-
-The part of the controller that we focused on is the vision based position controller. Specifically, the main controller, that we will describe below, uses a standard low-level angular controller and a simple image processing algorithm that identifies the position of the corners of the window in the image plane\footnote{In the experiment, to simplify the image processing algorithm, we marked the corners of the window with led lights.}. Its goal is to regulate the position of the quadrotor by tilting it. Note that rotations of the quadrotor generate a more-or-less proportional accelerations in a corresponding direction, hence we can approximate the system with a linear model. A main challenge for this controller is that the computer vision algorithm takes significant time to compute relative to the fast control loop. We can decrease computation time by lowering the resolution, but this also increases the measurement noise. We will demonstrate how reactive scheduling of the resolution can serve for balancing resource consumption vs. control performance in this system.
-
-\subsection{Observer Design}
-\label{sec:Observer Design}
-We first implemented an observer based on the work of Efraim~\cite{Efraim17}. The observer gets the positions of the widow corners from the image (see Section~\ref{sec:Experiment setup} for more details), %enumerated clockwise starting from the top left corner noted by $p_1,p_2,p_3,p_4$, 
-and extracts the following four quantities based on the shape and location of the window corners in the image plane: %$S_x$, $S_y$, $V_d$ and $sz$, as follows.
-\textbf{Center of mass:} $S_x$ and $S_y$ represent the window ``center of mass'' along the $x$ and $y$ axes of the image, respectively, normalized to the range of $[-1,1]$.
-These values are used for controlling the roll angle and the altitude of the drone, respectively. 
-\textbf{Window size:} $sz$ is the sum of the vertical edges of the window. It is used to measure the distance of the drone from the window~\footnote{We used a fixed size window and converted $sz$ to distance (in meters in our case) based on the size of the window. In the general case the units of distance are relative to the window size.}.
-\textbf{Vertical difference:} $V_d = {((y_1-y_4)-(y_2-y_3))}/{((y_1-y_4)+(y_2-y_3))}$, were $y_i$ is the vertical position of the widow corners in the image in the range of $[-1,1]$, enumerated clockwise starting from the top left corner. It is used to measure the angular position of the drone in relation to the window. % ($\theta$), then $\theta$ and $sz$ are used to calculate the horizontal position parallel to the window surface ($x$ position) of the drone (see Figure~\ref{fig:axis}). 
-
-%TODO - hodai say: not sure how to define this note:
-%TODO - Gera says: I don't understand what you tried to say with this remark. I sugget to remove it...
-%TODO - Hodai: the observer assume a system model and an sensing model, i need to mote them some ware because I'm referint to them.
-%\begin{remark}
-%    We assume that process state ($x$) is governed by the linear~\footnote{We approximated the non-linear system by a linear difference equation.} stochastic difference equation:
-%    $$x_{k}=Ax_{k-1} + Bu_{k} + w_{k}$$
-%    And the measurement ($z_k$) at time $k$ is:
-%    $$z_k=Cx_k+v_k$$
-%    The random variables $w_k$ and $v_k$ represent the process and measurement noise (respectively).
-%\end{remark}
-
-As common in engineering practices, we pass these numbers to a filter that gives us a more informed state estimation. 
-In theory, as demonstrated in the simulation in Section~\ref{sec:simulation}, we should use Kalman filter estimator for best state estimation. As we deal with a non-linear system here, and because the process noise distribution is not known (it is significantly affected by the varying state of the battery), and because Kalman filter adds complexity in the code, we propose to use a complementary filter.
-A complementary filter is actually a steady-state Kalman filter for a certain class of filtering problems~\cite{complementaryVSKalman}.
-Specifically, in our case study, we implemented a two steps estimator that: (1) \textit{predicts} the current state evolved from the previous state (denoted by $\hat{x}_{k|k-1}$) using a linearized model of the system, and then \textit{updates} the prediction with current state measurement from the image, denoted by $y_k$.
-The result of the estimation, denoted by $\hat{x}_{k|k}$, is a complementary filter of the prediction ($\hat{x}_{k|k-1}$) and the measured state ($C^{-1}y_k$)~\footnote{The matrix $C$ is the measurement matrix as shown in the model at Figure~\ref{fig:simulink}}:
-$ \hat{x}_{k|k} = K \hat{x}_{k|k-1} + (1-K) C^{-1}y_k $ were $K$ is constant that equals the Kalman filter gain ($K_k$) at a steady-state.
-
-The image processing algorithms can run in different operation modes, each mode with different accuracy (see Section~\ref{sec:Analysis}).
-The constant $K$ represents the ratio between the variance of the process noise and the variance of the measurement noise. To achieve best performance, we define a separate value of $K$ for each mode.
-
-\begin{figure}[htbp]
-    \centerline{\includegraphics[width=80mm]{axis.jpg}}
-    \caption{The coordinate system and the rotation axes of the drone.}
-    \label{fig:axis}
-\end{figure}
-
-
 \subsection{Controller Design}
 
 In this experiment, we consider the task of hovering in front of the window. The controller objective is to hover parallel to the window (center of $z$ axis in Figure~\ref{fig:axis}) at the altitude of the window within distance of two meters in front of the window ($y=x=0 , z=2$) and face pointed to the center of the window (yaw angle).
