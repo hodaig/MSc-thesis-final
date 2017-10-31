@@ -15,6 +15,8 @@
 \usepackage{cite}
 \usepackage{subfigure}
 \usepackage{float}
+\usepackage[english]{isodate}  %for '/printdayoff' in title
+\usepackage{subfiles}
 
 \usepackage{graphicx}
 \graphicspath{{./img/}}
@@ -139,14 +141,23 @@ fill=orange!20!yellow!20]
 
 
 %%%%%%%% utils %%%%%%%%
-\newcommand{\comment}[1]{}
+\newcommand{\commentOut}[1]{}
 \newcommand{\uncomment}[1]{#1}
 
+\title{\vspace{2cm}\LARGE BEN- GURION UNIVERSITY OF THE NEGEV \\
+    \Large THE FACULTY OF NATURAL SCIENCES \\ ~
+    \large DEPARTMENT OF COMPUTER SCIENCE \\ ~ \\ \vspace{1cm}Computational Resource Management of Multi-Channel Controller \\ ~ \\ \vspace{1cm}
+    \normalsize THESIS SUBMITTED IN PARTIAL FULFILLMENT OF THE REQUIREMENTS FOR 
+    THE MASTER OF SCIENCES DEGREE 
+}
 
-\author{Hodai Goldman}
-% (Hodaig@cs.bgu.ac.il) \\ \\Department of Computer Science, \\Ben-Gurion University of the Negev, Beer Sheva, Israel \\ \\Supervisor: Dr. Gera Weiss}
-\date{\today}
-\title{\LARGE {\bf Computational Resource Management of Multi-Channel Controller}}
+\vspace{1cm}
+\author{\Large Hodai Goldman \\ ~ \\ \vspace{1cm}
+    UNDER THE SUPERVISION OF: Dr. Gera Weiss }
+
+
+\vspace{1cm}
+\date{\printdayoff\today}
 
 \begin{document}
 \begin{titlepage}
@@ -154,9 +165,112 @@ fill=orange!20!yellow!20]
 \end{titlepage}
 
 \begin{titlepage}
-    \tableofcontents
-    %\newpage
+    \hspace{3cm}
 \end{titlepage}
+
+
+\begin{titlepage}
+    
+    \begin{center} 
+        \hspace{3cm}\\[2cm]
+        \textsc{\large BEN - GURION UNIVERSITY OF THE NEGEV}\\[0.3cm]
+        \textsc{\large THE FACULTY OF NATURAL SCIENCES }\\
+        \textsc{\large DEPARTMENT OF COMPUTER SCIENCE}\\[1cm]
+        
+        
+        \textsc{\large Computational Resource Management of Multi-Channel Controller }\\[1.5cm]
+        
+        
+        \textsc{THESIS SUBMITTED IN PARTIAL FULFILLMENT OF THE REQUIREMENTS FOR 
+            THE MASTER OF SCIENCES DEGREE }\\[1.5cm]
+        
+        
+        \textsc{\large Hodai Goldman}\\
+        \textsc{\large UNDER THE SUPERVISION OF: Dr. Gera Weiss }
+        
+        
+        
+        \vspace{4cm}
+        % Title
+        
+        
+        % Author and supervisor
+        \begin{minipage}{0.8\textwidth}
+            \begin{flushleft}
+                Signature of student: \line(1,0){50}
+            \end{flushleft}
+        \end{minipage}
+        \begin{minipage}{0.19\textwidth}
+            \begin{flushright}
+                Date: \line(1,0){50}
+            \end{flushright}
+        \end{minipage}
+        
+        \begin{minipage}{0.4\textwidth}
+        \end{minipage}
+        
+        \begin{minipage}{0.8\textwidth}
+            \begin{flushleft}
+                Signature of supervisor: \line(1,0){50}
+            \end{flushleft}
+        \end{minipage}
+        \begin{minipage}{0.19\textwidth}
+            \begin{flushright}
+                Date: \line(1,0){50}
+            \end{flushright}
+        \end{minipage}
+        
+        \begin{minipage}{0.4\textwidth}
+        \end{minipage}
+        
+        \begin{minipage}{0.8\textwidth}
+            \begin{flushleft}
+                Signature of chairperson\\
+                of the committee for graduate studies: \line(1,0){50}
+            \end{flushleft}
+        \end{minipage}
+        \begin{minipage}{0.19\textwidth}
+            \begin{flushright}
+                Date: \line(1,0){50}
+            \end{flushright}
+        \end{minipage}
+        
+        \begin{minipage}{0.4\textwidth}
+        \end{minipage}
+        
+        \vspace{2cm}
+        October, 2014 \\[1.5cm]
+        
+        %\vfill
+        
+        
+        % Bottom of the page
+        %{\large October 2011}
+        
+    \end{center}
+\end{titlepage}
+
+\begin{titlepage}
+    \hspace{3cm}
+\end{titlepage}
+
+\newpage
+\todo[inline]{need to update abstract section}
+\subfile{./Chapters/Abstract}
+
+\newpage
+\todo[inline]{need to update Acknowledgments section}
+\subfile{./Chapters/Acknowledgments}
+
+\newpage
+\tableofcontents
+\newpage
+\listoffigures
+\newpage
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % % % % % %
+
 
 \section{Introduction} % from paper
 Cyber-physical systems (CPS) technologies of integrating software and control are at the heart of many critical applications (see~\cite{lee2008cyber} for a review of such applications). 
@@ -177,7 +291,7 @@ In this thesis we present an approach, a proof-of-concept implementation, and a 
 
 %The rest of the thesis is organized as follows: In Section~\ref{sec:architecture} we outline the general software approach and the methodologies developed in our research. In Section~\ref{sec:simulation} we present the technical details of the proposed approach using a simulation. The case study is presented in Section~\ref{sec:caseStady} with a description of the engineering setup and the data we collected for the evaluation of the approach.
 
-\comment{ % pc vs realtime scheduler (from proposal)
+\commentOut{ % pc vs realtime scheduler (from proposal)
 Today's computer power allows for consolidation of controllers towards systems where a single computer regulates many control loops, each with its varying needs of computation resources.
 This brings two research challenges that we intend to attack in this thesis:
 \begin{itemize}
@@ -195,7 +309,7 @@ Similar views are expressed also in~\cite{RTComposer,Shlomo,UPenn-Pant}.
 Desktop type operating systems, like Windows and Linux, schedule for computational efficiency but do not allow for worst-case performance guarantees. Real-time operating systems, on the other hand, sacrifice some efficiency for timing predictability, but the type of timing guarantees that such systems provide usually are not directly guaranteeing the control performance of the system. 
 When using such operating systems for control, engineers usually apply controllers that work in a fixed periodic manner witch the control behavior becomes deterministic and control performance can be guaranteed. This is not efficient because resources can be better utilized if controllers act at higher frequencies only when needed.
 }
-\comment{ % this work contribution (from proposal)
+\commentOut{ % this work contribution (from proposal)
 In this work we show how to combine the efficiency of dynamic scheduling with the predictability of real-time scheduling, in a way that is more suitable for control systems then periods and deadlines.
 We show that applying control computations at dynamically adjustable periodic, and with variable computational demands, based on real-time information, allows for better utilization of the computational resources and therefor better control performance.
 
@@ -880,7 +994,7 @@ Extended Kalman filter is not guaranty to be optimal filter.
 
 
 %TODO - think this need to be in the architecture section
-\comment{
+\commentOut{
 In order to produce optimal estimation with Kalman filter, one of the parameter that we need to consider in our calculation is the variance of the sensor error.
 But in our new framework the sensor (vision based sensor) have variable error variance for each time slot, this means that we need to have also variable state estimators correspondingly.
 In order to adjust the sensor error variance, each time step the scheduler will inform the state estimator about the new error variance, and the state estimator will use corresponding parameters to make the next estimation.
@@ -894,16 +1008,7 @@ APM, the control software that we will use, is already using kalman filter as th
 \subsection{TODO}
 
 
-%ACKNOWLEDGMENTS are optional
-%\section*{Acknowledgments}
-%Acknowledgement goes here.
-
-%\begin{samepage}
-    \bibliographystyle{plain}
-    \bibliography{hodai_thesis}{}
-%\end{samepage}
-
-\comment{
+\commentOut{
 \section{Architecture: Automata Base Scheduler (From proposal)}
 
 As describe in Section~\ref{sec:Problem} control systems have two main parts: \textit{state estimation} and \textit{controller}. 
@@ -915,7 +1020,7 @@ In our architecture we concentrate more in those heavy sensing processes in orde
 %One wide used example is the use of computer vision in UAV's 
 (See~\ref{state estimation & why choose the window mission})
 
-\comment{ %move to preveius section
+\commentOut{ %move to preveius section
     
     %TODO - i think fig:general_hybrid_loop is Unnecessary and fig:hybrid_loop is enough 
     The architecture of control system as we believe, is illustrated in Figure~\ref{fig:general_hybrid_loop}.
@@ -992,7 +1097,7 @@ In our architecture we concentrate more in those heavy sensing processes in orde
 
 %TODO - probably need to be in the Tests section
 TODO - need to fix here!!!
-\comment{
+\commentOut{
     As shown in Figure~\ref{fig:hybrid_loop}, the system framework consists of an interaction between the scheduler and the control loops, in this case the estimator (\textit{State~Estimator}) accuracy strongly depends on the sensing task (\textit{Computer~Vision}) and they both collaborate with the \textit{scheduler} in order to achieve their \textbf{control objectives} (g.e. stability).
     In this framework the scheduler is part of the control logic and therefore it can make scheduling decisions based on the current control state, the scheduling of \textit{Computer~Vision} task depends on the accuracy of state estimation.
     For example, if the vision is clear, the \textit{Computer~Vision} will produce good measurement of the \textit{System} and therefore good accuracy will be achieved so the \textit{Scheduler} can allocate less computation time to the heavy \textit{Computer~Vision} task and still remain stable while allocating more CPU to others control loops or to background tasks (like navigation).
@@ -1046,7 +1151,7 @@ For our testing we use the commonly used and well known technique from control t
 In this technique the control output is based on the physical knowledge of the system dynamics, and have three variable parameters (P, I and D) that define the controller convergence behavior \cite{PID} ???.
 
 %TODO
-\comment{
+\commentOut{
     We also plan to try to use an ``adjustable'' LQR (Linear-quadratic regulator) control, as follows.
     LQR is an optimal controller that take into account the level of certainty of the state estimation. 
     Is usually a hard task to know the certainty of estimation, but in our case we need to calculate it anyway, and we mark it as $var(x-\tilde{x})$.
@@ -1173,5 +1278,16 @@ The estimated estimation error ($estVar$ in the figure) is, in this case, the es
 Each of this operation modes ($s_{0.7}$ and $s_{0.2}$) have different accuracy, specified by $var(v)$ in Figure~\ref{fig:hybrid_loop}, and if we want to get optimal estimation the state estimator mast be configure correspondingly, i.e., the sensing error variance should be adjusted to the correct value ($var(s_{0.7})$), an easy solution for specifying the different configurations is by the guarded automata shown in Figure~\ref{fig:sched_estimator_auto}, which defines two operation modes of the state estimator, $est_1$ and $est_2$, that correspond to $var(s_{0.7})$ and $var(s_{0.2})$. So of course if we sense in mode $s_{0.7}$ we must estimate with mode $est_1$ that has the correct configurations for $s_{0.7}$, and if we sense in mode $s_{0.2}$ we must estimate with mode $est_2$.    
 }
 
+%\begin{samepage}
+\bibliographystyle{abbrv}
+\bibliography{hodai_thesis}
+%\end{samepage}
+
+\begin{titlepage}
+    \hspace{3cm}
+\end{titlepage}
+
+%\includepdf[pages={1-}]{./Chapters/HebrewPages.pdf}
+\todo[inline]{Need to update the hebrew pages}
 
 \end{document}}
