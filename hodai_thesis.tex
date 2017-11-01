@@ -30,8 +30,13 @@
 }
 
 % % % % % margin notes % % % % % %
-\usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
+\usepackage[colorinlistoftodos,prependcaption
+%,textsize=tiny
+]{todonotes}
+
 \reversemarginpar
+
+\newcommand\todoil[1]{\todo[inline]{ #1}}
 
 %%%%%%%% Package for source-code listing %%%%%%%%%%%%
 \usepackage{pdfpages}
@@ -864,39 +869,27 @@ Figure~\ref{fig:windPlot} shows data collected in one of the flights with the CP
 
 
 
-
+\
 %TODO - continue here!
-
-\section{Scheduler Prototype}
-\subsection{Formal Definition of Guarded (specification) automata}
-% TODO - mybe as apendex 
-\subsection{Automata Operation}
-% TODO - mybe as apendex 
-\subsection{GOAL Tool}
-% TODO - mybe as apendex 
-
-
-\section{Testing Environment}
-\subsection{Experiment setup} % (From Paper)
+\section{Experiment setup} % (From Paper)
 \label{sec:Experiment setup}
 
-In order to perform the experiments we used an of-the-shelf quadrotor with a \textit{raspberry-pi}~(\url{www.raspberrypi.org}) board with the \textit{navio2}~(\url{emlid.com/navio/}) shield. We implemented the controllers and the schedulers as libraries for the ArduPilot Mega (APM) autopilot software.
-%ArduPilot Mega (APM) is an open source unmanned vehicle autopilot software suite~(\url{ardupilot.org}).
-%\textit{Navio2} (\url{emlid.com/introducing-navio2}) is extension board (shield) for the \textit{Raspberry pi} platform, it provides the nessesary interfaces such as remote control inputs and motors output, and it's equipped with on-board Micro Electro
-%Mechanical System (MEMS) sensors, specifically, rate gyros and accelerometers.
+\subsection{Hardware - Quad-rotor drone}
+\label{sec:Experiment setup-HW}
+% the hardware
+In order to perform the experiments we used an of-the-shelf quadrotor shown in Figure~\ref{fig:hover_in_lab} \todo{add the image} with improved flight controlle: a \textit{raspberry-pi}, a single-board computer~\cite{raspberry}, with the \textit{navio2}~\cite{navio} shield.
+\textit{Navio2} is extension board (shield) for the \textit{Raspberry pi} platform, it provides the nessesary interfaces such as remote control inputs and motors output, and it is equipped with on-board Micro Electro-Mechanical System (MEMS) sensors, such as rate gyros and accelerometers.
+We implemented the controllers and the schedulers as libraries for the ArduPilot Mega (APM) autopilot software~\cite{APM}.
 
+\subsection{Optical Sensor}
+\label{sec:Experiment setup-cam}
+% PiCam
 We used the standard raspberry-pi camera with a modified driver to allow for dynamic resolution switching. % and modified driver for eficient recording in the window
 %The camera frame rate is always 30 frames per second, and before taking each picture the scheduler defined the operation resolution of the camera.
 In order to simplify the image processing algorithm, we marked the four corners of the window with four illuminated balls. This allowed us to apply a simple minded corner detection algorithm: 
 look for a blob of burned pixels and calculate the ``center of mass'' of all those pixels as a window corner. Higher resolution give us a more accurate measurement of corner ``center of mass''.
 
-In order to evaluate the performance, we needed to know the accurate position of the drone during the flight. For this purpose, we used the \textit{OptiTrack} (\url{optitrack.com}) system 
-consisting of an array of high-speed tracking cameras that provide low latency and high accuracy position and attitude tracking of the drone. The data from the \textit{OptiTrack} system is considered in this research as the ground truth.
-
-
-\subsection{APM Controlled Quad-copter}
 \subsection{Vision based Autonomous In-Door Flying}
-
 %Anitime reserch of zilbershtain (\cite{Shlomo})
 %contract based
 %http://ardupilot.org/copter/docs/common-mouse-based-optical-flow-sensor-adns3080.html
@@ -915,7 +908,22 @@ We believe that this is a reasonable assumption because the estimated speed is u
 In order to control the running time, we will use anytime based algorithms~\cite{Shlomo} and will mainly concentrate on ``contract based" vision algorithms proposed by Pant~\cite{UPenn-Pant}.
 This type of algorithms run until we stop them, and when we stop them they will provide a solution with accuracy that is a monotonic function of the amount of time it was running. That way we can control the solution accuracy by controlling the running time.
 In our implementation, in order to lower the complexity, we will pre-define few specific ``operation modes" of the \textit{Computer~Vision} task, that differ by their running time and they are identified by a pair $\langle RunTime, Variance \rangle$ where $Variance$ is the error variance of running time $RunTime$.
+
+\subsection{APM Controlled Quad-copter}
+
 \subsection{Reference Measurement with OptiTrack System}
+%OptiTrack
+In order to evaluate the performance, we needed to know the accurate position of the drone during the flight. For this purpose, we used the \textit{OptiTrack} (\url{optitrack.com}) system 
+consisting of an array of high-speed tracking cameras that provide low latency and high accuracy position and attitude tracking of the drone. The data from the \textit{OptiTrack} system is considered in this research as the ground truth.
+
+
+\section{Scheduler Prototype}
+\subsection{Formal Definition of Guarded (specification) automata}
+\todoil{mybe as apendex}
+\subsection{Automata Operation}
+\todoil{mybe as apendex}
+\subsection{GOAL Tool}
+\todoil{mybe as apendex}
 
 \section{Related Work}
 \section{Conclusions and Future Work}
