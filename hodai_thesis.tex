@@ -294,7 +294,7 @@ researchers to develop compositional approaches and interface notions for real-t
 In this thesis we present an approach, a proof-of-concept implementation, and a case study in scheduling computations in embedded control systems. The proposed design is based on the automata based scheduling approach, suggested in~\cite{weiss2007automata,RTComposer,AW08,ESNAASHARI20102410,liu2013synthesis}, where automata are proposed as interfaces that allow the dynamicity and efficiency of desktop operating systems with the predictability of real-time operating systems. The approach allows for components to specify the CPU resources that they need in a way that gives an application agnostic scheduler the freedom to choose schedules at run-time such that the needs of all the components are taken into account, even of components that were added only at run-time. The main contributions of this thesis relative to the earlier work in this direction is:
 (1) We propose an extension of the automata based scheduling framework that allows to direct the schedule based on the state of the controllers; (2) We propose a technique, based on the theory of Kalman Filters, for designing reactively scheduled controllers; (3) We report on our experience with improving the performance of a real-time, vision-based, control system (a drone that stabilizes itself in front of a window).
 
-%The rest of the thesis is organized as follows: In Section~\ref{sec:architecture} we outline the general software approach and the methodologies developed in our research. In Section~\ref{sec:simulation} we present the technical details of the proposed approach using a simulation. The case study is presented in Section~\ref{sec:caseStady} with a description of the engineering setup and the data we collected for the evaluation of the approach.
+%The rest of the thesis is organized as follows: In Section~\ref{sec:architecture} we outline the general software approach and the methodologies developed in our research. In Section~\ref{sec:simulation} we present the technical details of the proposed approach using a simulation. The case study is presented in Section~\ref{sec:caseStudy} with a description of the engineering setup and the data we collected for the evaluation of the approach.
 
 \commentOut{ % pc vs realtime scheduler (from proposal)
 Today's computer power allows for consolidation of controllers towards systems where a single computer regulates many control loops, each with its varying needs of computation resources.
@@ -430,10 +430,10 @@ The motivations of using automata as described above are: (1) Automata allow for
 In this thesis we focus on the first two motivations in the above list. The third is discussed in details in earlier works on automata based scheduling and is the focus of future paper that we are preparing where we describe some analysis techniques we have developed for guarded automata.   
 
 \subsection{Implementation in an Auto Pilot Software}
-As our main case study is in flight control (see Section~\ref{sec:caseStady}), we chose the ArduPilot Mega (APM) platform for experiments~\cite{APM}. To this end, we implemented a basic automata based scheduler for this platform. The built-in task scheduling specification in APM consist of a table as shown in Figure~\ref{fig:apm-scheduler}. This table is easy to maintain and to adjust, but it is used under an assumption that there is enough CPU power to run all the tasks in the specified frequencies. APM does contain a mechanism to handle overruns, by moving tasks to the next window when there is not enough time to run them now, but the system is designed under the assumption that this only happen in rare situations.
+As our main case study is in flight control (see Section~\ref{sec:caseStudy}), we chose the ArduPilot Mega (APM) platform for experiments~\cite{APM}. To this end, we implemented a basic automata based scheduler for this platform. The built-in task scheduling specification in APM consist of a table as shown in Figure~\ref{fig:apm-scheduler}. This table is easy to maintain and to adjust, but it is used under an assumption that there is enough CPU power to run all the tasks in the specified frequencies. APM does contain a mechanism to handle overruns, by moving tasks to the next window when there is not enough time to run them now, but the system is designed under the assumption that this only happen in rare situations.
 %TODO - maybe add APM section in apendex describing this scheduler with image
 
-To allow a reactive scheduler that runs different modes of the software-based controllers depending on their state, we replaced the scheduling table in our version of the APM with automata that specify when to run the tasks. Note that automata allow for specifying the requirements that the table represents, using simple circular automata without guards (see, e.g., \cite{weiss2007automata}). Automata, however, can model more advanced scheduling instructions with very little addition to the complexity of the scheduler, as we will demonstrate in Section~\ref{sec:simulation} and in Section~\ref{sec:caseStady} below.
+To allow a reactive scheduler that runs different modes of the software-based controllers depending on their state, we replaced the scheduling table in our version of the APM with automata that specify when to run the tasks. Note that automata allow for specifying the requirements that the table represents, using simple circular automata without guards (see, e.g., \cite{weiss2007automata}). Automata, however, can model more advanced scheduling instructions with very little addition to the complexity of the scheduler, as we will demonstrate in Section~\ref{sec:simulation} and in Section~\ref{sec:caseStudy} below.
 %TODO - were gose the detail of the automaton operations
 
 \begin{figure}[]
@@ -562,7 +562,7 @@ The automaton try to formalize the expression: ``use `High' mode only after obse
 The results of the simulation, summarized in Table~\ref{tbl:sim-results}, show, as expected, that the CPU consumption is much lower (0.1) when using the low-quality version of the sensing algorithm and is higher (0.85) when the high-quality version of the sensing algorithm is used. The performance of the estimation, in terms of the mean distance between $x$ (the real state) and $\hat x$ (the Kalman filter estimated state), is better with the high-quality version (0.97) than it is with the low-quality version (1.24). More interestingly, we can see that the experiment with the automaton that switches between the two sensor modes yields performance that is close to the performance of the high-quality sensing algorithm, using much less CPU. This demonstrates how automata based reactive scheduling can allow for new ways to balance performance and computational resources in software based controllers. 
 
 \section{Case Study: Stabilizing a Quad-rotor in Front of a Findow}
-\label{sec:caseStady}
+\label{sec:caseStudy}
 % overview of why we use vision example
 
 The case study we used to test our concept is the development of a controller that stabilizes a quadrotor in front of a window (see, e.g.,~\url{rpg.ifi.uzh.ch/aggressive_flight.html}).
@@ -860,36 +860,96 @@ Figure~\ref{fig:windPlot} shows data collected in one of the flights with the CP
     \label{fig:windPlot}
 \end{figure}
 
-
-
-
-
-
-
-
-
-
-\
-%TODO - continue here!
-\section{Experiment setup} % (From Paper)
+\section{Experiment Setup} % (From Paper)
 \label{sec:Experiment setup}
 
-\subsection{Hardware - Quad-rotor drone}
+\begin{figure} %[htbp]
+    \centerline{\includegraphics[width=100mm]{hover_in_lab.jpg}}
+    \caption{This figure shows the drone hovering in front of the window during one of the experiments in our lab, window in the test is just 4 light balls.}
+    \label{fig:hover_in_lab}
+\end{figure}
+
+\subsection{Hardware - the Quad-Rotor}
 \label{sec:Experiment setup-HW}
 % the hardware
-In order to perform the experiments we used an of-the-shelf quadrotor shown in Figure~\ref{fig:hover_in_lab} \todo{add the image} with improved flight controlle: a \textit{raspberry-pi}, a single-board computer~\cite{raspberry}, with the \textit{navio2}~\cite{navio} shield.
+
+In order to perform the experiments we used an of-the-shelf quadrotor shown in Figure~\ref{fig:the_drone} with improved flight controlle: a \textit{raspberry-pi}, a single-board computer~\cite{raspberry}, with the \textit{navio2}~\cite{navio} shield.
 \textit{Navio2} is extension board (shield) for the \textit{Raspberry pi} platform, it provides the nessesary interfaces such as remote control inputs and motors output, and it is equipped with on-board Micro Electro-Mechanical System (MEMS) sensors, such as rate gyros and accelerometers.
 We implemented the controllers and the schedulers as libraries for the ArduPilot Mega (APM) autopilot software~\cite{APM}.
 
-\subsection{Optical Sensor}
-\label{sec:Experiment setup-cam}
-% PiCam
-We used the standard raspberry-pi camera with a modified driver to allow for dynamic resolution switching. % and modified driver for eficient recording in the window
-%The camera frame rate is always 30 frames per second, and before taking each picture the scheduler defined the operation resolution of the camera.
-In order to simplify the image processing algorithm, we marked the four corners of the window with four illuminated balls. This allowed us to apply a simple minded corner detection algorithm: 
-look for a blob of burned pixels and calculate the ``center of mass'' of all those pixels as a window corner. Higher resolution give us a more accurate measurement of corner ``center of mass''.
+\begin{figure} %[htbp]
+    \centerline{\includegraphics[width=70mm]{the_drone.jpg}}
+    \caption{The quad-rotor used for testing.}
+    \label{fig:the_drone}
+\end{figure}
 
-\subsection{Vision based Autonomous In-Door Flying}
+\subsection{Vision Based Sensor}
+\label{sec:Experiment setup-cam}
+% PiCam and drivers
+As explained in Section~\ref{sec:caseStudy} we use vision-based sensor for identify the window.
+For this task we used the standard raspberry-pi camera module (V1) (see~\url{www.raspberrypi.org/documentation/hardware/camera/}) mounted in the front of the drone
+This camera can take pictures in different resolutions and at different frame rate.
+The controller software implemented in c++ therefore we initially use the most common used driver for C++ called  \textit{RaspiCam} (see~\url{www.uco.es/investiga/grupos/ava/node/40}.
+RaspiCam have two main difficulties for us:
+\begin{enumerate}
+    \item The raspberry-pi camera take a picture in a constant pre-define frame rate~\footnote{The constant pre-define frame rate is only wen using ``vid'' mod which allows fast frame rate}, this mean that if we want to grab an image the driver (RaspiCam) will wait till the next frame is taking. This approach is not appropriate for real-time system.
+    \item As describe in Section~\ref{sec:caseStudy} we need to switch image resolution during the flight many times, raspberry-pi camera resolution is defined only at initialization, therefore changing resolution of the camera results in significant delay till the camera is ready at the new resolution.
+\end{enumerate} 
+
+The first difficulty has solved by modifying RaspiCam driver, we add to RaspiCam the ability to notify the client when the next frame is ready, this way whenever a new frame is taken the callback function is called.
+We also add this modification to the official RaspiCam code that is maintained in~\url{github.com/cedricve/raspicam}.
+
+In order to overcome the second difficulty we try to take pictures at the high resolution and then resize by software (using OpenCV) to the desire resolution, this solution still add undesirable delay for each frame that is taking.
+At the end, we create a new camera driver based on the work of Chris Cummings at~\url{robotblogging.blogspot.co.il/2013/10/an-efficient-and-simple-c-api-for.html}.
+In this driver we use the internal GPU hardware of the Raspberry-py in order to resize the frame by hardware.
+Using the ARM side libraries \textit{userland}~\url{https://github.com/raspberrypi/userland} we construct a up to 4 video ports each one from different resolution resizer all connected to the camera port (see Figure~\ref{fig:resize_ports}), now each time we want to take image we can choose the image resolution by retrieving the image from the corresponded port without any latency.
+
+\begin{figure} %[htbp]
+    \centering
+    
+    \begin{tikzpicture}[node distance=4.5cm]
+        \node (cam) [recNodeB, text width=3.5cm] {Camera Component 1280$\times$960 @ 30fps};
+        \node (sp) [recNodeB, text width=2cm, right of=cam, minimum height=5.5cm] {Spliter Component};
+        \node (r1) [recNodeB, text width=2cm, right of=sp, yshift=2.25cm] {Resizer 320$\times$240 };
+        \node (r2) [recNodeB, text width=2cm, right of=sp, yshift=0.75cm] {Resizer 640$\times$480};
+        \node (r3) [recNodeB, text width=2cm, right of=sp, yshift=-0.75cm] {Resizer 960$\times$720};
+        \node (r4) [recNodeB, text width=2cm, right of=sp, yshift=-2.25cm] {Passthru (1280$\times$960)};
+        
+        \draw [arrowB] (cam) -- node[above] {} (sp);
+        \draw [arrowB] (sp.east) |- node[] {  } (r1.west);
+        \draw [arrowB] (sp.east) |- node[] {  } (r2.west);
+        \draw [arrowB] (sp.east) |- node[] {  } (r3.west);
+        \draw [arrowB] (sp.east) |- node[] {  } (r4.west);
+                
+        \node (p1) [eNode, text width=2cm, right of=r1, xshift=-1cm] {Port 1};
+        \node (p2) [eNode, text width=2cm, right of=r2, xshift=-1cm] {Port 2};
+        \node (p3) [eNode, text width=2cm, right of=r3, xshift=-1cm] {Port 3};
+        \node (p4) [eNode, text width=2cm, right of=r4, xshift=-1cm] {Port 4};
+        
+        \draw [arrowB] (r1) |- node[] {  } (p1);
+        \draw [arrowB] (r2) |- node[] {  } (p2);
+        \draw [arrowB] (r3) |- node[] {  } (p3);
+        \draw [arrowB] (r4) |- node[] {  } (p4);
+        
+    \end{tikzpicture}
+    
+    \caption{This figure present the graphics processing unit (GPU) configuration we used for image resizing.}
+    \label{fig:resize_ports}
+\end{figure}
+
+%vision algo
+In the case-study, shown in Section~\ref{sec:caseStudy}, we always use the camera at 30 frames per second.
+In order to simplify the image processing algorithm, we marked the four corners of the window with four illuminated balls (see Figure~\ref{fig:window_lights}). This allowed us to apply a simple minded corner detection algorithm: 
+look for a blob of burned pixels and calculate the ``center of mass'' of all those pixels as a window corner. Higher resolution give us a more accurate measurement of corner ``center of mass'' but require more processing time.
+
+\begin{figure} %[htbp]
+    \centerline{\includegraphics[width=70mm]{window_lights.jpg}}
+    \caption{This figure shows the four light balls we used to represent the window during the experiment.}
+    \label{fig:window_lights}
+\end{figure}
+
+\commentOut{
+\subsubsection{Vision based Autonomous In-Door Flying}
 %Anitime reserch of zilbershtain (\cite{Shlomo})
 %contract based
 %http://ardupilot.org/copter/docs/common-mouse-based-optical-flow-sensor-adns3080.html
@@ -908,9 +968,18 @@ We believe that this is a reasonable assumption because the estimated speed is u
 In order to control the running time, we will use anytime based algorithms~\cite{Shlomo} and will mainly concentrate on ``contract based" vision algorithms proposed by Pant~\cite{UPenn-Pant}.
 This type of algorithms run until we stop them, and when we stop them they will provide a solution with accuracy that is a monotonic function of the amount of time it was running. That way we can control the solution accuracy by controlling the running time.
 In our implementation, in order to lower the complexity, we will pre-define few specific ``operation modes" of the \textit{Computer~Vision} task, that differ by their running time and they are identified by a pair $\langle RunTime, Variance \rangle$ where $Variance$ is the error variance of running time $RunTime$.
+}
 
-\subsection{APM Controlled Quad-copter}
 
+
+
+
+
+
+
+
+
+%TODO - continue here!
 \subsection{Reference Measurement with OptiTrack System}
 %OptiTrack
 In order to evaluate the performance, we needed to know the accurate position of the drone during the flight. For this purpose, we used the \textit{OptiTrack} (\url{optitrack.com}) system 
@@ -931,6 +1000,7 @@ consisting of an array of high-speed tracking cameras that provide low latency a
 % develop the framwork
 % invent mathematical / aupomatic technics to create the automata
 
+%TODO - say somthing about the camera driver
 We introduced a new approach for resource allocation that allows dynamic scheduling where resources are only allocated when needed.
 
 We presented a compositional design strategy using rich automata based interface between software components and the task scheduler. We also proposed how to use this design in the context of software control systems using the data provided by standard filters.
