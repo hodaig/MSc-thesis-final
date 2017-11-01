@@ -902,7 +902,7 @@ We also add this modification to the official RaspiCam code that is maintained i
 In order to overcome the second difficulty we try to take pictures at the high resolution and then resize by software (using OpenCV) to the desire resolution, this solution still add undesirable delay for each frame that is taking.
 At the end, we create a new camera driver based on the work of Chris Cummings at~\url{robotblogging.blogspot.co.il/2013/10/an-efficient-and-simple-c-api-for.html}.
 In this driver we use the internal GPU hardware of the Raspberry-py in order to resize the frame by hardware.
-Using the ARM side libraries \textit{userland}~\url{https://github.com/raspberrypi/userland} we construct a up to 4 video ports each one from different resolution resizer all connected to the camera port (see Figure~\ref{fig:resize_ports}), now each time we want to take image we can choose the image resolution by retrieving the image from the corresponded port without any latency.
+Using the ARM side libraries \textit{userland}~\url{https://github.com/raspberrypi/userland} we construct a up to 4 video ports each one from different resolution resizer all connected to the camera port (see Figure~\ref{fig:resize_ports}), now each time we want to take image we can choose the image resolution by retrieving the image from the corresponded port.
 
 \begin{figure} %[htbp]
     \centering
@@ -970,6 +970,13 @@ This type of algorithms run until we stop them, and when we stop them they will 
 In our implementation, in order to lower the complexity, we will pre-define few specific ``operation modes" of the \textit{Computer~Vision} task, that differ by their running time and they are identified by a pair $\langle RunTime, Variance \rangle$ where $Variance$ is the error variance of running time $RunTime$.
 }
 
+\subsection{Reference Measurement with OptiTrack System}
+%OptiTrack
+In order to evaluate the performance, we needed to know the accurate position of the drone during the flight. For this purpose, we used the \textit{OptiTrack} (\url{optitrack.com}) system 
+consisting of an array of high-speed tracking cameras that provide low latency and high accuracy position and attitude tracking of the drone. The data from \textit{OptiTrack} system is sent over the client-server data streaming protocol \textit{NatNet}.
+For best synchronization, we create a NatNet client library inside the APM code. This library allows the controller check anytime for the current state and log that information in parallel to the other controller parameters.
+We also use the OptiTrack information in early stages of the research as the feedback of the controller before we use the camera .
+
 
 
 
@@ -980,12 +987,6 @@ In our implementation, in order to lower the complexity, we will pre-define few 
 
 
 %TODO - continue here!
-\subsection{Reference Measurement with OptiTrack System}
-%OptiTrack
-In order to evaluate the performance, we needed to know the accurate position of the drone during the flight. For this purpose, we used the \textit{OptiTrack} (\url{optitrack.com}) system 
-consisting of an array of high-speed tracking cameras that provide low latency and high accuracy position and attitude tracking of the drone. The data from the \textit{OptiTrack} system is considered in this research as the ground truth.
-
-
 \section{Scheduler Prototype}
 \subsection{Formal Definition of Guarded (specification) automata}
 \todoil{mybe as apendex}
