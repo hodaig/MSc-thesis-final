@@ -860,7 +860,7 @@ Figure~\ref{fig:windPlot} shows data collected in one of the flights with the CP
     \label{fig:windPlot}
 \end{figure}
 
-\section{Experiment Setup} % (From Paper)
+\section{Experiment Setup}
 \label{sec:Experiment setup}
 
 \begin{figure} %[htbp]
@@ -987,13 +987,130 @@ We also use the OptiTrack information in early stages of the research as the fee
 
 
 %TODO - continue here!
-\section{Scheduler Prototype}
-\subsection{Formal Definition of Guarded (specification) automata}
+\section{Scheduler Interface Prototype}
+
+\todo{I dont know if this section is too much (is mostly taken from the proposal)}
+
+The most common way of describing the requirements of a real-time component is to specify a period, sometimes along with a deadline, which gives the frequency at which the component must execute.
+%The designer of the component makes sure that the performance objectives are met as long as the component is executed consistent with its period. The scheduler guarantees that all components get enough resources.
+%not directly in this article
+Specifying resource requirements using periods has advantages due to simplicity and analyzability, but has limited expressiveness, as elaborated in~\cite{RTComposer}. 
+%For example, a specification such as “execute the component every 5ms” does not say whether the scheduler should or should not execute it more frequently if enough computing resources are available, and if a component has multiple, say, for different control tasks, each needing a different period, the requirement cannot be naturally captured by a single period.
+
+In Section~\ref{sec:architecture} we suggest to use automata for describe the task specification for the scheduler, in this section we elaborate the technical details of the specification automata, \todo{not sure we want to talk about techniques (they can be ferers as related/future work)} techniques and tools that can be used to analyze the system, and in the last part of this section we show a working scheduler prototype that we implement to create to prove the concept.
+
+\subsection{Formal Definition of Guarded (specification) Automaton}
 \todoil{mybe as apendex}
 \subsection{Automata Operation}
 \todoil{mybe as apendex}
 \subsection{GOAL Tool}
 \todoil{mybe as apendex}
+\subsection{Example of Using the Scheduler Interface Prototype}
+\todoil{tests with the real scheduler and the resulting scheduling}
+
+\subsubsection{The Proposed Scheduling Methodology}
+In this thesis we develop a new methodology for allocation resources. We focus on how should engineers describe the requirements of a real-time component.
+To simplify, we will assume that the resource is allocated in discrete \textit{time slots} of fixed duration in the style of time-triggered architecture~\cite{RTComposer}.
+%TODO - read again this section
+%We will develop automata based (hybrid automata) methodologies and schedulers based on the work of Alur~\cite{RTComposer} and Bukra~\cite{Merav}, and will demonstrate with measurable data how they improve the performance of real flying drones (see Section~\ref{sec:results}).
+The specification framework for resource requirements is based on \textit{Nondeterministic $\omega$-automata} (finite automata over infinite words)~\cite{???}.
+Automata can be more expressive for describing specific requirements, and they are composable, i.e., it is easy to compose all the tasks requirements into an integrated automata, and its easy to analyze and manipulate using tools like GOAL~\cite{???}.
+
+
+%TODO - what we do with $Acc$
+Formally \textit{task specification automata} is defined, similarly to Nondeterministic $\omega$-automata, as tuple $A=(Q,\Sigma,\Delta,Q_0,Acc)$.
+In our setting, the \textit{alphabet} of the automata is $\Sigma = T^2 \times C^2$ where 
+$C$ is the set of Boolean conditions variables, will be describe later, and $T$ is the set of all tasks in the system.
+Each infinite word ($\alpha \in \Sigma^\omega$) of the automata define a possible tasks scheduling over a fixed period (time slots), and the automata language define all the possible scheduling.
+Now the scheduler only need to ``walk through'' the automata as follows, before every iteration (time slot) the scheduler choose state transition $(q_i , \{t_j , c_j\}, q_{i+1})$ from the current state $q_i$ to the state $q_{i+1}$
+
+
+Let's define $s()$
+
+
+
+
+
+
+
+
+
+%Hybrid automata is a variation of finite automata for real-valued continuously progressing words~\cite{hibrid-systems}.
+In our setting, the automata define continuous (fixed period) operation modes, and the condition of mode changing.
+The operation mode directly define a set of tasks that will be executed in the time slot (for example $s_{0.7}$ in Figure~\ref{fig:sched_sense_auto}).
+We can stay at a single mode for some iterations, in this case the same tasks will be scheduled in each iteration. 
+We can also take \textbf{discrete mode transition} in order to change operation mode after few iterations and schedule different set of tasks, for example, in Figure~\ref{fig:sched_sense_auto} the edge $(m_1,m_2)$ says that if the previous iteration mode was $m_1$ and $estVar < 0.7$ we can change the mode and schedule the set $\{s_{0.2}\}$ in the next iteration.
+
+Each infinite path on the composed hybrid automata (not necessarily with infinitely many mode transitions) represents a schedule that satisfy all the tasks requirements. 
+In this architecture the scheduler only need to ``walk through'' the composed automata, this is, of course, a fast and easy computational task. 
+In order to assure that we do not exceed the time slot duration, each task will have pre-defined maximum duration time like ``deadline'' in the traditional architecture. Now we can verify that every possible scheduling step can execute within a single time slot, in other words, every mode of the composed automata can be executed in a single time slot, by simply summing the ``deadlines'' of all the tasks in the mode tasks set.
+%we can summarize the total slot ``deadline'' as follows:\\
+%$\forall mode~e ~~(\sum_{t \in Guard(e)} deadline(t) ) \leq slot~duration$ \\
+If we find a mode that goes beyond the maximum duration we can remove it from the automata so we never exceed the time slot duration.
+
+
+\begin{figure}[]
+    \centering
+    
+    \begin{tikzpicture}[node distance=4cm, text centered, auto]
+    \node (A) [state, accepting, text width=1cm, initial] {$m_1$ $\{s_{0.7}\}$};
+    \node (B) [state, accepting, text width=1cm] [right of=A] {$m_2$ $\{s_{0.2}\}$};
+    \node (C) [state, accepting, text width=1cm] [right of=B] {$m_3$ $\{s_{0.2}\}$};
+    
+    \path[->] (A) edge [loop above] node {$true$} (A);
+    %\path[->] (A) edge [bend left] node {$\neg est_{bad} \wedge s_{0.2}$} (B);
+    \path[->] (A) edge [bend left] node {$estVar < 0.7$} (B);
+    \path[->] (B) edge [bend left] node {$true$} (A);
+    %\path[->] (B) edge [loop above] node {$\neg var3$} (B);
+    %\path[->] (B) edge [bend left] node {$est_{good} \wedge s_{0.2}$} (C);
+    \path[->] (B) edge [bend left] node {$ estVar < 0.3$} (C);
+    %\path[->] (C) edge [loop above] node {$var1$} (C);
+    \path[->] (C) edge [bend left=60] node {$true$} (A);
+    
+    
+    \end{tikzpicture}
+    
+    \caption{Example of guarded automata for our vision based sensor task, in this example the task has two operation modes, $\mathbf{s_{0.7}}$ which need 70\% of the time slot but is more accurate vision computation and $\mathbf{s_{0.2}}$ which is less accurate but faster (need only 20\% of the slot).
+        The value of $estVar$ is $var(x-\tilde{x})$ of the previous iteration.
+        Every time slot exactly one of the modes will be executed.
+        \label{fig:sched_sense_auto}}
+\end{figure}
+
+\begin{figure}[]
+    \centering
+    
+    \begin{tikzpicture}[node distance=4cm,auto]
+    \node (A) [state, accepting, initial] {$\{est_1\}$};
+    \node (B) [state, accepting] [right of=A] {$\{est_2\}$};
+    
+    \path[->] (A) edge [loop above] node {$s_{0.7}$} (A);
+    \path[->] (B) edge [bend left] node {$s_{0.7}$} (A);
+    %\path[->] (A) edge [bend left] node {$s_{0.2} \wedge est_2$} (B);
+    %\path[->] (B) edge [loop above] node {$s_{0.2} \wedge est_2$} (B);
+    \path[->] (A) edge [bend left] node {$s_{0.2}$} (B);
+    \path[->] (B) edge [loop above] node {$s_{0.2}$} (B);
+    %\path[->] (B) edge [bend left] node {$s_{0.7} \wedge est_1$} (A);
+    
+    \end{tikzpicture}
+    
+    \caption{Example of guarded automata for our state estimator, in this example the estimator has two operation modes, $\mathbf{est_1}$ correspond to $\mathbf{s_{0.7}}$ and $\mathbf{est_2}$ correspond to $\mathbf{s_{0.2}}$~(see Figure \ref{fig:sched_sense_auto}).
+        \label{fig:sched_estimator_auto}}
+\end{figure}
+
+Let us demonstrate the proposed automata based interface using the system depicted in Figure~\ref{fig:hybrid_loop}.
+Assume we have two operation modes of the vision based sensor: (1) $s_{0.7}$ a very accurate operation mode that takes 70\% of the time slot to execute, that is of course a significant amount of time, and (2) $s_{0.2}$ a less accurate operation mode but takes only 20\% of the slot.
+In each time slot we can execute one of them and get the sensing process done, but if we use only $s_{0.7}$ every time slot we may not have enough time to execute all the tasks. On the other hand, if we use only $s_{0.2}$ we will have inferior estimates.
+Figure~\ref{fig:sched_sense_auto} shows an example of a guarded automata that guides the schedule. With this automata we can express rich specifications. 
+In this example, execute $s_{0.7}$ is always allowed but if we need faster sensing we can use $s_{0.2}$ but only once in a row if the estimation error is not extremely bad~(if~$var(x-\tilde{x}) < 0.7$), or even twice in a row if the estimation error is good~(if~$var(x-\tilde{x}) < 0.3$).
+
+The estimated estimation error ($estVar$ in the figure) is, in this case, the estimation error variance ($var(x-\tilde{x})$ in Figure~\ref{fig:hybrid_loop}). 
+%if $var(x-\tilde{x})$ is small then $est_{good} = true$, if is normal then $est_{normal} = true$ end $est_{bad} = true$ if $var(x-\tilde{x})$ is  bigger then some boundary.
+\\This value ($estVar~=~var(x~-~\tilde{x})$) is calculated by the state estimator task (Section~\ref{sec:estimator}) and is passed to the scheduler as discussed before.
+
+Each of this operation modes ($s_{0.7}$ and $s_{0.2}$) have different accuracy, specified by $var(v)$ in Figure~\ref{fig:hybrid_loop}, and if we want to get optimal estimation the state estimator mast be configure correspondingly, i.e., the sensing error variance should be adjusted to the correct value ($var(s_{0.7})$), an easy solution for specifying the different configurations is by the guarded automata shown in Figure~\ref{fig:sched_estimator_auto}, which defines two operation modes of the state estimator, $est_1$ and $est_2$, that correspond to $var(s_{0.7})$ and $var(s_{0.2})$. So of course if we sense in mode $s_{0.7}$ we must estimate with mode $est_1$ that has the correct configurations for $s_{0.7}$, and if we sense in mode $s_{0.2}$ we must estimate with mode $est_2$.    
+
+
+
 
 \section{Related Work}
 \section{Conclusions and Future Work}
