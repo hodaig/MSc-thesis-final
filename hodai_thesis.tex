@@ -18,6 +18,9 @@
 \usepackage[english]{isodate}  %for '/printdayoff' in title
 \usepackage{subfiles}
 
+\usepackage[]{algorithm2e}
+\usepackage{algpseudocode}
+
 \usepackage{graphicx}
 \graphicspath{{./img/}}
 
@@ -988,9 +991,9 @@ We also use the OptiTrack information in early stages of the research as the fee
 
 %TODO - continue here!
 \section{Scheduler Interface Prototype}
+\todoil{probably this section (or parts of it) should be in appendix}
 
 \todo{I dont know if this section is too much (is mostly taken from the proposal)}
-
 The most common way of describing the requirements of a real-time component is to specify a period, sometimes along with a deadline, which gives the frequency at which the component must execute.
 %The designer of the component makes sure that the performance objectives are met as long as the component is executed consistent with its period. The scheduler guarantees that all components get enough resources.
 %not directly in this article
@@ -1000,14 +1003,95 @@ Specifying resource requirements using periods has advantages due to simplicity 
 In Section~\ref{sec:architecture} we suggest to use automata for describe the task specification for the scheduler, in this section we elaborate the technical details of the specification automata, \todo{not sure we want to talk about techniques (they can be ferers as related/future work)} techniques and tools that can be used to analyze the system, and in the last part of this section we show a working scheduler prototype that we implement to create to prove the concept.
 
 \subsection{Formal Definition of Guarded (specification) Automaton}
-\todoil{mybe as apendex}
-\subsection{Automata Operation}
-\todoil{mybe as apendex}
+
+The specification framework for resource requirements is based on \textit{Nondeterministic $\omega$-word} (finite automata over infinite words) theory~\cite{???}.
+%TODO - what we do with $Acc$
+Formally \textit{task specification automata} is defined, based on Non-deterministic Buchi Automata (NBA), as tuple $A= \left < Q,\Sigma,\Delta,Q_0,Acc \right > $.
+\todo{the examples before consist of automata with the task on the nodes, need to say something about the difference }
+In our setting, the \textit{alphabet} of the automata is $\Sigma = T^2 \times C^2$ where $C$ is set of Boolean conditions variables, will be describe later, and $T$ is the set of all tasks in the system.
+For simplicity of this early stage we assume that all states are accepting states ($Acc=Q$), then every infinite path in the automaton is accepting.
+Each infinite word ($\alpha \in \Sigma^\omega$) of the automata define a possible tasks scheduling over a fixed period (time slots), and the automata language define all the possible scheduling.
+Now the scheduler only need to ``walk through'' the automata as follows, before every iteration the scheduler choose state transition $(q_i , \{t_j , c_j\}, q_{i+1})$ such that all it's conditions are met ($\forall c \in c_j : c = \text{true}$), from the current state $q_i$ to the state $q_{i+1}$, and execute all the transition tasks ($t_j$).
+
+%Gather all guarded automata of all the system tasks result in a ``composed automaton'' that eventually used to schedule the system tasks.
+%Each infinite path on the composed automata (not necessarily with infinitely many mode transitions) represents a schedule that satisfy all the tasks requirements. 
+
+%TODO - define $s(\omega_j)$ as the schedule of $\omega_j$
+Definitions:
+\begin{enumerate}
+    \item for $\sigma_i = \left < t_i,c_i \right > \in \Sigma$ define: $task(\sigma_i) = t_i$ 
+    \item $ts$: the duration time of one time-slot.
+    \item $time(t_j)$: the execution time of subroutine $t_i$.
+    \item if $T_i \subseteq T$ then $time(T_j) = \sum_{t_k \in T_j} time(t_k)$
+\end{enumerate}
+
+
+%TODO - maybe here insert a reference to preveus "mode based" automata
+%TODO - we can add demonstration of how to define periodic tasks with automata
+
+\subsection{Automata Operation - Creating the Composed automaton }
+
+In order to schedule the complete system, we need first to construct an automaton (called composed automaton) that represent the requirement of the entire system, and never exceed the time-slot.
+The composed automaton, called $A_{cmp}$, is constructed at the initialization or compilation time as follows:
+Assume we have $n$ guarded automatons $[A_1 .. A_n]$ over $m$ subroutines (tasks) in the system, then:
+\begin{enumerate}
+    \item Intersect all automata: $A_{int}= \cap_{i=1}^{n} A_i$
+    \item Construct overflow protection automaton ($A_{nof}$) as demonstrate in Figure~\ref{fig:A_{nof}} where $\Sigma_{nof}$ is set of all the letters that do not exceed the time-slot
+    \item Intersect with the overflow protection automaton: $A_{cmp} =  A_{nof} \cup A_{int}$
+    \item Analyze $A_{cmp}$ for schedule-ability, emptiness, etc.
+\end{enumerate}
+
+% Prof that composed automaton represent the requirement of the entire system
+\todo{fix the definition of tasks that can consist of many subroutines}
+A short proof that $A_{cmp}$ we construct satisfy the requirement of the entire system:
+By definition, the language $L(A_i)$ of $A_i$ contain all the schedules that satisfy the requirement of $t_i$ and only them.
+The intersection language $L(A_{int})= \cap_{i=1}^{n} L(A_i) $ state that: 
+(1) if $\omega_j$ is legal schedule for the entire system $\omega_j \in L(A_{int})$ then $\forall i \in [1..n] : \omega_j \in L(A_i)$ mean $\omega_j$ is a schedule that satisfy the requirements of all the tasks in the system,
+and (2) if $\omega_j$ not satisfy some task $i$ requirements ($\exists i \in [1..n] : \omega_j \notin L(A_i) $) then $\omega_j \notin L(A_{int})$. 
+Therefore, the intersection automaton $A_{int}$ contains all the schedules that satisfy the requirements of all the tasks and only them.
+
+% eliminate exceeds words
+The automaton $A_{int}$ may still contain schedule that exceeds the time slot, we need to make sure that the scheduler never exceeds a single time-slot size ($ts$), that is, $\forall \omega_j \in A_{int} : \forall \sigma_k \in \omega_j \text{~s.t.~} time( task(\sigma_k)) \le st $.
+Let's define $\Sigma_{nof} \subseteq \Sigma$ as set of all the letters $\sigma \in \Sigma$ that their tasks group do not exceed the time-slot ($time( task(\sigma)) \le ts$), then $L((\Sigma_{nof})^\omega)$ contain all the schedules that never exceeds the time-slot, this language can be easy defined by the automaton $A_{nof}$ presented in Figure~\ref{fig:A_{nof}}. 
+Therefore, the automaton $A_{cmp} =  A_{nof} \cup A_{int}$ define exactly all the schedules that satisfy the requirements of all the tasks and never exceeds the time-slot.
+
+% Analisys
+After we construct $A_{cmp}$ we need to analyze it, we need to make sure that the system is schedule-able, that is, the scheduler never got stuck in a state with no appropriate transition for the next iteration.
+This can be verified in few different levels, for example an easy and conservative technique is to check formally that from every accessible state $q_i$ of $A_{cmp}$ ``OR'' operation of all it outgoing transitions is ``True'': $\vee_{(q_i, \left < t_j, c_j \right > , q_k)}  c_j = \text{true} $. 
+In case that we have some assumptions about the system behavior, we can use that information to make more accurate analysis, for example, assuming after executing ``high quality'' mode of image processing always $|y-\hat{y}| < 0.5$, under that assumption we can conclude that schedule using the follows automaton never stack:
+\todo{I think the example is meaningless without explanation}
+\begin{center}
+    \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=8cm, semithick]
+    
+    \node[initial,state] (A)                 {$0$};
+    \node[state]         (B) [right of=A]    {$1$};
+    
+    \path (B) edge [bend left]             node {$\left < |y-\hat{y}|< 1/2 , L \right >$} (A);
+%    (A) edge [loop below] node {$|y-\hat{y}|<1$} (A);
+    
+    \path (A) edge [bend left]             node {$\left < |y-\hat{y}| > 1/2 , H \right >$} (B);
+    \path (A) edge [loop above] node {$\left < |y-\hat{y}| < 1/2 , L \right >$} (A);
+    
+    \end{tikzpicture}
+\end{center}
+
+
+
+
+
+
+
+
+
+
+
+%TODO - include psado-code here: 1. product all automatons 2. remove all ``bad''/ overflow transitions with too much tasks 2. simplify the automata 4. check schedualbility
+
 \subsection{GOAL Tool}
-\todoil{mybe as apendex}
 \subsection{Example of Using the Scheduler Interface Prototype}
 \todoil{tests with the real scheduler and the resulting scheduling}
 
+\commentOut{
 \subsubsection{The Proposed Scheduling Methodology}
 In this thesis we develop a new methodology for allocation resources. We focus on how should engineers describe the requirements of a real-time component.
 To simplify, we will assume that the resource is allocated in discrete \textit{time slots} of fixed duration in the style of time-triggered architecture~\cite{RTComposer}.
@@ -1108,7 +1192,7 @@ The estimated estimation error ($estVar$ in the figure) is, in this case, the es
 \\This value ($estVar~=~var(x~-~\tilde{x})$) is calculated by the state estimator task (Section~\ref{sec:estimator}) and is passed to the scheduler as discussed before.
 
 Each of this operation modes ($s_{0.7}$ and $s_{0.2}$) have different accuracy, specified by $var(v)$ in Figure~\ref{fig:hybrid_loop}, and if we want to get optimal estimation the state estimator mast be configure correspondingly, i.e., the sensing error variance should be adjusted to the correct value ($var(s_{0.7})$), an easy solution for specifying the different configurations is by the guarded automata shown in Figure~\ref{fig:sched_estimator_auto}, which defines two operation modes of the state estimator, $est_1$ and $est_2$, that correspond to $var(s_{0.7})$ and $var(s_{0.2})$. So of course if we sense in mode $s_{0.7}$ we must estimate with mode $est_1$ that has the correct configurations for $s_{0.7}$, and if we sense in mode $s_{0.2}$ we must estimate with mode $est_2$.    
-
+}
 
 
 
