@@ -18,7 +18,11 @@
 \usepackage[english]{isodate}  %for '/printdayoff' in title
 \usepackage{subfiles}
 
-\usepackage[]{algorithm2e}
+%algorithems
+%\usepackage[]{algorithm2e}
+%\usepackage{amsmath}
+\usepackage{algorithm}
+%\usepackage{algorithmic}
 \usepackage{algpseudocode}
 
 \usepackage{graphicx}
@@ -107,7 +111,6 @@ fill=orange!20!yellow!20]
 \usepackage[mathcal]{euscript}
 %%% END LaTeX-Packages ----------------------------------
 
-%\usepackage{amsthm}
 \usepackage{mathtools}
 %\usepackage{setspace}
 \newcommand\tuple[1]{\langle #1 \rangle}
@@ -130,8 +133,11 @@ fill=orange!20!yellow!20]
 \newcommand\code[1]{{\small \sf #1}}
 
 %%% LaTeX definitions -----------------------------------------
+\usepackage{amsthm}
+
 \newtheorem{thm}{Theorem}
-\newtheorem{dfn}[thm]{Definition}
+%\theoremstyle{definition}
+\newtheorem{dfn}{Definition} %[section]
 \newtheorem{con}[thm]{Construction}
 \newtheorem{prop}[thm]{Proposition}
 \newtheorem{claim}[thm]{Claim}
@@ -674,8 +680,8 @@ See Section~\ref{sec:results} for the data we collected by experiments to valida
 %error ($y_{k|k}$) schedulers
 In a second experiments set, we used the $A_{err}$ automaton presented in Figure~\ref{fig:test_automata}. This automaton is similar to $A_x$ with the difference that it switches states based on $\tilde{y}_{k|k}$ value  defined as:
 
-\begin{dfn}
-    \textit{Measurement post-fit residual} $\tilde{y}_{k|k}$, is the difference between the expected measurement, $C\hat{x}_{k|k}$, and the measured state, $y_k$: $\tilde{y}_{k|k} =  C\hat{x}_{k|k} - y_k $.%~\footnote{ Measurement post-fit residual $\tilde{y}_{k|k}$ is also defined by the Kalman filter.}.
+\begin{dfn}{Measurement post-fit residual} 
+    $\tilde{y}_{k|k}$, is the difference between the expected measurement, $C\hat{x}_{k|k}$, and the measured state, $y_k$: $\tilde{y}_{k|k} =  C\hat{x}_{k|k} - y_k $.%~\footnote{ Measurement post-fit residual $\tilde{y}_{k|k}$ is also defined by the Kalman filter.}.
 \end{dfn}
 
 The motivation to use this indicator comes form looking at the low quality experiment graph, shown in Figure~\ref{fig:testPlot}. We can see that $\left| \tilde{y}_{k|k} \right|$ growth is proportional to the deviation from the center of the window (in the $x$ axis). We can also see that the growth in $\left| \tilde{y}_{k|k} \right|$ precedes the growth in $x$. This means that we can use $\left| \tilde{y}_{k|k} \right|$ values to predict deviations in $x$.
@@ -980,6 +986,188 @@ consisting of an array of high-speed tracking cameras that provide low latency a
 For best synchronization, we create a NatNet client library inside the APM code. This library allows the controller check anytime for the current state and log that information in parallel to the other controller parameters.
 We also use the OptiTrack information in early stages of the research as the feedback of the controller before we use the camera .
 
+\section{Scheduler Interface Prototype}
+
+\todo{I dont know if this section is too much (is mostly taken from the proposal)}
+The most common way of describing the requirements of a real-time component is to specify a period, sometimes along with a deadline, which gives the frequency at which the component must execute.
+%The designer of the component makes sure that the performance objectives are met as long as the component is executed consistent with its period. The scheduler guarantees that all components get enough resources.
+%not directly in this article
+Specifying resource requirements using periods has advantages due to simplicity and analyzability, but has limited expressiveness, as elaborated in~\cite{RTComposer}. 
+%For example, a specification such as “execute the component every 5ms” does not say whether the scheduler should or should not execute it more frequently if enough computing resources are available, and if a component has multiple, say, for different control tasks, each needing a different period, the requirement cannot be naturally captured by a single period.
+
+In Section~\ref{sec:architecture} we have suggested to use automata for describe the task specification for the scheduler. In this section we elaborate the technical details of the specification automata, techniques and tools that can be used to analyze the system, \todo{fix me} and in the last part of this section we show a working scheduler prototype that we implement to create to prove the concept.
+
+\todo{fix title}
+\subsection{A Schedule Component}
+
+\commentOut{ % old defenition
+\begin{dfn}
+    A component is a set of subroutines (software functions) $T$ with a non-deterministic B{\"u}chi automaton (NBA) $A= \left < Q,\Sigma,\Delta,Q_0,Acc \right > $ called  ``Guarded automaton'', with the \textit{alphabet} is $\Sigma = 2^{T} \times \R^n$ where $n$ is the number of scheduler feedback variables in the system.
+\end{dfn}
+}
+
+\begin{dfn}
+    A component is a set of subroutines (software functions) $T$ with a B{\"u}chi game (GNBG) $G=(graph(A),(P_{schd}, P_{env}))$ over a generalize B{\"u}chi automaton $A= \langle Q,\Sigma,\Delta,Q_0,Acc \rangle $, such that:
+    \begin{enumerate}
+        \item $graph(A)$ is the directed graph obtained from $A$
+        \item the \textit{alphabet} is $\Sigma = 2^{T} \cup \R^n$ where $n$ is the number of scheduler feedback variables in the system
+        \item the transitions of $A$ are of the form: ``scheduler'' transitions $s_{schd} \xrightarrow[]{\sigma_{T}} s_{env}$,  or ``environment'' transitions $s_{env} \xrightarrow[]{\sigma_{e}} s_{schd}$, where $s_{schd} \in (P_{schd}, s_{env} \in P_{env}, \sigma_{T} \in 2^{T}, \sigma_{e} \in \R^n $
+        \item environment player is first: $q_0 \in P_{env}$ 
+    \end{enumerate}
+    This game is called schedule game.
+\end{dfn}
+
+Each component designed to handle specific task in the system, and all its subroutines serve this task, the scheduling game $G$ of the component specifies the interaction between the subroutines and the environment, and by noting the acceptance state we can encode the component requirements in the game $G$.
+
+An example of a component acting as the vision based sensor of a robot is demonstrated in Figure~\ref{fig:exampleGame}. 
+The component estimates the robot position from an image, it has two operation modes: high (H) or low (L) accuracy.
+The scheduler feedback variable $y$ is the estimated position, in this example the component requirement is to ensure that $y$ never exceeds 1 (in position $y=1$ there is a cliff).
+
+\begin{figure} %[htbp]
+    \centerline{\includegraphics[width=100mm]{gameExample.jpg}}
+    \caption{Example of a game for vision based sensor component of a robot.
+        The robot must maintain position of $y \le 1$ where $H$ is high accuracy and $L$ is low accuracy position measuring tasks, and
+        $g1$ refer to $y \le 0.5$, $g2$ refer to $0.5 < y \le 1$ and $g3$ refer to $1 < y$ }
+    \label{fig:exampleGame}
+\end{figure}
+
+Scheduling game $G$ is a scheduler-against-environment game as follows, at each scheduler state $s_{schd} \in P_{schd}$ is a single time slot where the scheduler need to choose a transition $s_{schd} \xrightarrow[]{\sigma_{T}} s_{env}$ to a new state $s_{env}$ and then execute all the tasks in $\sigma_{T}$, this transition lead to an environment state $s_{env} \in P_{env}$ that represent the evolution of the system state till the next time step cause by the actuators and the environment, each transposition $s_{env} \xrightarrow[]{\sigma_{e}} s_{schd}$ correspond to a possible new value of the system state that equals to $\sigma_{e}$.
+The scheduler goal is to pass infinitely many times in acceptance state during the execution.
+Note, formally scheduler feedback variable is a vector $Y \in \R^n$ that may includes state variables and internal variable of the components.
+
+\subsection{Component Games Composition}
+The system composed of multiple components that need to be executed simultaneously by the same scheduler.
+Each component introduce its own game therefore we will construct a composed component that correspond to all the system components together, then the scheduler have only one game to win for handle all the components.
+
+\begin{dfn}
+    Composition of components $C_1$ and $C_2$ is a component $C_c = C_1 \cdot C_2$ and is defined as follows:
+    The subroutines set is $T_c=T_1 \cup T_2$.
+    The schedule game is $G_c = G_1 \times G_2 = (grapg(A_1 \times A_2) ,(P_{schd}^1 \times P_{schd}^2, P_{env}^1 \times P_{env}^2))$, that is, the automaton $A_c= \langle Q_1 \times Q_2,\Sigma_c,\Delta_c,Q_0^1 \times Q_0^2,Acc_1 \cup Acc_2 \rangle$ is a product of $C_1$ and $C_2$ automata such that:
+    \begin{enumerate}
+        \item $\Sigma_c = T_c \times \R^n$
+        \item Environment transitions: for each $y \in \R^n$ , $s_1 , s_1' \in Q_1$ and $s_2 , s_2' \in Q_2$ implies that:\\
+        $s_{1} \xrightarrow[]{y} s_{1}' \in \Delta_1$ and $s_{2} \xrightarrow[]{y} s_{2}' \in \Delta_2$ 
+        if and only if $\langle s_{1} s_2 \rangle \xrightarrow[]{y} \langle s_{1}' s_2' \rangle \in \Delta_c$
+        \item Scheduler transitions: for each $T_1' \subseteq T_1$ , $T_2' \subseteq T_2$ , $s_1 , s_1' \in Q_1$ and $s_2 , s_2' \in Q_2$ implies that:\\ 
+        $s_{1} \xrightarrow[]{T_1'} s_{1}' \in \Delta_1$ and $s_{2} \xrightarrow[]{T_2'} s_{2}' \in \Delta_2$ 
+        if and only if $\langle s_{1} s_2 \rangle \xrightarrow[]{T_1' \cup T_2'} \langle s_{1}' s_2' \rangle \in \Delta_c$
+    \end{enumerate}
+\end{dfn}
+
+Note: for constructing the composed component $C_c$ for all the system components, assuming the system consist of components $C_1 , ... , C_m$ then we will compose the components one by one: $C_c = (...((C_1 \cdot C_2) \cdot C_3 ) \cdot ... C_m)$.
+
+\subsection{Add Resources Limitation}
+In addition to the component requirements we also have the resources requirements, we have limited resources (limited CPU abilities) that need to be taking in account.
+Usually resources requirements are reflected as limited time slot that not allows tasks to exceed its size, for example, a tasks set that needs one second to execute cannot be executed in half second time slot.
+We will represent those limitations with a special and simple component $C_reasource$ that can be generated automatically as follows:\\
+assuming we know the maximum duration of each subroutine of each component in the system (it can be result of analyzing, testing, or manually pre-defined) we construct component with the tasks set $T_reasource$ that is union of all the subroutines, and the game is as demonstrate in Figure~\ref{fig:C_reasource} with one state for environment player (square state) and one for the schedule (circle state), the environment have no limitations but the scheduler can execute only tasks set that not exceeds the time slot.
+
+Finally, the resource component is composed with all the rest components of the system resoult in the schedule component $C_s = C_reasource \cdot C_c$. $C_s$ is the only component that actually will be schedule.
+
+\begin{figure} %[htbp]
+    \centerline{\includegraphics[width=80mm]{reasourceGame.jpg}}
+    \caption{Example of a game for resource component that do not allows to exceed a time slot. 
+        In this example $T = \left\{ t_1 , t_2 , t_3 \right\}$, the execution time of each task $t_i$ is half of a single time slot, therefore it is not possible to execute more than two tasks at the same time slot, but there is no limitation on the environment ($\vec{y}$).
+        Square state is an environment player state and round state belong to the scheduler. }
+    \label{fig:C_reasource}
+\end{figure}
+
+\subsection{Wining the Game - Find the Strategy}
+
+After we construct the game $C_s$ that aggregates all the system constrains we define a ``wining'' strategy $A_strategy \in NBA$ for the scheduler.
+$A_strategy$ is in fact a reduction of the game automaton $A_s$ of $C_s$ its contain all the environment transitions in $A_s$ but only the scheduler transitions that allays lead to a winning of the scheduler, that is we visit infinitely times a state of every color $Acc' \in Acc$.
+Example of such strategy is sown in Figure~\ref{fig:exampleGameStrategy} this is a wining strategy for the scheduler in the game presented in Figure~\ref{fig:exampleGame} discussed before.
+We call this winning strategy guarded automaton \todo{we can add here reference to the simpler guarded automata presented in the previews sections}.
+
+\begin{figure} %[htbp]
+    \centerline{\includegraphics[width=100mm]{gameExampleSolved.jpg}}
+    \caption{A strategy solution for the game presented in Figure~\ref{fig:exampleGame}.
+        Blue states are all the states which the scheduler have a wining strategy from them, blue transitions are the needed scheduler reaction to win the game.
+        Note: if the initial state is blue then the system is schedulable.}
+    \label{fig:exampleGameStrategy}
+\end{figure}
+
+\subsection{Execution of the scheduler}
+
+Each time the system is executed the scheduler just walk through the strategy automaton $A_s$ as describe by the pseudo code~\ref{code:scheduler}. 
+The time is divided into segments of equal length called ``time step''.
+At the beginning of each time step the current automaton state is environment player state, so we pick the \todo{continue verbal explanation of the pseudo cod }
+
+\begin{algorithm}[!h]
+    \caption{Scheduler run-time operation}
+    \begin{algorithmic}[1]
+        \Procedure{S chedule}{$A_s$} \Comment{schedule the system with strategy automaton $A_s$ }
+            \State \Call{Validate}{$A_s$} \Comment{validate that $A_s$ is wining strategy}
+            \State $cur\_state \gets$ \Call{Initial}{$A_s$} \Comment{start with the initial state}
+            
+            \Statex
+            \Loop 
+                \State $\vec{y} \gets \Call{getStateVars}$
+                
+                \State $cur\_state \gets$ \Call{Next}{$cur\_state$ , $\vec{y}$} \Comment{take environment transition for $\vec{y}$ }
+                \If {$cur\_state == None$}
+                    \State Exit \Comment{unexpected $\vec{y}$ value, fail to proceed}
+                \EndIf
+                
+                \Statex
+                \State $\delta \gets$ \Call{getFirstTransition}{$cur\_state$} \Comment{take scheduler transition}
+                \State $Tasks \gets$ \Call{tasks}{$\delta$}
+                \State $cur\_state \gets$ \Call{toState}{$\delta$}
+                
+                \ForAll{ $t \in Tasks$} \Comment{execute all the tasks defined by the transition}
+                    \State \Call{Execute} {$t$}
+                \EndFor
+                
+                \Statex
+                \State Wait till next time step
+                
+            \EndLoop
+        \EndProcedure
+    \end{algorithmic}
+    \label{code:scheduler}
+\end{algorithm}
+
+\subsection{Correctness}
+
+\begin{dfn}
+    Component $C_i$ is ``complete'' if the game automaton $A_i$ of $C_i$ covers all the possible observations. Formally, for each $t_1, .. t_m \subseteq T_i$ , $\vec{y}_1, .. , \vec{y}_m \in \R^n$ and $q_e \in P_{env}$ such that there is a path from $q_0$ to $q_e$ with the word $w= \vec{y}_1 , t_1 , \vec{y}_2 , t_2, .. , t_m$ and that at each time slot $j \le m$ the system observe $\vec{y}_j$ and execute the tasks $t_j$ and at time slot $m+1$ may observe $\vec{y}_{m+1}$ then there is a transition from $q_e$ with $\vec{y}_{m+1}$.
+\end{dfn}
+
+\begin{dfn}
+    \todo{maybe stability requirements}
+    Component $C_i$ ``satisfy its requirements'' if:
+    For each $\omega = \vec{y}_1 , t_1 , \vec{y}_2 , t_2, ... \in \L(A_i)$ a system execution that before each time slot $j$ observe $\vec{y}_j$ and then execute the tasks $t_i$ in that slot is a system execution that satisfies the requirement from the component $C_i$.
+\end{dfn}
+
+\begin{dfn}
+    Component $C_i$ is ``valid'' component if:
+    \begin{enumerate}
+        \item $C_i$ is a component
+        
+        % all posible y
+        \item $C_i$ is complete component
+        
+        \item $C_i$ satisfy its requirements
+    \end{enumerate}
+\end{dfn}
+
+\begin{claim}
+    Assuming $C_1$ and $C_2$ are a valid components then the composed component $C_c=C_1 \cdot C_2$ is also a valid component.
+\end{claim}
+\begin{proof}
+    \begin{enumerate}
+        \item $C_c$ is a component: trivial \todo{maybe just the transitions rule is not trivial}
+        
+        % all posible y
+        \item $C_c$ is complete component: Assume that after we get to state $\langle q_1 , q_2 \rangle \in P_{env}^1 \times P_{env}^2$ we may observe $\vec{y}$, then because $C_1$ is complete there is a transition $q_1 \xrightarrow[]{\vec{y}} q_1'$ and same for $q_2 \xrightarrow[]{\vec{y}} q_2'$ in $C_2$, therefore by the composition definition $A_c$ contains the transition $\langle q_1 , q_2 \rangle \xrightarrow[]{\vec{y}} \langle q_1' , q_2' \rangle$
+        
+        \item $C_c$ satisfy its requirements: by composition definition the word $\omega= \vec{y}_1 , t_1 , \vec{y}_2 , t_2, ... \in \L(A_c)$ if and only if there exist words $\omega_1= \vec{y}_1 , t_1^1 , \vec{y}_2^1 , t_2, ... \in \L(A_1)$ and $\omega_2= \vec{y}_1 , t_1^2 , \vec{y}_2 , t_2^2, ... \in \L(A_2)$ such that $t_i = t_i^1 \cup t_i^2$. 
+        Therefore, for each $\omega = \vec{y}_1 , t_1 , \vec{y}_2 , t_2, ... \in \L(A_c)$ a system execution that before each time slot $j$ observe $\vec{y}_j$ and then execute the tasks $t_i$ in that slot is in particular execute $t_i^1$ and because $\omega_1= \vec{y}_1 , t_1^1 , \vec{y}_2^1 , t_2, ... \in \L(A_1)$ satisfies $C_1$ requirements $\omega$ also satisfying $C_1$ requirements, similarly, $\omega$ also satisfying $C_2$, then $\omega$ is a system execution that satisfies the requirement from the component (for the system).
+        
+    \end{enumerate}
+\end{proof}
+
+
 
 
 
@@ -990,23 +1178,64 @@ We also use the OptiTrack information in early stages of the research as the fee
 
 
 %TODO - continue here!
-\section{Scheduler Interface Prototype}
-\todoil{probably this section (or parts of it) should be in appendix}
 
-\todo{I dont know if this section is too much (is mostly taken from the proposal)}
-The most common way of describing the requirements of a real-time component is to specify a period, sometimes along with a deadline, which gives the frequency at which the component must execute.
-%The designer of the component makes sure that the performance objectives are met as long as the component is executed consistent with its period. The scheduler guarantees that all components get enough resources.
-%not directly in this article
-Specifying resource requirements using periods has advantages due to simplicity and analyzability, but has limited expressiveness, as elaborated in~\cite{RTComposer}. 
-%For example, a specification such as “execute the component every 5ms” does not say whether the scheduler should or should not execute it more frequently if enough computing resources are available, and if a component has multiple, say, for different control tasks, each needing a different period, the requirement cannot be naturally captured by a single period.
+%TODO schedulability....
+\begin{dfn}
+    \todo{recursive definition} A system is ``schedulable'' if for each posible state of the system at time step $i$ such that the system satisfy the  ements till time step $i$ there is a suitable scheduler reaction that lead to an execution that satisfy the system requirement 
+\end{dfn}
 
-In Section~\ref{sec:architecture} we suggest to use automata for describe the task specification for the scheduler, in this section we elaborate the technical details of the specification automata, \todo{not sure we want to talk about techniques (they can be ferers as related/future work)} techniques and tools that can be used to analyze the system, and in the last part of this section we show a working scheduler prototype that we implement to create to prove the concept.
 
-\subsection{Formal Definition of Guarded (specification) Automaton}
+
+\begin{claim}
+    Assuming $C_1,C_2, ... , C_m$ are a valid components then the composed component $C_s=C_1 \cdot C_2 \cdot .. \cdot C_m \cdot C_reasource $ is valid component and if there is a wining strategy for the scheduler $A_s$ then the system defined by $C_s$ is schedulable.
+\end{claim}
+\begin{proof}
+    ...
+        
+\end{proof}
+
+
+
+
+
+
+
+\commentOut{
+\begin{dfn}{Correctness of a Component:}
+    A component $c$ is \todo{don't know how to call it} correct / ``schedulable'' if and only, for each infinite possible sequence of scheduler feedback variables in the system $\vec{Y} = \left \{ \vec{y}_1, \vec{y}_2 , ... \right \}$ ($\vec{y}_i \in \R^n$) there is a word $\omega \in L_{\omega}(A_c)$ such that $\Pi_2(\omega) = \vec{Y}$~\footnote{$\Pi_i(\{ \langle \sigma_{1,1} , \sigma_{1,2} \rangle , \langle \sigma_{2,1} , \sigma_{2,2} \rangle , ... \}) = \{ \sigma_{1,i} , \sigma_{2,i} , ... \}$}, and for each such $\omega$ a schedule according to $\Pi_1(\omega)$ satisfy the component requirements assuming the scheduler feedback variables observation is $\vec{Y}$.
+\end{dfn}
+
+Each ``Guarded automaton'' practically define a scheduling strategy that satisfy the requirements of the component.
+Each infinite word $\omega \in \Sigma^\omega$ of the automata define a possible instance of task scheduling (one execution of the system) where in the time slot (iteration) $i$ the scheduler observation before iteration $i$ was $\Pi_2(\omega)[i]$ and the scheduler execute all the subroutines in $\Pi_1(\omega)[i]$.
+
+\begin{claim}
+\end{claim}
+
+\begin{thm}
+    Assume two components $c_1$ and $c_2$ are correct, then, the composition $c = c_1 \cdot c_2$ is correct.
+\end{thm}
+
+\begin{proof}
+    
+\end{proof}
+
+
+
+
+\begin{dfn}{Guarded Automaton}
+    is defined as non-deterministic B{\"u}chi automaton (NBA) $A= \left < Q,\Sigma,\Delta,Q_0,Acc \right > $.
+    Where the \textit{alphabet} is $\Sigma = 2^T \times C$.
+    Each such automaton define strategy that satisfy the requirements as follows:
+    Each infinite word $\alpha \in \Sigma^\omega$ of the automata define an instance of a task scheduling (one execution of the system) where in the time slot (iteration) $i$ is define by the letter $\sigma= \langle T_i , C_i \rangle \in \Sigma$
+    
+    , and the automata language define all the possible scheduling.
+    Now the scheduler only need to ``walk through'' the automata as follows, before every iteration the scheduler choose state transition $(q_i , \{t_j , c_j\}, q_{i+1})$ such that all it's conditions are met ($\forall c \in c_j : c = \text{true}$), from the current state $q_i$ to the state $q_{i+1}$, and execute all the transition tasks ($t_j$).
+\end{dfn}
+
 
 The specification framework for resource requirements is based on \textit{Nondeterministic $\omega$-word} (finite automata over infinite words) theory~\cite{???}.
 %TODO - what we do with $Acc$
-Formally \textit{task specification automata} is defined, based on Non-deterministic Buchi Automata (NBA), as tuple $A= \left < Q,\Sigma,\Delta,Q_0,Acc \right > $.
+Formally \textit{component specification automata} is defined, based on Non-deterministic B{\"u}chi Automata (NBA), as tuple $A= \left < Q,\Sigma,\Delta,Q_0,Acc \right > $.
 \todo{the examples before consist of automata with the task on the nodes, need to say something about the difference }
 In our setting, the \textit{alphabet} of the automata is $\Sigma = T^2 \times C^2$ where $C$ is set of Boolean conditions variables, will be describe later, and $T$ is the set of all tasks in the system.
 For simplicity of this early stage we assume that all states are accepting states ($Acc=Q$), then every infinite path in the automaton is accepting.
@@ -1074,22 +1303,10 @@ In case that we have some assumptions about the system behavior, we can use that
     
     \end{tikzpicture}
 \end{center}
-
-
-
-
-
-
-
-
-
-
-
-%TODO - include psado-code here: 1. product all automatons 2. remove all ``bad''/ overflow transitions with too much tasks 2. simplify the automata 4. check schedualbility
+} 
 
 \subsection{GOAL Tool}
 \subsection{Example of Using the Scheduler Interface Prototype}
-\todoil{tests with the real scheduler and the resulting scheduling}
 
 \commentOut{
 \subsubsection{The Proposed Scheduling Methodology}

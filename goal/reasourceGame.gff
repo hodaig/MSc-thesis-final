@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Structure label-on="Transition" type="Game">
+    <Name/>
+    <Description/>
+    <Formula/>
+    <Alphabet type="Propositional">
+        <Proposition>t1_t2</Proposition>
+        <Proposition>t1_t3</Proposition>
+        <Proposition>t2_t3</Proposition>
+        <Proposition>t_1</Proposition>
+        <Proposition>t_2</Proposition>
+        <Proposition>t_3</Proposition>
+    </Alphabet>
+    <StateSet>
+        <State sid="0">
+            <Name>env</Name>
+            <X>100</X>
+            <Description>env</Description>
+            <Y>100</Y>
+            <Label/>
+            <Properties/>
+            <Player>P1</Player>
+        </State>
+        <State sid="1">
+            <Name>schd</Name>
+            <X>310</X>
+            <Y>99</Y>
+            <Properties/>
+            <Player>P0</Player>
+        </State>
+    </StateSet>
+    <InitialStateSet>
+        <StateID>0</StateID>
+    </InitialStateSet>
+    <TransitionSet complete="false">
+        <Transition tid="0">
+            <From>0</From>
+            <To>1</To>
+            <Label>True</Label>
+            <Properties/>
+        </Transition>
+        <Transition tid="1">
+            <From>1</From>
+            <To>0</To>
+            <Label>t2_t3</Label>
+            <Properties/>
+        </Transition>
+        <Transition tid="3">
+            <From>1</From>
+            <To>0</To>
+            <Label>t1_t3</Label>
+            <Properties/>
+        </Transition>
+        <Transition tid="5">
+            <From>1</From>
+            <To>0</To>
+            <Label>t1_t2</Label>
+            <Properties/>
+        </Transition>
+    </TransitionSet>
+    <Acc type="Buchi"/>
+    <Properties/>
+</Structure>

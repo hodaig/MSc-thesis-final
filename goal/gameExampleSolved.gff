@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Structure label-on="Transition" type="Game">
+    <Name/>
+    <Description/>
+    <Formula/>
+    <Alphabet type="Propositional">
+        <Proposition>H</Proposition>
+        <Proposition>L</Proposition>
+        <Proposition>g1</Proposition>
+        <Proposition>g2</Proposition>
+        <Proposition>g3</Proposition>
+    </Alphabet>
+    <StateSet>
+        <State sid="0">
+            <Color>#66ccff</Color>
+            <Name>good</Name>
+            <X>230</X>
+            <Description/>
+            <Y>110</Y>
+            <Properties>
+                <Entry name="WinningStrategySuccessors">{q2, q1}</Entry>
+                <Entry name="Winner">P0</Entry>
+            </Properties>
+            <Player>P0</Player>
+        </State>
+        <State sid="1">
+            <Color>#66ccff</Color>
+            <Name>q0</Name>
+            <X>77</X>
+            <Y>183</Y>
+            <Properties>
+                <Entry name="Winner">P0</Entry>
+            </Properties>
+            <Player>P1</Player>
+        </State>
+        <State sid="2">
+            <Color>#66ccff</Color>
+            <Name>q2</Name>
+            <X>378</X>
+            <Y>170</Y>
+            <Properties>
+                <Entry name="Winner">P0</Entry>
+            </Properties>
+            <Player>P1</Player>
+        </State>
+        <State sid="3">
+            <Color>#ff66cc</Color>
+            <Name>fail</Name>
+            <X>230</X>
+            <Description/>
+            <Y>317</Y>
+            <Properties>
+                <Entry name="Winner">P1</Entry>
+            </Properties>
+            <Player>P0</Player>
+        </State>
+        <State sid="5">
+            <Color>#ff66cc</Color>
+            <Name>q3</Name>
+            <X>352</X>
+            <Y>301</Y>
+            <Properties>
+                <Entry name="WinningStrategySuccessors">{}</Entry>
+                <Entry name="Winner">P1</Entry>
+            </Properties>
+            <Player>P1</Player>
+        </State>
+        <State sid="6">
+            <Color>#66ccff</Color>
+            <Name>bad</Name>
+            <X>229</X>
+            <Y>243</Y>
+            <Properties>
+                <Entry name="WinningStrategySuccessors">{q2}</Entry>
+                <Entry name="Winner">P0</Entry>
+            </Properties>
+            <Player>P0</Player>
+        </State>
+        <State sid="7">
+            <Color>#66ccff</Color>
+            <Name>q1</Name>
+            <X>77</X>
+            <Y>80</Y>
+            <Properties>
+                <Entry name="Winner">P0</Entry>
+            </Properties>
+            <Player>P1</Player>
+        </State>
+        <State sid="8">
+            <Color>#ff66cc</Color>
+            <Name>q4</Name>
+            <X>89</X>
+            <Y>307</Y>
+            <Properties>
+                <Entry name="WinningStrategySuccessors">{}</Entry>
+                <Entry name="Winner">P1</Entry>
+            </Properties>
+            <Player>P1</Player>
+        </State>
+    </StateSet>
+    <InitialStateSet>
+        <StateID>1</StateID>
+    </InitialStateSet>
+    <TransitionSet complete="false">
+        <Transition tid="0">
+            <From>1</From>
+            <To>0</To>
+            <Color>#cccccc</Color>
+            <Name>y&lt;1/3</Name>
+            <Description>y&lt;1/3</Description>
+            <Label>g1</Label>
+            <Properties/>
+        </Transition>
+        <Transition tid="3">
+            <From>1</From>
+            <To>6</To>
+            <Color>#cccccc</Color>
+            <Name>g2</Name>
+            <Label>g2</Label>
+            <Properties/>
+        </Transition>
+        <Transition tid="4">
+            <From>0</From>
+            <To>2</To>
+            <Color>#66ccff</Color>
+            <TextColor>#66ccff</TextColor>
+            <Label>L</Label>
+            <Properties>
+                <Entry name="WinningStrategyTransition">true</Entry>
+            </Properties>
+        </Transition>
+        <Transition tid="5">
+            <From>6</From>
+            <To>2</To>
+            <Color>#66ccff</Color>
+            <TextColor>#66ccff</TextColor>
+            <Label>H</Label>
+            <Properties>
+                <Entry name="WinningStrategyTransition">true</Entry>
+            </Properties>
+        </Transition>
+        <Transition tid="6">
+            <From>6</From>
+            <To>5</To>
+            <Color>#cccccc</Color>
+            <Label>L</Label>
+            <Properties/>
+        </Transition>
+        <Transition tid="8">
+            <From>5</From>
+            <To>3</To>
+            <Color>#ff66cc</Color>
+            <TextColor>#ff66cc</TextColor>
+            <Label>g3</Label>
+            <Properties>
+                <Entry name="WinningStrategyTransition">true</Entry>
+            </Properties>
+        </Transition>
+        <Transition tid="9">
+            <From>5</From>
+            <To>6</To>
+            <Color>#cccccc</Color>
+            <Label>g2</Label>
+            <Properties/>
+        </Transition>
+        <Transition tid="10">
+            <From>2</From>
+            <To>6</To>
+            <Color>#cccccc</Color>
+            <Label>g2</Label>
+            <Properties/>
+        </Transition>
+        <Transition tid="11">
+            <From>2</From>
+            <To>0</To>
+            <Color>#cccccc</Color>
+            <Label>g1</Label>
+            <Properties/>
+        </Transition>
+        <Transition tid="12">
+            <From>0</From>
+            <To>7</To>
+            <Color>#66ccff</Color>
+            <TextColor>#66ccff</TextColor>
+            <Label>H</Label>
+            <Properties>
+                <Entry name="WinningStrategyTransition">true</Entry>
+            </Properties>
+        </Transition>
+        <Transition tid="13">
+            <From>7</From>
+            <To>0</To>
+            <Color>#cccccc</Color>
+            <Label>g1</Label>
+            <Properties/>
+        </Transition>
+        <Transition tid="14">
+            <From>3</From>
+            <To>8</To>
+            <Color>#cccccc</Color>
+            <Label>True</Label>
+            <Properties/>
+        </Transition>
+        <Transition tid="15">
+            <From>8</From>
+            <To>3</To>
+            <Color>#ff66cc</Color>
+            <TextColor>#ff66cc</TextColor>
+            <Label>True</Label>
+            <Properties>
+                <Entry name="WinningStrategyTransition">true</Entry>
+            </Properties>
+        </Transition>
+    </TransitionSet>
+    <Acc type="Buchi">
+        <StateID>0</StateID>
+        <StateID>6</StateID>
+    </Acc>
+    <Properties/>
+</Structure>
