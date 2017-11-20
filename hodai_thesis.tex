@@ -1152,6 +1152,7 @@ At the beginning of each time step the current automaton state is environment pl
 \end{dfn}
 
 \begin{claim}
+    \label{thm:valid_composition}
     Assuming $C_1$ and $C_2$ are a valid components then the composed component $C_c=C_1 \cdot C_2$ is also a valid component.
 \end{claim}
 \begin{proof}
@@ -1168,6 +1169,43 @@ At the beginning of each time step the current automaton state is environment pl
 \end{proof}
 
 
+\commentOut{
+\begin{dfn}
+    \todo{recursive definition} A system is ``schedulable'' if for each posible state of the system at time step $i$ such that the system satisfy the  ements till time step $i$ there is a suitable scheduler reaction that lead to an execution that satisfy the system requirement 
+\end{dfn}
+}
+\begin{dfn}
+    A system is ``schedulable'' if for any possible change of environment there is an infinite schedule execution that satisfy the system requirements.
+\end{dfn}
+
+
+\begin{claim}
+    Assuming $C_1,C_2, ... , C_m$ are a valid components then the composed component $C_s=C_1 \cdot C_2 \cdot .. \cdot C_m \cdot C_reasource $ is valid component and if there is a wining strategy for the scheduler $A_s$ then the system defined by $C_s$ is schedulable system.
+\end{claim}
+\begin{proof}
+    First note that $C_reasource$ is valid component:
+    The only environment state of $A_reasource$ accept all $\R^n$ for the observations therefore $C_reasource$ is complete, the only requirement from $C_reasource$ is that the time step is never exceeded it length, this is guarantied by the contraction of scheduler transitions then $C_reasource$ is also satisfy its requirement so $C_reasource$ is valid component.
+    All components $C_1 , C_2 , .. , C_m$ and $C_reasource $ are valid components then by claim~\ref{thm:valid_composition} $C_s $ is valid component.
+    
+    Assume there is a wining strategy for $C_s$ then the scheduler that random walk trough the wining strategy automaton, and operate as elaborate in algorithm~\ref{code:scheduler} is:
+    \begin{enumerate}
+        \item Never get stuck: $C_s$ is complete so each environment state of $A_s$ have transition for any possible observation and any strategy of scheduler must keep all environment transitions therefore the execution never get stuck at environment state, and each scheduler state in the strategy have at least one outcome transition because if this is not the case then the strategy is not a wining strategy. 
+        
+        \item The component $C_reasource$ game have only transitions with task sets that even at the worst case they never exceeds a single time step and $T_reasource$ contains all the system components tasks, therefore, $C_s$ also do not contain tasks sets that exceeds a single time step, therefore a schedule of a longer tasks set is not possible in algorithm~\ref{code:scheduler}.
+        
+        \item Satisfy the system requirements: The component $C_s$ satisfy its requirements, and the random walk of algorithm~\ref{code:scheduler} is also constructing a word $\omega \in \L(C_s)$, therefore by the definition of component that "satisfy its requirement", algorithm~\ref{code:scheduler} satisfy all the components requirements.
+    \end{enumerate}
+\end{proof}
+
+\begin{remark}
+    The fact that a system is schedulable, is not necessarily implies the there is a wining strategy.
+\end{remark}
+
+
+
+
+
+
 
 
 
@@ -1178,28 +1216,6 @@ At the beginning of each time step the current automaton state is environment pl
 
 
 %TODO - continue here!
-
-%TODO schedulability....
-\begin{dfn}
-    \todo{recursive definition} A system is ``schedulable'' if for each posible state of the system at time step $i$ such that the system satisfy the  ements till time step $i$ there is a suitable scheduler reaction that lead to an execution that satisfy the system requirement 
-\end{dfn}
-
-
-
-\begin{claim}
-    Assuming $C_1,C_2, ... , C_m$ are a valid components then the composed component $C_s=C_1 \cdot C_2 \cdot .. \cdot C_m \cdot C_reasource $ is valid component and if there is a wining strategy for the scheduler $A_s$ then the system defined by $C_s$ is schedulable.
-\end{claim}
-\begin{proof}
-    ...
-        
-\end{proof}
-
-
-
-
-
-
-
 \commentOut{
 \begin{dfn}{Correctness of a Component:}
     A component $c$ is \todo{don't know how to call it} correct / ``schedulable'' if and only, for each infinite possible sequence of scheduler feedback variables in the system $\vec{Y} = \left \{ \vec{y}_1, \vec{y}_2 , ... \right \}$ ($\vec{y}_i \in \R^n$) there is a word $\omega \in L_{\omega}(A_c)$ such that $\Pi_2(\omega) = \vec{Y}$~\footnote{$\Pi_i(\{ \langle \sigma_{1,1} , \sigma_{1,2} \rangle , \langle \sigma_{2,1} , \sigma_{2,2} \rangle , ... \}) = \{ \sigma_{1,i} , \sigma_{2,i} , ... \}$}, and for each such $\omega$ a schedule according to $\Pi_1(\omega)$ satisfy the component requirements assuming the scheduler feedback variables observation is $\vec{Y}$.
@@ -1207,18 +1223,6 @@ At the beginning of each time step the current automaton state is environment pl
 
 Each ``Guarded automaton'' practically define a scheduling strategy that satisfy the requirements of the component.
 Each infinite word $\omega \in \Sigma^\omega$ of the automata define a possible instance of task scheduling (one execution of the system) where in the time slot (iteration) $i$ the scheduler observation before iteration $i$ was $\Pi_2(\omega)[i]$ and the scheduler execute all the subroutines in $\Pi_1(\omega)[i]$.
-
-\begin{claim}
-\end{claim}
-
-\begin{thm}
-    Assume two components $c_1$ and $c_2$ are correct, then, the composition $c = c_1 \cdot c_2$ is correct.
-\end{thm}
-
-\begin{proof}
-    
-\end{proof}
-
 
 
 
@@ -1414,10 +1418,13 @@ Each of this operation modes ($s_{0.7}$ and $s_{0.2}$) have different accuracy, 
 
 
 \section{Related Work}
+% rtcomposer
+% game composer
+
 \section{Conclusions and Future Work}
 % use real vision
 % develop the framwork
-% invent mathematical / aupomatic technics to create the automata
+% invent mathematical / automatic technics to create the automata
 
 %TODO - say somthing about the camera driver
 We introduced a new approach for resource allocation that allows dynamic scheduling where resources are only allocated when needed.
