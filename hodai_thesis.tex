@@ -303,7 +303,8 @@ researchers to develop compositional approaches and interface notions for real-t
 In this thesis we present an approach, a proof-of-concept implementation, and a case study in scheduling computations in embedded control systems. The proposed design is based on the automata based scheduling approach, suggested in~\cite{weiss2007automata,RTComposer,AW08,ESNAASHARI20102410,liu2013synthesis}, where automata are proposed as interfaces that allow the dynamicity and efficiency of desktop operating systems with the predictability of real-time operating systems. The approach allows for components to specify the CPU resources that they need in a way that gives an application agnostic scheduler the freedom to choose schedules at run-time such that the needs of all the components are taken into account, even of components that were added only at run-time. The main contributions of this thesis relative to the earlier work in this direction is:
 (1) We propose an extension of the automata based scheduling framework that allows reactive scheduling where the schedule is directed  by the state of the controllers; (2) We propose a technique, based on the theory of Kalman Filters, for designing reactively scheduled controllers; (3) We report on our experience with improving the performance of a real-time, vision-based, control system (a drone that stabilizes itself in front of a window).
 
-The idea of using reactive schedulers, as described in the preceding paragraph, was first introduced by Merav Bukra in her master thesis~\cite{Merav}. Merav's focus was on the algorithmic issues involved with the composition of components. The focus of this thesis is on the integration of the approach with control engineering and with its implementation in the context of a case-study in vision based control. 
+The idea of using reactive schedulers, as described in the preceding paragraph, was first introduced by Merav Bukra in her master thesis~\cite{Merav}. Merav's focus was on the algorithmic issues involved with the composition of components. The focus of this thesis is on the integration of the approach with control engineering and with its implementation in the context of a case-study in vision based control. Merav showed that we can provide tool support for the combination of components (even in a plug-and-play fashion). This thesis provides methods for control engineers for designing controllers that make use of reactive schedulers and a proof-of-concept implementation of such controllers in the context of a real case-study.
+Our goal in the future is to combine both theses into a tool suite where control engineers can plug their reactive components.
 
 %The rest of the thesis is organized as follows: In Section~\ref{sec:architecture} we outline the general software approach and the methodologies developed in our research. In Section~\ref{sec:simulation} we present the technical details of the proposed approach using a simulation. The case study is presented in Section~\ref{sec:caseStudy} with a description of the engineering setup and the data we collected for the evaluation of the approach.
 
@@ -338,8 +339,8 @@ We show how allocate resources by \textbf{current} needs give better resoults th
  
 \section{Problem Statement}
 \label{sec:Problem}
-During this thesis we are concentrate on feedback control loop based systems as shown in Figure~\ref{fig:control loop}. 
-We assume a close (feedback) control loop where the physical plant, \textit{System} state $x$, is monitored via an array of sensors (\textit{Sensing}) which produce measurements array $y$ that represents noisy sample of some functions of the state variables. 
+In this thesis we focus on feedback control loop based systems as shown in Figure~\ref{fig:control loop}. 
+We assume a closed (feedback) control loop where the physical plant, \textit{System} state $x$, is monitored via an array of sensors (\textit{Sensing}) which produce measurements array $y$ that represents noisy sample of some functions of the state variables. 
 We assume uncertainty observations from the sensors so, after sensing, an entity called \textit{State Estimator} aggregates the measurements from all the sensors ($y$ array) and makes an educated estimation ($\hat{x}$) of the current state. Then the \textit{Control Law} entity generates the controller outputs ($u$), control the actuators, to change the state of the system in order close the gap between the current estimated state and the reference desire state (\textit{Input} $r$).
 
 In this thesis, for analysis, we assume a general \textit{linear dynamical system} discretized in the time domain.
@@ -386,6 +387,9 @@ Specifically, we develop tools and methodologies such that control engineers are
 
 %TODO - verify we are not lying here
 As proposed in earlier work on automata based scheduling (\cite{weiss2007automata,RTComposer,AW08}) we aim at a development process where a system is built as a composition of a set of components where each component is a software module (a set of procedures) accompanied with an automaton. Our addition here is that we allow the automata to be guarded, i.e., each automaton acts as a specification of a reactive system that tells the scheduler which functions of a component it may run in each slot depending on the \textbf{dynamic state} of the controllers. A second addition is that we have implemented the approach as an enhancement of the internal scheduler of the ArduPilot Mega (APM)~\cite{APM} open source unmanned vehicle autopilot software suite. A third contribution of this thesis is a proposal of a specific way to use the automata based scheduling framework with a Kalman filter. We elaborate on each of these in the following subsections:
+
+\todo{Explain that we are proposing to focus on sensors (and actuators). The separation principle. Alignment with the structure of the ArduPilot and other controller codes.} 
+
 
 \subsection{Architecture}
 % TODO: Use the terminology of the figure
