@@ -1428,6 +1428,17 @@ Each of this operation modes ($s_{0.7}$ and $s_{0.2}$) have different accuracy, 
 % rtcomposer
 % game composer
 
+This thesis is mainly based on the RTComposer paper~\cite{RTComposer} and the followed work of Merav~\cite{Merav}.
+In this thesis as in RTComposer we present a framework for design cyber-phisical systems with dynamic scheduling for real-time.
+The RTComposer the framework is component-based in the sense that a single component correspond to a single control loop in a complex cyber-phisical system.
+Each component has a clearly specified interface that includes method for sensing, method for actuation, and additional computational methods.
+Each component have its requirement specification given by finite automaton over infinite words, every infinite sequence over the automaton specifies, for every time slot, the set of the component computational methods to invoke in that slot.
+
+In this thesis we also propose to use automata based scheduler as automata specification is expressive, analyzable, and composable specification framework as stated in section~\ref{sec:architecture}.
+In this work unlike RTComposer we prefers to loosen the definition of a component and remove the separation of  sensing and actuation methods ...
+
+
+
 \section{Conclusions and Future Work}
 % use real vision
 % develop the framwork
