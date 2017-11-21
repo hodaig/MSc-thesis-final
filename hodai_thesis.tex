@@ -1013,17 +1013,17 @@ In Section~\ref{sec:architecture} we have suggested to use automata for describe
 }
 
 \begin{dfn}
-    A component is a set of subroutines (software functions) $T$ with a B{\"u}chi game (GNBG) $G=(graph(A),(P_{schd}, P_{env}))$ over a generalize B{\"u}chi automaton $A= \langle Q,\Sigma,\Delta,Q_0,Acc \rangle $, such that:
+    A component is a set, $T$, of subroutines (representing, e.g., a class in C++) with a \todo{Add an appendix on games}generalized B{\"u}chi game (GNBG), $G=\langle A,\langle P_{schd}, P_{env}\rangle \rangle$, over a generalized B{\"u}chi automaton $A= \langle Q,\Sigma,\Delta,q_0,\mathcal{F} \rangle $, such that:
     \begin{enumerate}
-        \item $graph(A)$ is the directed graph obtained from $A$
-        \item the \textit{alphabet} is $\Sigma = 2^{T} \cup \R^n$ where $n$ is the number of scheduler feedback variables in the system
-        \item the transitions of $A$ are of the form: ``scheduler'' transitions $s_{schd} \xrightarrow[]{\sigma_{T}} s_{env}$,  or ``environment'' transitions $s_{env} \xrightarrow[]{\sigma_{e}} s_{schd}$, where $s_{schd} \in (P_{schd}, s_{env} \in P_{env}, \sigma_{T} \in 2^{T}, \sigma_{e} \in \R^n $
-        \item environment player is first: $q_0 \in P_{env}$ 
+        \item The \textit{alphabet} is $\Sigma = 2^{T} \cup \R^n$ where $n$ is the number of scheduler feedback variables in the system (real numbers that the scheduler can base its decision on).
+        \item 
+        Alternating turns with different parts of the alphabet:
+       	The transitions of $A$ are of the form: $s_{schd} \xrightarrow[]{\sigma_{T}} s_{env}$ where $s_{schd} \in P_{schd}, s_{env} \in P_{env},$ and $\sigma_{T} \subseteq T$ (called  ``scheduler'' transitions ),  or of the form $s_{env} \xrightarrow[]{\sigma_{e}} s_{schd}$, where $s_{schd} \in P_{schd}, s_{env} \in P_{env}$, and $\sigma_{e} \in \R^n$ (called ``environment'' transitions).
+        \item The environment plays first: $q_0 \in P_{env}$.
     \end{enumerate}
-    This game is called schedule game.
 \end{dfn}
 
-Each component designed to handle specific task in the system, and all its subroutines serve this task, the scheduling game $G$ of the component specifies the interaction between the subroutines and the environment, and by noting the acceptance state we can encode the component requirements in the game $G$.
+Each component is designed to handle specific task in the system, and all its subroutines serve this task, the scheduling game $G$ of the component specifies the interaction between the subroutines and the environment, and by noting the acceptance state we can encode the component requirements in the game $G$.
 
 An example of a component acting as the vision based sensor of a robot is demonstrated in Figure~\ref{fig:exampleGame}. 
 The component estimates the robot position from an image, it has two operation modes: high (H) or low (L) accuracy.
