@@ -1004,16 +1004,13 @@ Specifying resource requirements using periods has advantages due to simplicity 
 In Section~\ref{sec:architecture} we have suggested to use automata for describe the task specification for the scheduler. In this section we elaborate the technical details of the specification automata, techniques and tools that can be used to analyze the system, \todo{fix me} and in the last part of this section we show a working scheduler prototype that we implement to create to prove the concept.
 
 \todo{fix title}
-\subsection{A Schedule Component}
+\subsection{A Component}
 
-\commentOut{ % old defenition
-\begin{dfn}
-    A component is a set of subroutines (software functions) $T$ with a non-deterministic B{\"u}chi automaton (NBA) $A= \left < Q,\Sigma,\Delta,Q_0,Acc \right > $ called  ``Guarded automaton'', with the \textit{alphabet} is $\Sigma = 2^{T} \times \R^n$ where $n$ is the number of scheduler feedback variables in the system.
-\end{dfn}
-}
+
+
 
 \begin{dfn}
-    A component is a set, $T$, of subroutines (representing, e.g., a class in C++) with a \todo{Add an appendix on games}generalized B{\"u}chi game (GNBG), $G=\langle A,\langle P_{schd}, P_{env}\rangle \rangle$, over a generalized B{\"u}chi automaton $A= \langle Q,\Sigma,\Delta,q_0,\mathcal{F} \rangle $, such that:
+    A component is a pair $\langle T,G\rangle$ where $T$ is a set of subroutines (representing, e.g., a class in C++) and $G=\langle A,\langle P_{schd}, P_{env}\rangle \rangle$ is \todo{Add an appendix on games} a generalized B{\"u}chi game (GNBG) over a generalized B{\"u}chi automaton $A= \langle Q,\Sigma,\Delta,q_0,\mathcal{F} \rangle $, such that:
     \begin{enumerate}
         \item The \textit{alphabet} is $\Sigma = 2^{T} \cup \R^n$ where $n$ is the number of scheduler feedback variables in the system (real numbers that the scheduler can base its decision on).
         \item 
@@ -1046,17 +1043,16 @@ The system composed of multiple components that need to be executed simultaneous
 Each component introduce its own game therefore we will construct a composed component that correspond to all the system components together, then the scheduler have only one game to win for handle all the components.
 
 \begin{dfn}
-    The composition of the components $C_1=\langle A_1, \langle P_{schd}^1, P_{env}^1\rangle\rangle$ and $C_2=\langle A_2, \langle P_{schd}^2, P_{env}^2\rangle\rangle$ is the component $C_c = C_1 \times C_2$ defined as follows:
-    The subroutines set is $T_c=T_1 \cup T_2$.
-    The schedule game is $G_c = G_1 \times G_2 = \langle A_1 \times A_2 ,\langle P_{schd}^1 \times P_{schd}^2, P_{env}^1 \times P_{env}^2 \rangle \rangle$, that is, the automaton $A_c= \langle Q_1 \times Q_2,\Sigma_c,\Delta_c,Q_0^1 \times Q_0^2,Acc_1 \cup Acc_2 \rangle$ is a product of $C_1$ and $C_2$ automata such that:
+    The composition of the components $C_1=\langle T_1, \langle A_1, \langle P_{schd}^1, P_{env}^1\rangle\rangle\rangle$ and $C_2=\langle T_2, \langle A_2, \langle P_{schd}^2, P_{env}^2\rangle\rangle\rangle$ is the component $C_c = \langle T_1 \cup T_2, \langle A_c, \langle P_{schd}^1 \times P_{schd}^2, P_{env}^1 \times P_{env}^2 \rangle\rangle\rangle$ where $A_c= \langle Q_1 \times Q_2,(T_1 \cup T_2) \times \R^n,\Delta_c,Q_0^1 \times Q_0^2,Acc_1 \cup Acc_2 \rangle$ is a product of $C_1$ and $C_2$ and 
     \begin{enumerate}
-        \item $\Sigma_c = T_c \times \R^n$
-        \item Environment transitions: for each $y \in \R^n$ , $s_1 , s_1' \in Q_1$ and $s_2 , s_2' \in Q_2$ implies that:\\
-        $s_{1} \xrightarrow[]{y} s_{1}' \in \Delta_1$ and $s_{2} \xrightarrow[]{y} s_{2}' \in \Delta_2$ 
-        if and only if $\langle s_{1} s_2 \rangle \xrightarrow[]{y} \langle s_{1}' s_2' \rangle \in \Delta_c$
-        \item Scheduler transitions: for each $T_1' \subseteq T_1$ , $T_2' \subseteq T_2$ , $s_1 , s_1' \in Q_1$ and $s_2 , s_2' \in Q_2$ implies that:\\ 
-        $s_{1} \xrightarrow[]{T_1'} s_{1}' \in \Delta_1$ and $s_{2} \xrightarrow[]{T_2'} s_{2}' \in \Delta_2$ 
-        if and only if $\langle s_{1} s_2 \rangle \xrightarrow[]{T_1' \cup T_2'} \langle s_{1}' s_2' \rangle \in \Delta_c$
+        \item Environment transitions: $\forall y \in \R^n, s_1 , s_1' \in Q_1, s_2 , s_2' \in Q_2$:
+        $\langle s_{1} s_2 \rangle \xrightarrow[]{y} \langle s_{1}' s_2' \rangle \in \Delta_c$
+        if and only if 
+        $s_{1} \xrightarrow[]{y} s_{1}' \in \Delta_1$ and $s_{2} \xrightarrow[]{y} s_{2}' \in \Delta_2$.
+        \item Scheduler transitions: $\forall T_1' \subseteq T_1,T_2' \subseteq T_2$ , $s_1 , s_1' \in Q_1, s_2 , s_2' \in Q_2$:
+        $\langle s_{1} s_2 \rangle \xrightarrow[]{T_1' \cup T_2'} \langle s_{1}' s_2' \rangle \in \Delta_c$
+        if and only if         
+        $s_{1} \xrightarrow[]{T_1'} s_{1}' \in \Delta_1$ and $s_{2} \xrightarrow[]{T_2'} s_{2}' \in \Delta_2$.
     \end{enumerate}
 \end{dfn}
 
@@ -1103,8 +1099,8 @@ At the beginning of each time step the current automaton state is environment pl
 \begin{algorithm}[h]
     \caption{Scheduler run-time operation}
     \begin{algorithmic}[1]
-        \Procedure{S chedule}{$A_s$} \Comment{schedule the system with strategy automaton $A_s$ }
-            \State \Call{Validate}{$A_s$} \Comment{validate that $A_s$ is wining strategy}
+        \Procedure{Schedule}{$A_s$} \Comment{schedule the system with strategy automaton $A_s$ }
+            %\State \Call{Validate}{$A_s$} \Comment{validate that $A_s$ is wining strategy}
             \State $cur\_state \gets$ \Call{Initial}{$A_s$} \Comment{start with the initial state}
             
             \Statex
@@ -1137,17 +1133,16 @@ At the beginning of each time step the current automaton state is environment pl
 \subsection{Correctness}
 
 \begin{dfn}
-    A component $C_i$ is ``complete'' if for each $t_1, \dots, t_m \subseteq T_i$, $\vec{y}_1, \dots , \vec{y}_m \in \R^n$ and $q_e \in P_{env}$ such that there is a path from $q_0$ to $q_e$ with the word $w= \vec{y}_1 , t_1 , \vec{y}_2 , t_2, \dots , \vec{y}_{m}, t_m$ we have that for each $\vec{y}_{m+1}$ that can be observed after any run of the system that corresponds to this word (i.e., after each observation $\vec{y}_j$ we schedule $t_j$) there is a transition from $q_e$ labeled with $\vec{y}_{m+1}$.
+    A component $C_i$ is ``complete'' if for each $t_1, \dots, t_m \subseteq T_i$, $\vec{y}_1, \dots , \vec{y}_m \in \R^n$ and $q_e \in P_{env}$ such that there is a path from $q_0$ to $q_e$ with the word $w= \vec{y}_1 , t_1 , \vec{y}_2 , t_2, \dots , \vec{y}_{m}, t_m$ we have that for each $\vec{y}_{m+1}$ that can be observed after any run of the system that corresponds to this word (i.e., a run where after each observation $\vec{y}_j$ we scheduled $t_j$) there is a transition from $q_e$ labeled with $\vec{y}_{m+1}$.
 \end{dfn}
 
 \begin{dfn}
-    \todo{maybe stability requirements}
-    A complete component $C_i$ is valid if in  any execution whose observations and task schedules constitute a word $\omega \in \mathcal{L}(A_i)$ the component achieves its control objectives.
+    A component $C_i$ is well-formed if it is complete and if in  any execution whose observations and task schedules constitute a word $\omega \in \mathcal{L}(A_i)$, the component achieves its control objectives.
 \end{dfn}
 
 \begin{claim}
     \label{thm:valid_composition}
-    Assuming $C_1$ and $C_2$ are a valid components then the composed component $C_c=C_1 \cdot C_2$ is also a valid component.
+    If $C_1$ and $C_2$ are a well-formed components then their composition $C_c=C_1 \cdot C_2$ is also a well-formed component.
 \end{claim}
 \begin{proof}
     \begin{enumerate}
@@ -1163,28 +1158,25 @@ At the beginning of each time step the current automaton state is environment pl
 \end{proof}
 
 
-\commentOut{
 \begin{dfn}
-    \todo{recursive definition} A system is ``schedulable'' if for each posible state of the system at time step $i$ such that the system satisfy the  ements till time step $i$ there is a suitable scheduler reaction that lead to an execution that satisfy the system requirement 
-\end{dfn}
-}
-\begin{dfn}
-    A system is ``schedulable'' if for any possible change of environment there is an infinite schedule execution that satisfy the system requirements.
+	A system is ``schedulable'' if for any possible behavior of the environment (measurements that it may produce) there is a way for the scheduler to assign tasks such that all components achieve their control objectives.
 \end{dfn}
 
+ 
+
 \begin{claim}
-    Assuming $C_1,C_2, ... , C_m$ are a valid components then the composed component $C_s=C_1 \cdot C_2 \times \cdots  \times C_m \cdot C_ {reasource}$ is valid component and if there is a wining strategy for the scheduler $A_s$ then the system defined by $C_s$ is schedulable system.
+    If $C_1,\dots , C_m$ are a well-formed components and there is a wining strategy for the composed component $C_s=C_1 \times \cdots \times C_m \times C_ {resource}$, then the system defined by $C_s$ is schedulable.
 \end{claim}
 \begin{proof}
     First note that $C_reasource$ is valid component:
     The only environment state of $A_reasource$ accept all $\R^n$ for the observations therefore $C_reasource$ is complete, the only requirement from $C_reasource$ is that the time step is never exceeded it length, this is guarantied by the contraction of scheduler transitions then $C_reasource$ is also satisfy its requirement so $C_reasource$ is valid component.
-    All components $C_1 , C_2 , .. , C_m$ and $C_reasource $ are valid components then by claim~\ref{thm:valid_composition} $C_s $ is valid component.
+    All components $C_1 , C_2 , .. , C_m$ and $C_reasource $ are valid components then by Claim~\ref{thm:valid_composition} $C_s $ is valid component.
     
-    Assume there is a wining strategy for $C_s$ then the scheduler that random walk trough the wining strategy automaton, and operate as elaborate in algorithm~\ref{code:scheduler} is:
+    Assume there is a wining strategy for $C_s$ then the scheduler that random walk trough the wining strategy automaton, and operate as elaborate in Algorithm~\ref{code:scheduler} is:
     \begin{enumerate}
         \item Never get stuck: $C_s$ is complete so each environment state of $A_s$ have transition for any possible observation and any strategy of scheduler must keep all environment transitions therefore the execution never get stuck at environment state, and each scheduler state in the strategy have at least one outcome transition because if this is not the case then the strategy is not a wining strategy. 
         
-        \item The component $C_reasource$ game have only transitions with task sets that even at the worst case they never exceeds a single time step and $T_reasource$ contains all the system components tasks, therefore, $C_s$ also do not contain tasks sets that exceeds a single time step, therefore a schedule of a longer tasks set is not possible in algorithm~\ref{code:scheduler}.
+        \item The component $C_{resource}$ game have only transitions with task sets that even at the worst case they never exceeds a single time step and $T_{resource}$ contains all the system components tasks, therefore, $C_s$ also do not contain tasks sets that exceeds a single time step, therefore a schedule of a longer tasks set is not possible in algorithm~\ref{code:scheduler}.
         
         \item Satisfy the system requirements: The component $C_s$ satisfy its requirements, and the random walk of algorithm~\ref{code:scheduler} is also constructing a word $\omega \in \L(C_s)$, therefore by the definition of component that "satisfy its requirement", algorithm~\ref{code:scheduler} satisfy all the components requirements.
     \end{enumerate}
