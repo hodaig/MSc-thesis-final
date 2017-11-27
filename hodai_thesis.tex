@@ -1023,11 +1023,11 @@ In Section~\ref{sec:architecture} we have suggested to use automata for describe
     \end{enumerate}
 \end{dfn}
 
-Each component is designed to handle specific task in the system, and all its subroutines serve this task, the scheduling game $G$ of the component specifies the interaction between the subroutines and the environment, and by noting the acceptance state we can encode the component requirements in the game $G$.
+The idea is that each component is designed to handle a specific task in the system. All its subroutines serve this task. The scheduling game, $G$, of the component specifies the interaction between the subroutines and the environment. The acceptance condition encodes the component requirements.
 
 An example of a component acting as the vision based sensor of a robot is demonstrated in Figure~\ref{fig:exampleGame}. 
-The component estimates the robot position from an image, it has two operation modes: high (H) or low (L) accuracy.
-The scheduler feedback variable $y$ is the estimated position, in this example the component requirement is to ensure that $y$ never exceeds 1 (in position $y=1$ there is a cliff).
+The component estimates the robot position from an image. It has two operation modes: high (H) or low (L) accuracy.
+The scheduler feedback variable $y$ is the estimated position, in this example the component requirement is to ensure that $y$ never exceeds one (in position $y=1$ there is a cliff). \todo{this example is too early because the reader doesn't know the terms yet}
 
 \begin{figure} %[htbp]
     \centerline{\includegraphics[width=100mm]{gameExample.jpg}}
@@ -1037,7 +1037,7 @@ The scheduler feedback variable $y$ is the estimated position, in this example t
     \label{fig:exampleGame}
 \end{figure}
 
-Scheduling game $G$ is a scheduler-against-environment game as follows, at each scheduler state $s_{schd} \in P_{schd}$ is a single time slot where the scheduler need to choose a transition $s_{schd} \xrightarrow[]{\sigma_{T}} s_{env}$ to a new state $s_{env}$ and then execute all the tasks in $\sigma_{T}$, this transition lead to an environment state $s_{env} \in P_{env}$ that represent the evolution of the system state till the next time step cause by the actuators and the environment, each transposition $s_{env} \xrightarrow[]{\sigma_{e}} s_{schd}$ correspond to a possible new value of the system state that equals to $\sigma_{e}$.
+A scheduling game $G$ is a scheduler-against-environment game as follows: at each scheduler state $s_{schd} \in P_{schd}$ is a single time slot where the scheduler need to choose a transition $s_{schd} \xrightarrow[]{\sigma_{T}} s_{env}$ to a new state $s_{env}$ and then execute all the tasks in $\sigma_{T}$, this transition lead to an environment state $s_{env} \in P_{env}$ that represent the evolution of the system state till the next time step cause by the actuators and the environment, each transposition $s_{env} \xrightarrow[]{\sigma_{e}} s_{schd}$ correspond to a possible new value of the system state that equals to $\sigma_{e}$.
 The scheduler goal is to pass infinitely many times in acceptance state during the execution.
 Note, formally scheduler feedback variable is a vector $Y \in \R^n$ that may includes state variables and internal variable of the components.
 
@@ -1046,9 +1046,9 @@ The system composed of multiple components that need to be executed simultaneous
 Each component introduce its own game therefore we will construct a composed component that correspond to all the system components together, then the scheduler have only one game to win for handle all the components.
 
 \begin{dfn}
-    Composition of components $C_1$ and $C_2$ is a component $C_c = C_1 \cdot C_2$ and is defined as follows:
+    The composition of the components $C_1=\langle A_1, \langle P_{schd}^1, P_{env}^1\rangle\rangle$ and $C_2=\langle A_2, \langle P_{schd}^2, P_{env}^2\rangle\rangle$ is the component $C_c = C_1 \times C_2$ defined as follows:
     The subroutines set is $T_c=T_1 \cup T_2$.
-    The schedule game is $G_c = G_1 \times G_2 = (grapg(A_1 \times A_2) ,(P_{schd}^1 \times P_{schd}^2, P_{env}^1 \times P_{env}^2))$, that is, the automaton $A_c= \langle Q_1 \times Q_2,\Sigma_c,\Delta_c,Q_0^1 \times Q_0^2,Acc_1 \cup Acc_2 \rangle$ is a product of $C_1$ and $C_2$ automata such that:
+    The schedule game is $G_c = G_1 \times G_2 = \langle A_1 \times A_2 ,\langle P_{schd}^1 \times P_{schd}^2, P_{env}^1 \times P_{env}^2 \rangle \rangle$, that is, the automaton $A_c= \langle Q_1 \times Q_2,\Sigma_c,\Delta_c,Q_0^1 \times Q_0^2,Acc_1 \cup Acc_2 \rangle$ is a product of $C_1$ and $C_2$ automata such that:
     \begin{enumerate}
         \item $\Sigma_c = T_c \times \R^n$
         \item Environment transitions: for each $y \in \R^n$ , $s_1 , s_1' \in Q_1$ and $s_2 , s_2' \in Q_2$ implies that:\\
@@ -1074,9 +1074,10 @@ Finally, the resource component is composed with all the rest components of the 
     \centerline{\includegraphics[width=80mm]{reasourceGame.jpg}}
     \caption{Example of a game for resource component that do not allows to exceed a time slot. 
         In this example $T = \left\{ t_1 , t_2 , t_3 \right\}$, the execution time of each task $t_i$ is half of a single time slot, therefore it is not possible to execute more than two tasks at the same time slot, but there is no limitation on the environment ($\vec{y}$).
-        Square state is an environment player state and round state belong to the scheduler. }
+        Square state is an environment player state and round state belong to the scheduler.  }
     \label{fig:C_reasource}
 \end{figure}
+\todo{Make the states accepting}
 
 \subsection{Wining the Game - Find the Strategy}
 
@@ -1099,7 +1100,7 @@ Each time the system is executed the scheduler just walk through the strategy au
 The time is divided into segments of equal length called ``time step''.
 At the beginning of each time step the current automaton state is environment player state, so we pick the \todo{continue verbal explanation of the pseudo cod }
 
-\begin{algorithm}[!h]
+\begin{algorithm}[h]
     \caption{Scheduler run-time operation}
     \begin{algorithmic}[1]
         \Procedure{S chedule}{$A_s$} \Comment{schedule the system with strategy automaton $A_s$ }
@@ -1136,25 +1137,12 @@ At the beginning of each time step the current automaton state is environment pl
 \subsection{Correctness}
 
 \begin{dfn}
-    Component $C_i$ is ``complete'' if the game automaton $A_i$ of $C_i$ covers all the possible observations. Formally, for each $t_1, .. t_m \subseteq T_i$ , $\vec{y}_1, .. , \vec{y}_m \in \R^n$ and $q_e \in P_{env}$ such that there is a path from $q_0$ to $q_e$ with the word $w= \vec{y}_1 , t_1 , \vec{y}_2 , t_2, .. , t_m$ and that at each time slot $j \le m$ the system observe $\vec{y}_j$ and execute the tasks $t_j$ and at time slot $m+1$ may observe $\vec{y}_{m+1}$ then there is a transition from $q_e$ with $\vec{y}_{m+1}$.
+    A component $C_i$ is ``complete'' if for each $t_1, \dots, t_m \subseteq T_i$, $\vec{y}_1, \dots , \vec{y}_m \in \R^n$ and $q_e \in P_{env}$ such that there is a path from $q_0$ to $q_e$ with the word $w= \vec{y}_1 , t_1 , \vec{y}_2 , t_2, \dots , \vec{y}_{m}, t_m$ we have that for each $\vec{y}_{m+1}$ that can be observed after any run of the system that corresponds to this word (i.e., after each observation $\vec{y}_j$ we schedule $t_j$) there is a transition from $q_e$ labeled with $\vec{y}_{m+1}$.
 \end{dfn}
 
 \begin{dfn}
     \todo{maybe stability requirements}
-    Component $C_i$ ``satisfy its requirements'' if:
-    For each $\omega = \vec{y}_1 , t_1 , \vec{y}_2 , t_2, ... \in \L(A_i)$ a system execution that before each time slot $j$ observe $\vec{y}_j$ and then execute the tasks $t_i$ in that slot is a system execution that satisfies the requirement from the component $C_i$.
-\end{dfn}
-
-\begin{dfn}
-    Component $C_i$ is ``valid'' component if:
-    \begin{enumerate}
-        \item $C_i$ is a component
-        
-        % all posible y
-        \item $C_i$ is complete component
-        
-        \item $C_i$ satisfy its requirements
-    \end{enumerate}
+    A complete component $C_i$ is valid if in  any execution whose observations and task schedules constitute a word $\omega \in \mathcal{L}(A_i)$ the component achieves its control objectives.
 \end{dfn}
 
 \begin{claim}
@@ -1184,9 +1172,8 @@ At the beginning of each time step the current automaton state is environment pl
     A system is ``schedulable'' if for any possible change of environment there is an infinite schedule execution that satisfy the system requirements.
 \end{dfn}
 
-
 \begin{claim}
-    Assuming $C_1,C_2, ... , C_m$ are a valid components then the composed component $C_s=C_1 \cdot C_2 \cdot .. \cdot C_m \cdot C_reasource $ is valid component and if there is a wining strategy for the scheduler $A_s$ then the system defined by $C_s$ is schedulable system.
+    Assuming $C_1,C_2, ... , C_m$ are a valid components then the composed component $C_s=C_1 \cdot C_2 \times \cdots  \times C_m \cdot C_ {reasource}$ is valid component and if there is a wining strategy for the scheduler $A_s$ then the system defined by $C_s$ is schedulable system.
 \end{claim}
 \begin{proof}
     First note that $C_reasource$ is valid component:
