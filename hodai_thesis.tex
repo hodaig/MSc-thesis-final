@@ -1155,12 +1155,9 @@ At the beginning of each time step the current automaton state is environment pl
     \end{enumerate}
 \end{proof}
 
-
 \begin{dfn}
 	A system is ``schedulable'' if for any possible behavior of the environment (measurements that it may produce) there is a way for the scheduler to assign tasks such that all components achieve their control objectives.
 \end{dfn}
-
- 
 
 \begin{claim}
     If $C_1,\dots , C_m$ are a well-formed components and there is a wining strategy for the composed component $C_s=C_1 \times \cdots \times C_m \times C_ {resource}$, then the system defined by $C_s$ is schedulable.
@@ -1185,7 +1182,15 @@ At the beginning of each time step the current automaton state is environment pl
 \end{remark}
 
 
-\section{Few Words about Implementation}
+
+
+
+
+
+%TODO - continue here!
+%TODO - maybe here insert a reference to preveus "mode based" automata
+%TODO - we can add demonstration of how to define periodic tasks with automata
+\subsection{Few Words about Implementation}
 
 % finite space by discretization of observations (Merav)
 % game solver - GOAL
@@ -1202,52 +1207,12 @@ At the beginning of each time step the current automaton state is environment pl
 
 
 
-%TODO - continue here!
+
 \commentOut{
-\begin{dfn}{Correctness of a Component:}
-    A component $c$ is \todo{don't know how to call it} correct / ``schedulable'' if and only, for each infinite possible sequence of scheduler feedback variables in the system $\vec{Y} = \left \{ \vec{y}_1, \vec{y}_2 , ... \right \}$ ($\vec{y}_i \in \R^n$) there is a word $\omega \in L_{\omega}(A_c)$ such that $\Pi_2(\omega) = \vec{Y}$~\footnote{$\Pi_i(\{ \langle \sigma_{1,1} , \sigma_{1,2} \rangle , \langle \sigma_{2,1} , \sigma_{2,2} \rangle , ... \}) = \{ \sigma_{1,i} , \sigma_{2,i} , ... \}$}, and for each such $\omega$ a schedule according to $\Pi_1(\omega)$ satisfy the component requirements assuming the scheduler feedback variables observation is $\vec{Y}$.
-\end{dfn}
-
-Each ``Guarded automaton'' practically define a scheduling strategy that satisfy the requirements of the component.
-Each infinite word $\omega \in \Sigma^\omega$ of the automata define a possible instance of task scheduling (one execution of the system) where in the time slot (iteration) $i$ the scheduler observation before iteration $i$ was $\Pi_2(\omega)[i]$ and the scheduler execute all the subroutines in $\Pi_1(\omega)[i]$.
 
 
 
-\begin{dfn}{Guarded Automaton}
-    is defined as non-deterministic B{\"u}chi automaton (NBA) $A= \left < Q,\Sigma,\Delta,Q_0,Acc \right > $.
-    Where the \textit{alphabet} is $\Sigma = 2^T \times C$.
-    Each such automaton define strategy that satisfy the requirements as follows:
-    Each infinite word $\alpha \in \Sigma^\omega$ of the automata define an instance of a task scheduling (one execution of the system) where in the time slot (iteration) $i$ is define by the letter $\sigma= \langle T_i , C_i \rangle \in \Sigma$
-    
-    , and the automata language define all the possible scheduling.
-    Now the scheduler only need to ``walk through'' the automata as follows, before every iteration the scheduler choose state transition $(q_i , \{t_j , c_j\}, q_{i+1})$ such that all it's conditions are met ($\forall c \in c_j : c = \text{true}$), from the current state $q_i$ to the state $q_{i+1}$, and execute all the transition tasks ($t_j$).
-\end{dfn}
 
-
-The specification framework for resource requirements is based on \textit{Nondeterministic $\omega$-word} (finite automata over infinite words) theory~\cite{???}.
-%TODO - what we do with $Acc$
-Formally \textit{component specification automata} is defined, based on Non-deterministic B{\"u}chi Automata (NBA), as tuple $A= \left < Q,\Sigma,\Delta,Q_0,Acc \right > $.
-\todo{the examples before consist of automata with the task on the nodes, need to say something about the difference }
-In our setting, the \textit{alphabet} of the automata is $\Sigma = T^2 \times C^2$ where $C$ is set of Boolean conditions variables, will be describe later, and $T$ is the set of all tasks in the system.
-For simplicity of this early stage we assume that all states are accepting states ($Acc=Q$), then every infinite path in the automaton is accepting.
-Each infinite word ($\alpha \in \Sigma^\omega$) of the automata define a possible tasks scheduling over a fixed period (time slots), and the automata language define all the possible scheduling.
-Now the scheduler only need to ``walk through'' the automata as follows, before every iteration the scheduler choose state transition $(q_i , \{t_j , c_j\}, q_{i+1})$ such that all it's conditions are met ($\forall c \in c_j : c = \text{true}$), from the current state $q_i$ to the state $q_{i+1}$, and execute all the transition tasks ($t_j$).
-
-%Gather all guarded automata of all the system tasks result in a ``composed automaton'' that eventually used to schedule the system tasks.
-%Each infinite path on the composed automata (not necessarily with infinitely many mode transitions) represents a schedule that satisfy all the tasks requirements. 
-
-%TODO - define $s(\omega_j)$ as the schedule of $\omega_j$
-Definitions:
-\begin{enumerate}
-    \item for $\sigma_i = \left < t_i,c_i \right > \in \Sigma$ define: $task(\sigma_i) = t_i$ 
-    \item $ts$: the duration time of one time-slot.
-    \item $time(t_j)$: the execution time of subroutine $t_i$.
-    \item if $T_i \subseteq T$ then $time(T_j) = \sum_{t_k \in T_j} time(t_k)$
-\end{enumerate}
-
-
-%TODO - maybe here insert a reference to preveus "mode based" automata
-%TODO - we can add demonstration of how to define periodic tasks with automata
 
 \subsection{Automata Operation - Creating the Composed automaton }
 
@@ -1402,8 +1367,6 @@ Each of this operation modes ($s_{0.7}$ and $s_{0.2}$) have different accuracy, 
 
 
 \section{Related Work}
-% rtcomposer
-% game composer
 
 This thesis is mainly based on the RTComposer paper~\cite{RTComposer} and the followed work, GameComposer, of Merav~\cite{Merav}.
 In this thesis like in RTComposer we present a framework for design cyber-phisical systems with dynamic scheduling for real-time.
@@ -1436,14 +1399,19 @@ We show how to use information from the classic Kalman fiter observer (Section~\
 We manage to extract an estimation of the process and measurement errors from the filter, and schedule sensing tasks base on this estimation.
 
 
-%TODO - we present real life experiments
+%TODO - online composition
+
+
+%TODO - we present real life experiments or maybe in conclusion
 %TODO - micro / macro scheduler
 
 
-
-%TODO - online composition
-
-%TODO - hanoch
+% hanoch
+The case-study in this thesis, presented in Section~\ref{sec:caseStudy}, \todo{ask hanoch for reference} is based on the work of Hanoch~\cite{Hanoch ??}.
+Hanoch present an iterative technique for calculating the position and attitude of the drone relative to a window.
+In this technique the drone is equipped with a camera pointed to the front of the drone, the camera is capable of photographing a window and finding the four corners of the window in the image surface.
+Hanoch's algorithm takes the position of the corners and calculate the position and attitude relative to the window.
+In the case-study of this thesis we control and regulate the position and attitude of the drone (see Section~\ref{sec:Observer Design}) using the same techniques developed by Hanoch.
 
 %TODO - contract based vision papers
 
