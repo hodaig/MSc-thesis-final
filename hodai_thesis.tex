@@ -993,6 +993,7 @@ For best synchronization, we create a NatNet client library inside the APM code.
 We also use the OptiTrack information in early stages of the research as the feedback of the controller before we use the camera .
 
 \section{Scheduler Interface Prototype}
+\label{sec:scheduler}
 
 \todo{I dont know if this section is too much (is mostly taken from the proposal)}
 The most common way of describing the requirements of a real-time component is to specify a period, sometimes along with a deadline, which gives the frequency at which the component must execute.
@@ -1005,9 +1006,6 @@ In Section~\ref{sec:architecture} we have suggested to use automata for describe
 
 \todo{fix title}
 \subsection{A Component}
-
-
-
 
 \begin{dfn}
     A component is a pair $\langle T,G\rangle$ where $T$ is a set of subroutines (representing, e.g., a class in C++) and $G=\langle A,\langle P_{schd}, P_{env}\rangle \rangle$ is \todo{Add an appendix on games} a generalized B{\"u}chi game (GNBG) over a generalized B{\"u}chi automaton $A= \langle Q,\Sigma,\Delta,q_0,\mathcal{F} \rangle $, such that:
@@ -1407,21 +1405,53 @@ Each of this operation modes ($s_{0.7}$ and $s_{0.2}$) have different accuracy, 
 % rtcomposer
 % game composer
 
-This thesis is mainly based on the RTComposer paper~\cite{RTComposer} and the followed work of Merav~\cite{Merav}.
-In this thesis as in RTComposer we present a framework for design cyber-phisical systems with dynamic scheduling for real-time.
-The RTComposer the framework is component-based in the sense that a single component correspond to a single control loop in a complex cyber-phisical system.
-Each component has a clearly specified interface that includes method for sensing, method for actuation, and additional computational methods.
-Each component have its requirement specification given by finite automaton over infinite words, every infinite sequence over the automaton specifies, for every time slot, the set of the component computational methods to invoke in that slot.
+This thesis is mainly based on the RTComposer paper~\cite{RTComposer} and the followed work, GameComposer, of Merav~\cite{Merav}.
+In this thesis like in RTComposer we present a framework for design cyber-phisical systems with dynamic scheduling for real-time.
+RTComposer presents so called component-based framework in the sense that a single component correspond to a single control loop in a complex cyber-phisical system.
+Each component has a clearly specified interface that includes method for sensing, method for actuation, and additional computational methods that can be executed between the time of sensing and actuation.
+Each component have requirement specification given by finite automaton over infinite words, every infinite sequence over the automaton specifies, for every time slot, the set of computational methods to invoke in that slot.
 
-In this thesis we also propose to use automata based scheduler as automata specification is expressive, analyzable, and composable specification framework as stated in section~\ref{sec:architecture}.
-In this work unlike RTComposer we prefers to loosen the definition of a component and remove the separation of  sensing and actuation methods ...
+In this thesis we also continue the use of automata based scheduler, automata specification is expressive, analyzable, and composable specification framework as stated in Section~\ref{sec:architecture} and in RTComposer paper~\cite{RTComposer}.
+After reviewing few embedded control systems, we conclude that RTComposer component design can be limiting. 
+Most control systems have multiple control loops but they may have shared tasks.
+An example for such system is shown in Section~\ref{sec:caseStudy}, there is a three dimensional flying machine with four control loops (pitch, roll, yaw and throttle) that share a single image based sensing task along with some private tasks like compass sensor used only by the yaw control loop.
+%As elaborate in section~\ref{sec:scheduler} we define component as ...
+In this work, unlike RTComposer, we loosen the definition of a component, and remove the separation of sensing and actuation methods, and remains only with computational methods, then a component is not necessarily correspond to a single control loop (see Section~\ref{sec:scheduler}). 
+In this way we can define a single component for the vision based sensing, ans 4 additional components for pitch, roll, yaw and throttle control loops that gets information from the vision component.
+
+% game composer inspiered by merav for reactive scheduling
+% merav concentrated in automata and exponential stabilisation and develop great tools
+The GameComposer by Merav~\cite{Merav}, similarly to this thesis, extends RTComposer by adding the ability of ``reacting'' to the environment.
+Inspired from GameComposer we use B\"uchi game as the main component specification, which allows the scheduler to make scheduling decision based on the current characteristics of the plant.
+Those games extends the specification automata of RTComposer with the addition of environment player and environment transitions (see Section~\ref{sec:scheduler}).
+The environment may help or interfere with the control operation, we manage to improve the controller performance by consider this environment influence, see Section~\ref{sec:results}.
+General speaking Merav focuses on the technical aspects of the scheduler and automata related algorithms.
+This work focus on the integration of the automata based scheduling in a cyber-phisical systems.
+
+% rt stabilization vs kalman-filter scheduling
+RTComposer also describes techniques for generate the specification automata. For example, automata for a traditional periodic tasks, or automata that guaranty stability objectives for a given linear switched system.
+Those RTComposer techniques are all techniques for offline scheduling and they can be also applied in our proposed framework.
+In this work we present online techniques that can take in to account the current state of the system.
+We show how to use information from the classic Kalman fiter observer (Section~\ref{sec:simulation}) and a simplest linear version with complementary filter (Section~\ref{sec:Analysis}.
+We manage to extract an estimation of the process and measurement errors from the filter, and schedule sensing tasks base on this estimation.
 
 
+%TODO - we present real life experiments
+%TODO - micro / macro scheduler
+
+
+
+%TODO - online composition
+
+%TODO - hanoch
+
+%TODO - contract based vision papers
 
 \section{Conclusions and Future Work}
 % use real vision
 % develop the framwork
 % invent mathematical / automatic technics to create the automata
+%TODO - online composition
 
 %TODO - say somthing about the camera driver
 We introduced a new approach for resource allocation that allows dynamic scheduling where resources are only allocated when needed.
