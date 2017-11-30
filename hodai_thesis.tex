@@ -132,6 +132,7 @@ fill=orange!20!yellow!20]
 \newcommand\bad{$\mathtt{bad}$}
 \newcommand\code[1]{{\small \sf #1}}
 
+
 %%% LaTeX definitions -----------------------------------------
 \usepackage{amsthm}
 
@@ -157,6 +158,9 @@ fill=orange!20!yellow!20]
 %%%%%%%% utils %%%%%%%%
 \newcommand{\commentOut}[1]{}
 \newcommand{\uncomment}[1]{#1}
+
+\newcommand{\buchi}{B\"uchi }
+
 
 \title{\vspace{2cm}\LARGE BEN- GURION UNIVERSITY OF THE NEGEV \\
     \Large THE FACULTY OF NATURAL SCIENCES \\ ~
@@ -1000,10 +1004,10 @@ In Section~\ref{sec:architecture} we have suggested to use automata for describe
 In our framework, similarly to most traditional real time systems, the resource is allocated in discrete \textit{time slots} of fixed duration in the style of time-triggered architecture~\cite{RTComposer}.
 A typical cyber-physical control system have multiple tasks that need to be done in order to control the system.
 Each task is performed by one or more subroutines (code functions).
-We suggest designing control system in the \textit{component} level, where each component is corresponding a specific task in the system, it consists of all the subroutines of the task along with a B\"uchi game specify how the task subroutines should be executed. 
+We suggest designing control system in the \textit{component} level, where each component is corresponding a specific task in the system, it consists of all the subroutines of the task, along with a \buchi game specify how the task subroutines should be executed.
 
 \begin{dfn}
-    A component is a pair $\langle T,G\rangle$ where $T$ is a set of subroutines (representing, e.g., procedures of a class in C++) and $G=\langle A,\langle P_{schd}, P_{env}\rangle \rangle$ is a generalized B{\"u}chi game (GNBG), see Section~\ref{sec:BNBG} over a generalized B{\"u}chi automaton $A= \langle Q,\Sigma,\Delta,q_0,\mathcal{F} \rangle $, such that:
+    A component is a pair $\langle T,G\rangle$ where $T$ is a set of subroutines (representing, e.g., procedures of a class in C++) and $G=\langle A,\langle P_{schd}, P_{env}\rangle \rangle$ is a generalized B{\"u}chi game (GNBG), over a generalized \buchi automaton $A= \langle Q,\Sigma,\Delta,q_0,\mathcal{F} \rangle $ (see Section~\ref{sec:GNBG}), such that:
     \begin{enumerate}
         \item The \textit{alphabet} is $\Sigma = 2^{T} \cup \R^n$ where $n$ is the number of scheduler feedback variables in the system (real numbers that the scheduler can base its decision on).
         \item 
@@ -1013,6 +1017,28 @@ We suggest designing control system in the \textit{component} level, where each 
     \end{enumerate}
 \end{dfn}
 
+The \buchi game $G=\langle A,\langle P_{schd}, P_{env}\rangle \rangle$, of a component, is a scheduler-against-environment game, it is represents the interaction of the controller and the environment in the real world.
+The game goes as follows: before every time slot the environment player ($P_{env}$) play first and take the transition $s_{env} \xrightarrow[]{\sigma_{\vec{y}}} s_{schd}$ such that $\vec{y} \in \R^n$ was the observation values at the beginning of this slot.
+Then the scheduler need to choose a transition $s_{schd} \xrightarrow[]{\sigma_{T'}} s_{env}'$, and then execute all the tasks in $\sigma_{T'}$.
+The environment transition represent the evolution of the system state caused by the actuators and the environment of previous time step, and then the scheduler react to state evolution by the schedule transition.
+This simultaneous walk over the game automata $A$ create
+The scheduler goal is to pass infinitely many times in acceptance state during the execution.
+In other words, if the world, $\omega = \vec{y}_1 , T_1, \vec{y}_2, \dots $, created by this simultaneous walk over the game automata $A$ is accepting world, $\omega \in \mathcal{L}_{\omega}(A)$.
+Note, the scheduler feedback variable (or observations) is a vector $\vec{y} \in \R^n$ that may includes state variables and internal variable of the components.
+
+An example of a vision based sensor component of a robot is demonstrated in Figure~\ref{fig:exampleGame}. 
+The component estimates the robot position using a camera. It has two operation modes: high (H) or low (L) accuracy.
+The variable $y$ is the estimated position, in this example the component requirement is to ensure that $y$ never exceeds one (in position $y=1$ there is a cliff). \todo{I don't know if this example is helping or not}
+
+\begin{figure} [h]
+    \centerline{\includegraphics[width=100mm]{gameExample.jpg}}
+    \caption{Example of a game for vision based sensor component of a robot.
+        The robot must maintain position of $y \le 1$ where $H$ is high accuracy and $L$ is low accuracy position measuring tasks, and
+        $g1$ refer to $y \le 0.5$, $g2$ refer to $0.5 < y \le 1$ and $g3$ refer to $1 < y$ }
+    \label{fig:exampleGame}
+\end{figure}
+
+
 
 
 
@@ -1021,22 +1047,6 @@ We suggest designing control system in the \textit{component} level, where each 
 
 
 %TODO - continue here
-An example of a component acting as the vision based sensor of a robot is demonstrated in Figure~\ref{fig:exampleGame}. 
-The component estimates the robot position from an image. It has two operation modes: high (H) or low (L) accuracy.
-The scheduler feedback variable $y$ is the estimated position, in this example the component requirement is to ensure that $y$ never exceeds one (in position $y=1$ there is a cliff). \todo{this example is too early because the reader doesn't know the terms yet}
-
-\begin{figure} %[htbp]
-    \centerline{\includegraphics[width=100mm]{gameExample.jpg}}
-    \caption{Example of a game for vision based sensor component of a robot.
-        The robot must maintain position of $y \le 1$ where $H$ is high accuracy and $L$ is low accuracy position measuring tasks, and
-        $g1$ refer to $y \le 0.5$, $g2$ refer to $0.5 < y \le 1$ and $g3$ refer to $1 < y$ }
-    \label{fig:exampleGame}
-\end{figure}
-
-A scheduling game $G$ is a scheduler-against-environment game as follows: each scheduler state $s_{schd} \in P_{schd}$ is a single time slot where the scheduler need to choose a transition $s_{schd} \xrightarrow[]{\sigma_{T}} s_{env}$ to a new state $s_{env}$ and then execute all the tasks in $\sigma_{T}$, this transition lead to an environment state $s_{env} \in P_{env}$ that represent the evolution of the system state till the next time step cause by the actuators and the environment, each transposition $s_{env} \xrightarrow[]{\sigma_{e}} s_{schd}$ correspond to a possible new value of the system state that equals to $\sigma_{e}$.
-The scheduler goal is to pass infinitely many times in acceptance state during the execution.
-Note, formally scheduler feedback variable is a vector $Y \in \R^n$ that may includes state variables and internal variable of the components.
-
 \subsection{Component Games Composition}
 The system composed of multiple components that need to be executed simultaneously by the same scheduler.
 Each component introduce its own game therefore we will construct a composed component that correspond to all the system components together, then the scheduler have only one game to win for handle all the components.
@@ -1386,7 +1396,7 @@ In this way we can define a single component for the vision based sensing, ans 4
 % game composer inspiered by merav for reactive scheduling
 % merav concentrated in automata and exponential stabilisation and develop great tools
 The GameComposer by Merav~\cite{Merav}, similarly to this thesis, extends RTComposer by adding the ability of ``reacting'' to the environment.
-Inspired from GameComposer we use B\"uchi game as the main component specification, which allows the scheduler to make scheduling decision based on the current characteristics of the plant.
+Inspired from GameComposer we use \buchi game as the main component specification, which allows the scheduler to make scheduling decision based on the current characteristics of the plant.
 Those games extends the specification automata of RTComposer with the addition of environment player and environment transitions (see Section~\ref{sec:scheduler}).
 The environment may help or interfere with the control operation, we manage to improve the controller performance by consider this environment influence, see Section~\ref{sec:results}.
 General speaking Merav focuses on the technical aspects of the scheduler and automata related algorithms.
@@ -1505,7 +1515,7 @@ APM, the control software that we will use, is already using kalman filter as th
 \subsection{Raspberry-Pi Camera Driver}
 %TODO - problems and solutions
 \subsection{Complementary-Kalman design (with physical computation)}
-\subsection{Generalize Non-Deterministic B\"uchi Game (GNBG)}
+\subsection{Generalize Non-Deterministic \buchi Game (GNBG)}
 \label{sec:GNBG}
 \todo{Add an appendix on games}
 
