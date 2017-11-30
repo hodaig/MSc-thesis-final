@@ -888,15 +888,9 @@ Figure~\ref{fig:windPlot} shows data collected in one of the flights with the CP
 \label{sec:Experiment setup-HW}
 % the hardware
 
-In order to perform the experiments we used an of-the-shelf quadrotor shown in Figure~\ref{fig:the_drone} with improved flight controlle: a \textit{raspberry-pi}, a single-board computer~\cite{raspberry}, with the \textit{navio2}~\cite{navio} shield.
+In order to perform the experiments we used an of-the-shelf quadrotor shown in Figure~\ref{fig:hover_in_lab} with improved flight controlle: a \textit{raspberry-pi}, a single-board computer~\cite{raspberry}, with the \textit{navio2}~\cite{navio} shield.
 \textit{Navio2} is extension board (shield) for the \textit{Raspberry pi} platform, it provides the nessesary interfaces such as remote control inputs and motors output, and it is equipped with on-board Micro Electro-Mechanical System (MEMS) sensors, such as rate gyros and accelerometers.
 We implemented the controllers and the schedulers as libraries for the ArduPilot Mega (APM) autopilot software~\cite{APM}.
-
-\begin{figure} %[htbp]
-    \centerline{\includegraphics[width=70mm]{the_drone.jpg}}
-    \caption{The quad-rotor used for testing.}
-    \label{fig:the_drone}
-\end{figure}
 
 \subsection{Vision Based Sensor}
 \label{sec:Experiment setup-cam}
@@ -992,23 +986,25 @@ consisting of an array of high-speed tracking cameras that provide low latency a
 For best synchronization, we create a NatNet client library inside the APM code. This library allows the controller check anytime for the current state and log that information in parallel to the other controller parameters.
 We also use the OptiTrack information in early stages of the research as the feedback of the controller before we use the camera .
 
-\section{Scheduler Interface Prototype}
+\section{Scheduler Interface}
 \label{sec:scheduler}
 
-\todo{I dont know if this section is too much (is mostly taken from the proposal)}
-The most common way of describing the requirements of a real-time component is to specify a period, sometimes along with a deadline, which gives the frequency at which the component must execute.
-%The designer of the component makes sure that the performance objectives are met as long as the component is executed consistent with its period. The scheduler guarantees that all components get enough resources.
+
+The most common communication interface between scheduler and embedded real-time component, is by specify a period, sometimes along with a deadline, which gives the frequency at which the component must be executed.
+The only requirement in those type of systems is that if the component is always executed exactly within the designed frequency (period), then the control objectives (e.g. stability) are met.
 %not directly in this article
 Specifying resource requirements using periods has advantages due to simplicity and analyzability, but has limited expressiveness, as elaborated in~\cite{RTComposer}. 
 %For example, a specification such as “execute the component every 5ms” does not say whether the scheduler should or should not execute it more frequently if enough computing resources are available, and if a component has multiple, say, for different control tasks, each needing a different period, the requirement cannot be naturally captured by a single period.
 
-In Section~\ref{sec:architecture} we have suggested to use automata for describe the task specification for the scheduler. In this section we elaborate the technical details of the specification automata, techniques and tools that can be used to analyze the system, \todo{fix me} and in the last part of this section we show a working scheduler prototype that we implement to create to prove the concept.
+In Section~\ref{sec:architecture} we have suggested to use automata for describe the component specification for the scheduler. In this section we elaborate the technical details of the specification automata.
 
-\todo{fix title}
-\subsection{A Component}
+In our framework, similarly to most traditional real time systems, the resource is allocated in discrete \textit{time slots} of fixed duration in the style of time-triggered architecture~\cite{RTComposer}.
+A typical cyber-physical control system have multiple tasks that need to be done in order to control the system.
+Each task is performed by one or more subroutines (code functions).
+We suggest designing control system in the \textit{component} level, where each component is corresponding a specific task in the system, it consists of all the subroutines of the task along with a B\"uchi game specify how the task subroutines should be executed. 
 
 \begin{dfn}
-    A component is a pair $\langle T,G\rangle$ where $T$ is a set of subroutines (representing, e.g., a class in C++) and $G=\langle A,\langle P_{schd}, P_{env}\rangle \rangle$ is \todo{Add an appendix on games} a generalized B{\"u}chi game (GNBG) over a generalized B{\"u}chi automaton $A= \langle Q,\Sigma,\Delta,q_0,\mathcal{F} \rangle $, such that:
+    A component is a pair $\langle T,G\rangle$ where $T$ is a set of subroutines (representing, e.g., procedures of a class in C++) and $G=\langle A,\langle P_{schd}, P_{env}\rangle \rangle$ is a generalized B{\"u}chi game (GNBG), see Section~\ref{sec:BNBG} over a generalized B{\"u}chi automaton $A= \langle Q,\Sigma,\Delta,q_0,\mathcal{F} \rangle $, such that:
     \begin{enumerate}
         \item The \textit{alphabet} is $\Sigma = 2^{T} \cup \R^n$ where $n$ is the number of scheduler feedback variables in the system (real numbers that the scheduler can base its decision on).
         \item 
@@ -1018,8 +1014,14 @@ In Section~\ref{sec:architecture} we have suggested to use automata for describe
     \end{enumerate}
 \end{dfn}
 
-The idea is that each component is designed to handle a specific task in the system. All its subroutines serve this task. The scheduling game, $G$, of the component specifies the interaction between the subroutines and the environment. The acceptance condition encodes the component requirements.
 
+
+
+
+
+
+
+%TODO - continue here
 An example of a component acting as the vision based sensor of a robot is demonstrated in Figure~\ref{fig:exampleGame}. 
 The component estimates the robot position from an image. It has two operation modes: high (H) or low (L) accuracy.
 The scheduler feedback variable $y$ is the estimated position, in this example the component requirement is to ensure that $y$ never exceeds one (in position $y=1$ there is a cliff). \todo{this example is too early because the reader doesn't know the terms yet}
@@ -1032,7 +1034,7 @@ The scheduler feedback variable $y$ is the estimated position, in this example t
     \label{fig:exampleGame}
 \end{figure}
 
-A scheduling game $G$ is a scheduler-against-environment game as follows: at each scheduler state $s_{schd} \in P_{schd}$ is a single time slot where the scheduler need to choose a transition $s_{schd} \xrightarrow[]{\sigma_{T}} s_{env}$ to a new state $s_{env}$ and then execute all the tasks in $\sigma_{T}$, this transition lead to an environment state $s_{env} \in P_{env}$ that represent the evolution of the system state till the next time step cause by the actuators and the environment, each transposition $s_{env} \xrightarrow[]{\sigma_{e}} s_{schd}$ correspond to a possible new value of the system state that equals to $\sigma_{e}$.
+A scheduling game $G$ is a scheduler-against-environment game as follows: each scheduler state $s_{schd} \in P_{schd}$ is a single time slot where the scheduler need to choose a transition $s_{schd} \xrightarrow[]{\sigma_{T}} s_{env}$ to a new state $s_{env}$ and then execute all the tasks in $\sigma_{T}$, this transition lead to an environment state $s_{env} \in P_{env}$ that represent the evolution of the system state till the next time step cause by the actuators and the environment, each transposition $s_{env} \xrightarrow[]{\sigma_{e}} s_{schd}$ correspond to a possible new value of the system state that equals to $\sigma_{e}$.
 The scheduler goal is to pass infinitely many times in acceptance state during the execution.
 Note, formally scheduler feedback variable is a vector $Y \in \R^n$ that may includes state variables and internal variable of the components.
 
@@ -1504,7 +1506,11 @@ APM, the control software that we will use, is already using kalman filter as th
 \subsection{Raspberry-Pi Camera Driver}
 %TODO - problems and solutions
 \subsection{Complementary-Kalman design (with physical computation)}
-\subsection{TODO}
+\subsection{Generalize Non-Deterministic B\"uchi Game (GNBG)}
+\label{sec:GNBG}
+\todo{Add an appendix on games}
+
+
 
 
 \commentOut{
