@@ -576,7 +576,7 @@ The automaton try to formalize the expression: ``use `High' mode only after obse
 
 The results of the simulation, summarized in Table~\ref{tbl:sim-results}, show, as expected, that the CPU consumption is much lower (0.1) when using the low-quality version of the sensing algorithm and is higher (0.85) when the high-quality version of the sensing algorithm is used. The performance of the estimation, in terms of the mean distance between $x$ (the real state) and $\hat x$ (the Kalman filter estimated state), is better with the high-quality version (0.97) than it is with the low-quality version (1.24). More interestingly, we can see that the experiment with the automaton that switches between the two sensor modes yields performance that is close to the performance of the high-quality sensing algorithm, using much less CPU. This demonstrates how automata based reactive scheduling can allow for new ways to balance performance and computational resources in software based controllers. 
 
-\section{Case Study: Stabilizing a Quad-rotor in Front of a Findow}
+\section{Case Study: Stabilizing a Quad-rotor in Front of a Window}
 \label{sec:caseStudy}
 % overview of why we use vision example
 
@@ -988,7 +988,6 @@ We also use the OptiTrack information in early stages of the research as the fee
 
 \section{Scheduler Interface}
 \label{sec:scheduler}
-
 
 The most common communication interface between scheduler and embedded real-time component, is by specify a period, sometimes along with a deadline, which gives the frequency at which the component must be executed.
 The only requirement in those type of systems is that if the component is always executed exactly within the designed frequency (period), then the control objectives (e.g. stability) are met.
