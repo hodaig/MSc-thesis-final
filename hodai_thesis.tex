@@ -1044,7 +1044,7 @@ Each component have its own game (its own requirements), therefore we will const
 Let's define composition of the components, that preservative the logic and correction of its composed components.
 
 \begin{dfn}
-    The composition of the components $C_1=\langle T_1, \langle A_1, \langle P_{schd}^1, P_{env}^1\rangle\rangle\rangle$ and $C_2=\langle T_2, \langle A_2, \langle P_{schd}^2, P_{env}^2\rangle\rangle\rangle$ is the component $C_c = C_1 \times C_2 = \langle T_1 \cup T_2, \langle A_c, \langle P_{schd}^1 \times P_{schd}^2, P_{env}^1 \times P_{env}^2 \rangle\rangle\rangle$ where $A_c= \langle Q_1 \times Q_2,(T_1 \cup T_2) \times \R^n,\Delta_c,Q_0^1 \times Q_0^2,Acc_1 \cup Acc_2 \rangle$ is a product of $C_1$ and $C_2$ and 
+    The composition of the components $C_1=\langle T_1, \langle A_1, \langle P_{schd}^1, P_{env}^1\rangle\rangle\rangle$ and $C_2=\langle T_2, \langle A_2, \langle P_{schd}^2, P_{env}^2\rangle\rangle\rangle$ is the component $C_c = C_1 \times C_2 = \langle T_1 \cup T_2, \langle A_c, \langle P_{schd}^1 \times P_{schd}^2, P_{env}^1 \times P_{env}^2 \rangle\rangle\rangle$ where $A_c= \langle Q_1 \times Q_2,(T_1 \cup T_2) \times \R^n,\Delta_c,Q_0^1 \times Q_0^2,\mathcal{F}_1 \cup \mathcal{F}_2 \rangle$ is a product of $C_1$ and $C_2$ and 
     \begin{enumerate}
         \item Environment transitions: $\forall y \in \R^n, s_1 , s_1' \in Q_1, s_2 , s_2' \in Q_2$:
         $\langle s_{1} s_2 \rangle \xrightarrow[]{y} \langle s_{1}' s_2' \rangle \in \Delta_c$
@@ -1057,14 +1057,14 @@ Let's define composition of the components, that preservative the logic and corr
     \end{enumerate}
 \end{dfn}
 
-Note: components composition is defined for compose two components, but we can compose all the system component, $C_1 , ... , C_m$, one by one: $C_c = (\cdots((C_1 \times C_2) \times C_3 ) \times \cdots C_m)$.
+Note: components composition is defined for compose two components, but we can compose all the system component, $C_1 , ... , C_m$, one by one: $C_c = (\cdots((C_1 \times C_2) \times C_3 ) \times \cdots \times C_m)$.
 
 %\subsection{Add Resources Limitation}
 In addition to the component requirements (requirements from control objective) we also have resources requirements, we have limited resources (limited CPU abilities) that need to be taking in account.
 Resources requirements are reflected as limited time slot capacity, each subroutine (procedure) take some time to perform but the slot is limited in time.
 For example, two subroutines $t_1$ and $t_2$ that require 1.5 millisecond each to execute, cannot be executed in 2 millisecond time slot.
-We will enforce the slot size with a special and simple component $C_reasource$ that can be generated automatically as follows:
-assuming we know the maximum duration of each subroutine of the components in the system (it can be result of analyzing, testing, or manually pre-defined) we construct component with the tasks set $T$ that is union of all the subroutines in the system, and the game ($G_reasource$) is as demonstrate in Figure~\ref{fig:C_reasource} with one state for environment player (square state) and one for the scheduler (circle state), the environment have no limitations but the scheduler can execute only set of tasks that not exceeds the time slot.
+We will enforce the slot size with a special and simple component $C_{reasource}$ that can be generated automatically as follows:
+assuming we know the maximum duration of each subroutine of the components in the system (it can be result of analyzing, testing, or manually pre-defined) we construct component with the tasks set $T$ that is union of all the subroutines in the system, and the game ($G_{reasource}$) is as demonstrate in Figure~\ref{fig:C_reasource} with one state for environment player (square state) and one for the scheduler (circle state), the environment have no limitations but the scheduler can execute only set of tasks that not exceeds the time slot.
 
 \begin{figure} [h]
     \centerline{\includegraphics[width=80mm]{reasourceGame.jpg}}
@@ -1075,7 +1075,22 @@ assuming we know the maximum duration of each subroutine of the components in th
     \label{fig:C_reasource}
 \end{figure}
 
-Finally, the resource component is composed with all the rest components of the system resoult in the schedule component $C_s = C_reasource \times C_c$. $C_s$ is the only component that actually will be schedule by the scheduler.
+Finally, the resource component is composed with all the rest components of the system resoult in the schedule component $C_s = C_{reasource} \times C_c$.
+
+%\subsection{Wining the Game - Find the Strategy}
+The component $C_s$ aggregates all the system constrains, in order to successfully schedule the system, we need to find a ``wining'' strategy $A_{strategy} \in NBA$ for the scheduler.
+$A_{strategy}$ is in fact, a reduction of the game automaton $A_s = \langle Q_s ,\Sigma,\Delta_s, Q_0, \mathcal{F}_s \rangle$ of $C_s$. It is contained all the environment transitions in $A_s$, but only the scheduler transitions that allays can lead to a winning of the scheduler player, that is, runs that we visit infinitely times a state of every color $F' \in \mathcal{F}_s$.
+Example of such strategy is shown in Figure~\ref{fig:exampleGameStrategy}, the blue partial automaton is the scheduler wining strategy for the game presented in Figure~\ref{fig:exampleGame} discussed before.
+We call this winning strategy guarded automaton \todo{we can add here reference to the simpler guarded automata presented in the previews sections}.
+
+\begin{figure}[h]
+    \centerline{\includegraphics[width=100mm]{gameExampleSolved.jpg}}
+    \caption{A strategy solution for the game presented in Figure~\ref{fig:exampleGame}.
+        Blue states are all the states which the scheduler have a wining strategy from them, blue transitions are the needed scheduler reaction to win the game.
+        Note: if the initial state is blue then the system is schedulable.}
+    \label{fig:exampleGameStrategy}
+\end{figure}
+
 
 
 
@@ -1086,20 +1101,6 @@ Finally, the resource component is composed with all the rest components of the 
 
 
 %TODO - continue here
-\subsection{Wining the Game - Find the Strategy}
-
-After we construct the game $C_s$ that aggregates all the system constrains we define a ``wining'' strategy $A_strategy \in NBA$ for the scheduler.
-$A_strategy$ is in fact a reduction of the game automaton $A_s$ of $C_s$ its contain all the environment transitions in $A_s$ but only the scheduler transitions that allays lead to a winning of the scheduler, that is we visit infinitely times a state of every color $Acc' \in Acc$.
-Example of such strategy is sown in Figure~\ref{fig:exampleGameStrategy} this is a wining strategy for the scheduler in the game presented in Figure~\ref{fig:exampleGame} discussed before.
-We call this winning strategy guarded automaton \todo{we can add here reference to the simpler guarded automata presented in the previews sections}.
-
-\begin{figure} %[htbp]
-    \centerline{\includegraphics[width=100mm]{gameExampleSolved.jpg}}
-    \caption{A strategy solution for the game presented in Figure~\ref{fig:exampleGame}.
-        Blue states are all the states which the scheduler have a wining strategy from them, blue transitions are the needed scheduler reaction to win the game.
-        Note: if the initial state is blue then the system is schedulable.}
-    \label{fig:exampleGameStrategy}
-\end{figure}
 
 \subsection{Execution of the scheduler}
 
