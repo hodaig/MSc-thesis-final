@@ -1059,6 +1059,24 @@ Let's define composition of the components, that preservative the logic and corr
 
 Note: components composition is defined for compose two components, but we can compose all the system component, $C_1 , ... , C_m$, one by one: $C_c = (\cdots((C_1 \times C_2) \times C_3 ) \times \cdots C_m)$.
 
+%\subsection{Add Resources Limitation}
+In addition to the component requirements (requirements from control objective) we also have resources requirements, we have limited resources (limited CPU abilities) that need to be taking in account.
+Resources requirements are reflected as limited time slot capacity, each subroutine (procedure) take some time to perform but the slot is limited in time.
+For example, two subroutines $t_1$ and $t_2$ that require 1.5 millisecond each to execute, cannot be executed in 2 millisecond time slot.
+We will enforce the slot size with a special and simple component $C_reasource$ that can be generated automatically as follows:
+assuming we know the maximum duration of each subroutine of the components in the system (it can be result of analyzing, testing, or manually pre-defined) we construct component with the tasks set $T$ that is union of all the subroutines in the system, and the game ($G_reasource$) is as demonstrate in Figure~\ref{fig:C_reasource} with one state for environment player (square state) and one for the scheduler (circle state), the environment have no limitations but the scheduler can execute only set of tasks that not exceeds the time slot.
+
+\begin{figure} [h]
+    \centerline{\includegraphics[width=80mm]{reasourceGame.jpg}}
+    %\subfile{./goal/reasourceGame.tex}
+    \caption{Example of a game for resource component that do not allows to exceed a time slot. 
+        In this example $T = \left\{ t_1 , t_2 , t_3 \right\}$, the execution time of each task $t_i$ is half of a single time slot, therefore it is not possible to execute more than two tasks at the same time slot, but there is no limitation on the environment ($\vec{y}$).
+        Square state is an environment player state and round state belong to the scheduler.  }
+    \label{fig:C_reasource}
+\end{figure}
+
+Finally, the resource component is composed with all the rest components of the system resoult in the schedule component $C_s = C_reasource \times C_c$. $C_s$ is the only component that actually will be schedule by the scheduler.
+
 
 
 
@@ -1068,23 +1086,6 @@ Note: components composition is defined for compose two components, but we can c
 
 
 %TODO - continue here
-\subsection{Add Resources Limitation}
-In addition to the component requirements we also have the resources requirements, we have limited resources (limited CPU abilities) that need to be taking in account.
-Usually resources requirements are reflected as limited time slot that not allows tasks to exceed its size, for example, a tasks set that needs one second to execute cannot be executed in half second time slot.
-We will represent those limitations with a special and simple component $C_reasource$ that can be generated automatically as follows:\\
-assuming we know the maximum duration of each subroutine of each component in the system (it can be result of analyzing, testing, or manually pre-defined) we construct component with the tasks set $T_reasource$ that is union of all the subroutines, and the game is as demonstrate in Figure~\ref{fig:C_reasource} with one state for environment player (square state) and one for the schedule (circle state), the environment have no limitations but the scheduler can execute only tasks set that not exceeds the time slot.
-
-Finally, the resource component is composed with all the rest components of the system resoult in the schedule component $C_s = C_reasource \cdot C_c$. $C_s$ is the only component that actually will be schedule.
-
-\begin{figure} %[htbp]
-    \centerline{\includegraphics[width=80mm]{reasourceGame.jpg}}
-    \caption{Example of a game for resource component that do not allows to exceed a time slot. 
-        In this example $T = \left\{ t_1 , t_2 , t_3 \right\}$, the execution time of each task $t_i$ is half of a single time slot, therefore it is not possible to execute more than two tasks at the same time slot, but there is no limitation on the environment ($\vec{y}$).
-        Square state is an environment player state and round state belong to the scheduler.  }
-    \label{fig:C_reasource}
-\end{figure}
-\todo{Make the states accepting}
-
 \subsection{Wining the Game - Find the Strategy}
 
 After we construct the game $C_s$ that aggregates all the system constrains we define a ``wining'' strategy $A_strategy \in NBA$ for the scheduler.

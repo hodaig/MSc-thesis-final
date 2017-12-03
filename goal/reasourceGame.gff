@@ -4,9 +4,12 @@
     <Description/>
     <Formula/>
     <Alphabet type="Propositional">
+        <Proposition>t1</Proposition>
         <Proposition>t1_t2</Proposition>
         <Proposition>t1_t3</Proposition>
+        <Proposition>t2</Proposition>
         <Proposition>t2_t3</Proposition>
+        <Proposition>t3</Proposition>
         <Proposition>t_1</Proposition>
         <Proposition>t_2</Proposition>
         <Proposition>t_3</Proposition>
@@ -42,22 +45,31 @@
         <Transition tid="1">
             <From>1</From>
             <To>0</To>
-            <Label>t2_t3</Label>
+            <ControlPointY>99.0</ControlPointY>
+            <ControlPointX>205.0</ControlPointX>
+            <Label>t2 t3</Label>
             <Properties/>
         </Transition>
         <Transition tid="3">
             <From>1</From>
             <To>0</To>
-            <Label>t1_t3</Label>
+            <ControlPointY>99.0</ControlPointY>
+            <ControlPointX>205.0</ControlPointX>
+            <Label>t1 t3</Label>
             <Properties/>
         </Transition>
-        <Transition tid="5">
+        <Transition tid="464">
             <From>1</From>
             <To>0</To>
-            <Label>t1_t2</Label>
+            <ControlPointY>99.0</ControlPointY>
+            <ControlPointX>205.0</ControlPointX>
+            <Label>t1 t2</Label>
             <Properties/>
         </Transition>
     </TransitionSet>
-    <Acc type="Buchi"/>
+    <Acc type="Buchi">
+        <StateID>0</StateID>
+        <StateID>1</StateID>
+    </Acc>
     <Properties/>
 </Structure>
