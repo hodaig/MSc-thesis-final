@@ -1038,21 +1038,13 @@ The variable $y$ is the estimated position, in this example the component requir
     \label{fig:exampleGame}
 \end{figure}
 
-
-
-
-
-
-
-
-
-%TODO - continue here
-\subsection{Component Games Composition}
-The system composed of multiple components that need to be executed simultaneously by the same scheduler.
-Each component introduce its own game therefore we will construct a composed component that correspond to all the system components together, then the scheduler have only one game to win for handle all the components.
+%\subsection{Component Games Composition}
+As we said a typical system composed of multiple components that need to be executed simultaneously by the same processor.
+Each component have its own game (its own requirements), therefore we will construct a composed component that correspond to all the system components together, then the scheduler have only one component, with only one game to win for scheduling all the components.
+Let's define composition of the components, that preservative the logic and correction of its composed components.
 
 \begin{dfn}
-    The composition of the components $C_1=\langle T_1, \langle A_1, \langle P_{schd}^1, P_{env}^1\rangle\rangle\rangle$ and $C_2=\langle T_2, \langle A_2, \langle P_{schd}^2, P_{env}^2\rangle\rangle\rangle$ is the component $C_c = \langle T_1 \cup T_2, \langle A_c, \langle P_{schd}^1 \times P_{schd}^2, P_{env}^1 \times P_{env}^2 \rangle\rangle\rangle$ where $A_c= \langle Q_1 \times Q_2,(T_1 \cup T_2) \times \R^n,\Delta_c,Q_0^1 \times Q_0^2,Acc_1 \cup Acc_2 \rangle$ is a product of $C_1$ and $C_2$ and 
+    The composition of the components $C_1=\langle T_1, \langle A_1, \langle P_{schd}^1, P_{env}^1\rangle\rangle\rangle$ and $C_2=\langle T_2, \langle A_2, \langle P_{schd}^2, P_{env}^2\rangle\rangle\rangle$ is the component $C_c = C_1 \times C_2 = \langle T_1 \cup T_2, \langle A_c, \langle P_{schd}^1 \times P_{schd}^2, P_{env}^1 \times P_{env}^2 \rangle\rangle\rangle$ where $A_c= \langle Q_1 \times Q_2,(T_1 \cup T_2) \times \R^n,\Delta_c,Q_0^1 \times Q_0^2,Acc_1 \cup Acc_2 \rangle$ is a product of $C_1$ and $C_2$ and 
     \begin{enumerate}
         \item Environment transitions: $\forall y \in \R^n, s_1 , s_1' \in Q_1, s_2 , s_2' \in Q_2$:
         $\langle s_{1} s_2 \rangle \xrightarrow[]{y} \langle s_{1}' s_2' \rangle \in \Delta_c$
@@ -1065,8 +1057,17 @@ Each component introduce its own game therefore we will construct a composed com
     \end{enumerate}
 \end{dfn}
 
-Note: for constructing the composed component $C_c$ for all the system components, assuming the system consist of components $C_1 , ... , C_m$ then we will compose the components one by one: $C_c = (...((C_1 \cdot C_2) \cdot C_3 ) \cdot ... C_m)$.
+Note: components composition is defined for compose two components, but we can compose all the system component, $C_1 , ... , C_m$, one by one: $C_c = (\cdots((C_1 \times C_2) \times C_3 ) \times \cdots C_m)$.
 
+
+
+
+
+
+
+
+
+%TODO - continue here
 \subsection{Add Resources Limitation}
 In addition to the component requirements we also have the resources requirements, we have limited resources (limited CPU abilities) that need to be taking in account.
 Usually resources requirements are reflected as limited time slot that not allows tasks to exceed its size, for example, a tasks set that needs one second to execute cannot be executed in half second time slot.
