@@ -507,7 +507,7 @@ Our approach for using automata for scheduling resources in software based contr
 
 As said in Section~\ref{sec:architecture}, we propose to implement the resource scheduling decisions using automata that control which procedures are invoked in the control loops. More specifically, for sensors or actuators that require heavy computations, such as vision based sensors, we propose that the software engineers develop several modes of sensing, each consumes a different amount of CPU and provides a different level of accuracy. 
 
-\todo{not realy like the actuators here, they are not really modeled. we consider they error as ``process error'' }
+\todo{I'M don't like the actuators here, they are not really modeled. we consider they error as ``process error'' }
 Formally, we assume that each of the physical processes we control is a Linear Time Invariant (LTI) system with a known model, as depicted in Figure~\ref{fig:simulink}. The inaccuracies of the sensors and of the actuators are modeled as additive Gaussian noise with a known variance. As a basis for scheduling, we assume that each sensor (and, possibly, also the actuators) can be scheduled to operate in one of a range of modes at each computation slot, each mode consuming a certain percentage of the CPU and giving a certain variance of the measurement (or actuation) noise.
 
 \begin{figure}%[htbp]
@@ -600,14 +600,13 @@ These values are used for controlling the yaw angle and the altitude of the dron
 Note that although $V_d$ is not directly measure the linear $x$ position of the drone, we can estimate the linear $x$ position by simple geometry:
 as show in Figure~\ref{fig:V_d-geomerty} $x = l * \sin (V_d)$ were $l$ (distance from window) can be calculated from $sz$. I our case because $V_d$ is usually relatively small we approximate it by $x = l * V_d$.
 
-% TODO add fig:V_d-geomerty
 \begin{figure} %[htbp]
     \centerline{\includegraphics[width=80mm]{vd-geometry.jpg}}
-    \caption{Geometric relation between $\alpha$ (the angle derived from $V_d$) $l$ (distance from window extracted from $sz$) and the position of the drone among the $x$ axis. (TODO - need to replace image)}
+    \caption{\todoil{update image}Geometric relation between $\alpha$ (the angle derived from $V_d$) $l$ (distance from window extracted from $sz$) and the position of the drone among the $x$ axis.}
     \label{fig:V_d-geomerty}
 \end{figure}
 
-\todo{don't know if some of this need to be moved to Section~\ref{sec:kalman}}
+\todo{don't know if some of this need to be moved to Kalman appendix, Section~\ref{sec:kalman}}
 As common in engineering practices, we pass these numbers to a filter that gives us a more informed state estimation. 
 In theory, as demonstrated in the simulation in Section~\ref{sec:simulation}, we should use Kalman filter estimator for best state estimation. As we deal with a non-linear system here, and because the process noise distribution is not known (it is significantly affected by the varying state of the battery), and because Kalman filter adds complexity in the code, we use a complementary filter.
 A complementary filter is actually a steady-state Kalman filter for a certain class of filtering problems~\cite{complementaryVSKalman}.
@@ -655,10 +654,9 @@ Note that if $x$ is not zero then the drone is not parallel to the window and th
 Similarly, if the drone is not parallel to the window and the pitch direction (that used to regulate $z$ position) is also affects the $x$ position.
 Although in theory $x$ controller interrupt the $z$ controller and vice versa, in practice even if the drone displacement is relatively large, when all the controllers executed together thy constantly fix those side-afects and because the $x$ position is generally decreased during this process we eventually converge to a stable state were the drone is near-parallel to the window.
 
-%TODO add fig:acceleration_static_diagram
 \begin{figure} %[htbp]
-    \centerline{\includegraphics[width=50mm]{acceleration_static_diagram.jpg}}
-    \caption{Free body diagram (force diagram) of the drone $x-y$ or $z-y$ plane forces, this diagram demonstrate the relation between $x$ or $z$ aceleration ($a_x$ or $a_z$) and the corresponding tilt angle. $\alpha$ represent the tilt angle (roll or pitch) and $a$ represent the acceleration in the corresponding direction. We assume that the altitude controller work as expected and the vertical speed is close to zero ($a_y = 0$), and we get $m a = \arctan(\alpha) mg$, that is, the acceleration is $a = \arctan(\alpha) g$ we use tis relation for the controller design (Section~\ref{sec:Controller Design}) and we also use this calculation as part of the system model in the Observer (Section~\ref{sec:Observer Design}) }
+    \centerline{\includegraphics[width=80mm]{acceleration_static_diagram.jpg}}
+    \caption{Free body diagram (force diagram) of the drone $x-y$ or $z-y$ plane forces, this diagram demonstrate the relation between $x$ or $z$ aceleration ($a_x$ or $a_z$) and the corresponding tilt angle. $\alpha$ represent the tilt angle (roll or pitch) and $a$ represent the acceleration in the corresponding direction. We assume that the altitude controller work as expected and the vertical speed is close to zero ($a_y = 0$), and we get $m a = \arctan(\alpha) \cdot mg$, that is, the acceleration is $a = \arctan(\alpha) \cdot g$ we use tis relation for the controller design (Section~\ref{sec:Controller Design}) and we also use this calculation as part of the system model in the Observer (Section~\ref{sec:Observer Design}) }
     \label{fig:acceleration_static_diagram}
 \end{figure}
 
