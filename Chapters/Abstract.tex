@@ -1,10 +1,21 @@
-\documentclass[../GameComposer.tex]{subfiles}
+\documentclass[../hodai_thesis.tex]{subfiles}
 \begin{document}
 \begin{center}
 \LARGE \textbf{Abstract}
 \end{center}
 
-\todo{abstract from paper}
-    We present an approach to reactive scheduling of computations in software control systems. The main motivation comes form the growing use of computer vision algorithms in real-time, as sensors. The term reactive here refers to the ability of the scheduler to adapt the schedules dynamically based on physical conditions. We propose an extension of the automata based scheduling approach with an addition of guards to transitions that allow for reactive specifications. We develop a methodology for using Kalman filters to provide data that guides these automata, and demonstrate the combined approach in simulations and with a case study. The case study is a development of a software that stabilizes a drone in front of a window using a vision based sensor with a time-varying resolution, i.e., computation load is controlled by taking images in reduced resolution when the state of the controlled loop allows.
+    In this thesis we present an approach and a proof-of-concept experiments, for reactive scheduling of computations in software control systems. The main motivation comes form the growing use of computer vision algorithms in real-time, as sensors.
+    In this thesis we are trying to combine the dynamicity and efficiency of desktop operating systems with the predictability of real-time operating systems.
+    The term reactive, as in this thesis title, refers to the ability of the scheduler to adapt the scheduling characteristics to the current physical conditions. The scheduler continuously react to the environmental inputs and to the internal system state. 
+    
+    We propose an extension of the automata based scheduling approach, as a direct continuation of RTComposer~\cite{RTComposer}, with an addition of guards to transitions that allow for reactive specifications. 
+    Automata are reach interface for requirements specifications of tasks, it allows a dynamic schedule without break the predictability of traditional real-time schedulers.
+    The scheduler reactivity allows for efficiency schedule, based on the environmental inputs we can use more processing only when they are needed, and use the extra processing time for other tasks or for background tasks.
+    
+    The main contributions of this thesis relative to the earlier work of RTComposer~\cite{RTComposer} and GameComposer~\cite{Merav}, are twofolds: (1) We develop methodologies for creating ``enviroment''-depended component, using e.g. Kalman filters, traditional or its variants, to provide valuable data that guides these automata. We demonstrate the combined approach in computer simulations. 
+    (2) We examine the concepts with a real life case study.
+    
+    The case study is a development of a software controller that stabilizes a drone in front of a window, using a vision based sensor with a time-varying resolution, i.e., computation load is controlled by taking images in reduced resolution when the state of the controlled loop allows.
+    This controller has developed based on a wide used open-source software, ArduPilotMega~\cite{APM}, with minimum changes of the original software. This allows us to better understand the needs of today's common systems, this will accelerate the integration process of the automata based schedulers in today's common systems. 
 
 \end{document}
