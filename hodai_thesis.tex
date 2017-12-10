@@ -342,25 +342,25 @@ We show how allocate resources by \textbf{current} needs give better resoults th
  
 \section{Problem Statement}
 \label{sec:Problem}
-In this thesis we focus on feedback control loop based systems as shown in Figure~\ref{fig:control loop}. 
-We assume a closed (feedback) control loop where the physical plant, \textit{System} state $x$, is monitored via an array of sensors (\textit{Sensing}) which produce measurements array $y$ that represents noisy sample of some functions of the state variables. 
-We assume uncertainty observations from the sensors so, after sensing, an entity called \textit{State Estimator} aggregates the measurements from all the sensors ($y$ array) and makes an educated estimation ($\hat{x}$) of the current state. Then the \textit{Control Law} entity generates the controller outputs ($u$), control the actuators, to change the state of the system in order close the gap between the current estimated state and the reference desire state (\textit{Input} $r$).
+In this thesis we focus on feedback control systems as shown in Figure~\ref{fig:control loop}. 
+We assume a closed (feedback) control loop where the physical \textit{plant} state $x$, is monitored via an array of sensors (\textit{Sensing}) which produce measurements array $y$ that represents noisy sample of some functions of the state variables. 
+We assume uncertainty observations from the sensors so, after sensing, an entity called \textit{State Estimator} aggregates the measurements from all the sensors ($y$ array) and makes an educated estimation ($\hat{x}$) of the current state. Then the \textit{Control Law} entity generates the controller outputs ($u$) for controlling the actuators, to change the state of the system in order to close the gap between the current estimated state and the reference desire state (\textit{Input} $r$).
 
-In this thesis, for analysis, we assume a general \textit{linear dynamical system} discretized in the time domain.
+In this thesis, for analysis, we assume a general linear dynamical system discretized in the time domain.
 At each discrete time increment, the true state $x_k$ is evolved from the previews state $x_{k-1}$ according to:
 $$ x_{k}=Ax_{k-1} + Bu_{k} + w_{k} $$
-Where,
-$A$ is the state transition model which is applied to the previous state $x_{k−1}$, $B$ is the control-input model which is applied to the control vector $u_k$, and $w_k$ is the process noise which is assumed to be drawn from a zero mean normal distribution with covariance $Q_k$.
-At time $k$ an observation (or measurement) $y_k$ of the true state $x_k$ is made according to:
+Where, $A$ is the state transition model which is applied to the previous state $x_{k-1}$, $B$ is the control-input model which is applied to the control vector $u_k$, and $w_k$ is the process and actuation noise which is assumed to be drawn from a zero mean normal distribution with covariance $Q_k$.
+The observation (or measurement) value $y_k$ at time $k$, of the true state $x_k$, is:
 $$y_k=Cx_k+v_k$$
 Where,
 $C$ is the observation model which maps the true state space into the observed space and $v_k$ is the observation noise which is assumed to be zero mean Gaussian white noise with covariance $R_k$.
 
 The current state-of-the-art cyber-physical control systems, as descibed e.g. in~\cite{Celvin}, are developed as follows, control engineers first design control tasks (control and estimation tasks) as periodic computations, then they specify the required periodic frequency for the task, and then software engineers design a scheduler that ensures the periodic frequency requirements are met. 
 The last step is usually done using pre-computed knowledge of the expected (maximum) duration of the tasks.
-Note that in order to ensure that the controlled plant is always properly maintained, for example engine temperature never exceeds maximal safe temperature, the periodic frequency must be tuned for the worst-case state that the system might be in.
+Note that in order to ensure that the state of the controlled plant is always properly maintained, for example engine temperature never exceeds maximal safe temperature, the periodic frequency must be tuned for the worst-case condition that the system might be in.
 
-We show how to achieve better performance and better resource utilization for control systems by using richer and more flexible requirements model for the tasks.
+We believe that scheduling control systems base on periodic tasks is limiting and inefficient for complex systems.
+in this thesis we show how to achieve better performance and better resource utilization for control systems by using richer and more flexible requirements model for the tasks.
 Specifically, we develop tools and methodologies such that control engineers are able to specify more accurately the requirement features of their control tasks, that the scheduler will use for executing dynamic resource assignment that will, at the same time, guarantee required control performance and will be efficient in its use of computational resources. 
 
 \begin{figure}[]
@@ -368,8 +368,8 @@ Specifically, we develop tools and methodologies such that control engineers are
     
     \begin{tikzpicture}[node distance=2cm]
         \node (in) [eNode] {};
-        \node (control) [recNodeB, right of=in, xshift=0.5cm] {control Law};
-        \node (sys) [recNodeB, right of=control, xshift=6cm] {System};
+        \node (control) [recNodeB, right of=in, xshift=0.5cm] {Control Law};
+        \node (sys) [recNodeB, right of=control, xshift=6cm] {Plant};
         \node (sensor) [recNodeB, below of=sys, xshift=-2cm] {Sensing};
         \node (estimator) [recNodeB, below of=control, xshift=2cm] {State Estimator};
         
@@ -380,7 +380,7 @@ Specifically, we develop tools and methodologies such that control engineers are
         \draw [arrowB] (estimator) -| node[left] { $\hat{x}$} (control);
     \end{tikzpicture}
     
-    \caption{A typical feedback control loop where the physical plant (\textit{System}) is monitored via an array of sensors (\textit{Sensing}) which produce noisy sample of the state variables $y$. 
+    \caption{A typical feedback control loop where the physical \textit{plant} is monitored via an array of sensors (\textit{Sensing}) which produce noisy sample of the state variables $y$. 
     And after sensing, \textit{State Estimator} aggregates the measurements from all the sensors and produce estimation of the current state $\hat{x}$. Then the \textit{Control Law} produce output to the actuators ($u$) in order to close the gap between the current estimated state and the reference state ($r$).
     \label{fig:control loop}}
 \end{figure}
@@ -389,10 +389,10 @@ Specifically, we develop tools and methodologies such that control engineers are
 \label{sec:architecture}
 
 %TODO - verify we are not lying here
-As proposed in earlier work on automata based scheduling (\cite{weiss2007automata,RTComposer,AW08}) we aim at a development process where a system is built as a composition of a set of components where each component is a software module (a set of procedures) accompanied with an automaton. Our addition here is that we allow the automata to be guarded, i.e., each automaton acts as a specification of a reactive system that tells the scheduler which functions of a component it may run in each slot depending on the \textbf{dynamic state} of the controllers. A second addition is that we have implemented the approach as an enhancement of the internal scheduler of the ArduPilot Mega (APM)~\cite{APM} open source unmanned vehicle autopilot software suite. A third contribution of this thesis is a proposal of a specific way to use the automata based scheduling framework with a Kalman filter. We elaborate on each of these in the following subsections:
+As proposed in earlier work on automata based scheduling (\cite{weiss2007automata,RTComposer,AW08}) we aim at a development process where a system is built as a composition of a set of components where each component is a software module (a set of procedures) accompanied with an automaton. Our addition here is that we allow the automata to be guarded, i.e., each automaton acts as a specification of a reactive system, that tells the scheduler which functions of a component it may run in each slot, depending on the \textbf{dynamic state} of the controllers. A second addition is that we have implemented the approach as an enhancement of the internal scheduler of the ArduPilot Mega (APM)~\cite{APM} open source unmanned vehicle autopilot software suite. A third contribution of this thesis is a proposal of a specific way to use the automata based scheduling framework with a Kalman filter. We elaborate on each of these in the following subsections.
 
 \todo{Explain that we are proposing to focus on sensors (and actuators). The separation principle. Alignment with the structure of the ArduPilot and other controller codes.} 
-
+\todo{Gera I need help here}
 
 \subsection{Architecture}
 % TODO: Use the terminology of the figure
@@ -705,7 +705,7 @@ In Figure~\ref{fig:test_automata} there is two examples of such combinations. $A
 $A_{comp2}$ adds another constraint: if the drone goes even farther away ($T_{x2}$cm from the origin) it schedules only high resolution to bring it back to safety.
 The results show even better resource utilization.
 
-\begin{figure}[htbp]
+\begin{figure} %[htbp]
     \centerline{\includegraphics[width=100mm]{errorVsPosition.jpg}}
     \caption{This figure shows in the bottom plot the position of the quadrotor during the flight time and in the top plot the $\left| \tilde{y}_{k|k} \right|$ value during the flight. During the flight we manually switched between low and high resolution for further analysis. The modes (high or low) are separated by vertical lines, were the leftmost is high resolution then low and so on.}
     \label{fig:testPlot}
@@ -837,7 +837,7 @@ We experimented in exposing the flying drone to time-varying wind conditions.
 Specifically, we created artificial wind by turning  on a fan while the drone was flying. The scheduler was the $A_{err}$ automaton with the thresholds $T_l=10$ and $T_h=15$ (number~7 in Table~\ref{tab:results}).
 Figure~\ref{fig:windPlot} shows data collected in one of the flights with the CPU usage and the displacement of the drone along the flight. The first part of the flight, colored in blue, is indoor flight without any external wind. The second part, colored in red, is a flight with the disturbance caused by the wind of the fan. We can clearly see increasing CPU usage when there is wind. We can also see that the wind does not affect the displacement, as the increased accuracy of the sensor compensates for it. The mean displacement ($mean(|x|$) in this experiment was 11.8cm which is very close to the displacement without the wind, and the average CPU usage increased to  13.2\% from 11.7\%. This experiment further demonstrates our idea: resources can be allocated only when needed.
 
-\begin{table} %[htbp]
+\begin{table} %[h]
     \caption{Test Results}
     \begin{center}
         \begin{tabular}{c  | m{10em} |  m{4em} | m{5em} }
@@ -870,7 +870,7 @@ Figure~\ref{fig:windPlot} shows data collected in one of the flights with the CP
     \end{center}
 \end{table}
 
-\begin{figure} %[htbp]
+\begin{figure} %[h]
     \centerline{\includegraphics[width=100mm]{windPlot15.jpg}}
     \caption{This figure demonstrates how the reactive scheduler adapt to the environment changes, in particular, to change of the wind. The upper part shows the average CPU usage during the flight, and the bottom is the true position at the same time. The first part of the flight (the left Blue graph) is without any external wind and in the rest of the flight (right red graph)  the drone was exposed to artificial wind (using a fan). Note that when the drone is exposed to wind it uses more CPU to compensate for the disturbance.}
     \label{fig:windPlot}
@@ -878,6 +878,8 @@ Figure~\ref{fig:windPlot} shows data collected in one of the flights with the CP
 
 \section{Experiment Setup}
 \label{sec:Experiment setup}
+
+This Section present the technical details related to the implementation of the experiment in Section~\ref{sec:caseStudy}.
 
 \begin{figure} %[htbp]
     \centerline{\includegraphics[width=100mm]{hover_in_lab.jpg}}
@@ -889,30 +891,39 @@ Figure~\ref{fig:windPlot} shows data collected in one of the flights with the CP
 \label{sec:Experiment setup-HW}
 % the hardware
 
-In order to perform the experiments we used an of-the-shelf quadrotor shown in Figure~\ref{fig:hover_in_lab} with improved flight controlle: a \textit{raspberry-pi}, a single-board computer~\cite{raspberry}, with the \textit{navio2}~\cite{navio} shield.
-\textit{Navio2} is extension board (shield) for the \textit{Raspberry pi} platform, it provides the nessesary interfaces such as remote control inputs and motors output, and it is equipped with on-board Micro Electro-Mechanical System (MEMS) sensors, such as rate gyros and accelerometers.
-We implemented the controllers and the schedulers as libraries for the ArduPilot Mega (APM) autopilot software~\cite{APM}.
+In order to perform the experiments presented in Section~\ref{sec:caseStudy}, we used an of-the-shelf quadrotor, named \textit{Spedix-S250}, shown in Figure~\ref{fig:hover_in_lab} with improved flight controller: \textit{Raspberry-pi}, a single-board computer~\cite{raspberry}, with the \textit{navio2}~\cite{navio} shield.
+\textit{Navio2} is extension board (shield) for the \textit{Raspberry-pi} platform. It provides the necessary interfaces such as remote control inputs and motors output, and it is equipped with on-board Micro Electro-Mechanical System (MEMS) sensors, such as rate gyros and accelerometers.
+The software we used to controll the drone is ArduPilot Mega (APM) autopilot software~\cite{APM} with few modifications.
 
-\subsection{Vision Based Sensor}
+
+\subsection{The Controller Software}
+We implemented the controllers and the schedulers as libraries for the ArduPilot Mega (APM) autopilot software~\cite{APM}.
+APM architecture is very modular, the component are well separated but has well defined interface between them. This architecture allows us to easy replace, add, or modify the necessary parts.
+The main changes in software that we made are, The addition of position sensing module based on image processing, and addition of our own flight-mode for handling the autonomous flight mission (in APM, flight-mode is the module responsible to apply the control law).
+We also add position sensing module just for experiment references, this is module use OptiTrack in order to provide very precise position measurement. 
+
+\subsection{Vision Based Position Sensor}
 \label{sec:Experiment setup-cam}
 % PiCam and drivers
-As explained in Section~\ref{sec:caseStudy} we use vision-based sensor for identify the window.
-For this task we used the standard raspberry-pi camera module (V1) (see~\url{www.raspberrypi.org/documentation/hardware/camera/}) mounted in the front of the drone
+As explained in Section~\ref{sec:caseStudy} we use vision-based sensor. This sensor first need to identify the window in front of the drone, and then produce position measurements relative to the window.
+In order to identify the window we used a standard raspberry-pi camera module (V1) (see~\url{www.raspberrypi.org/documentation/hardware/camera/}), mounted in the front of the drone.
 This camera can take pictures in different resolutions and at different frame rate.
-The controller software implemented in c++ therefore we initially use the most common used driver for C++ called  \textit{RaspiCam} (see~\url{www.uco.es/investiga/grupos/ava/node/40}.
+The controller software implemented in C++, and we initially use the most common used driver for C++ called RaspiCam (see~\url{www.uco.es/investiga/grupos/ava/node/40}.
 RaspiCam have two main difficulties for us:
 \begin{enumerate}
-    \item The raspberry-pi camera take a picture in a constant pre-define frame rate~\footnote{The constant pre-define frame rate is only wen using ``vid'' mod which allows fast frame rate}, this mean that if we want to grab an image the driver (RaspiCam) will wait till the next frame is taking. This approach is not appropriate for real-time system.
-    \item As describe in Section~\ref{sec:caseStudy} we need to switch image resolution during the flight many times, raspberry-pi camera resolution is defined only at initialization, therefore changing resolution of the camera results in significant delay till the camera is ready at the new resolution.
+    \item The raspberry-pi camera take a picture in a constant pre-define frame rate~\footnote{The constant pre-define frame rate is only when using ``vid'' mod which allows fast frame rate.}, this mean that if we want to grab an image the driver (RaspiCam) will wait till the next frame is taking. This approach is not suitable for real-time system.
+    \item As describe in Section~\ref{sec:caseStudy} we need to switch image resolution many times during the flight, raspberry-pi camera resolution is defined only at initialization, therefore changing resolution of the camera results in significant delay, we need to initialize the camera again and wait till the camera is ready at the new resolution.
 \end{enumerate} 
 
-The first difficulty has solved by modifying RaspiCam driver, we add to RaspiCam the ability to notify the client when the next frame is ready, this way whenever a new frame is taken the callback function is called.
-We also add this modification to the official RaspiCam code that is maintained in~\url{github.com/cedricve/raspicam}.
+We solve the first difficulty by modifying RaspiCam driver. We add to RaspiCam the ability to notify the client when the next frame is ready, this way whenever a new frame is taken the callback function is called.
+RaspiCam is open-source project, and we contribute to the project by adding this modification to the official RaspiCam code that is maintained in~\url{github.com/cedricve/raspicam}.
 
 In order to overcome the second difficulty we try to take pictures at the high resolution and then resize by software (using OpenCV) to the desire resolution, this solution still add undesirable delay for each frame that is taking.
 At the end, we create a new camera driver based on the work of Chris Cummings at~\url{robotblogging.blogspot.co.il/2013/10/an-efficient-and-simple-c-api-for.html}.
 In this driver we use the internal GPU hardware of the Raspberry-py in order to resize the frame by hardware.
-Using the ARM side libraries \textit{userland}~\url{https://github.com/raspberrypi/userland} we construct a up to 4 video ports each one from different resolution resizer all connected to the camera port (see Figure~\ref{fig:resize_ports}), now each time we want to take image we can choose the image resolution by retrieving the image from the corresponded port.
+Using the ARM side libraries, \textit{userland}~(\url{https://github.com/raspberrypi/userland}). 
+We construct network of four hardware resizers connected to four video ports, each resizer configure to a different resolution, and all are connected to the camera port (see Figure~\ref{fig:resize_ports}). 
+Hardware operations takes relatively zero time to perform, and now each time we want to take a picture we can choose the image resolution by retrieving the image from the corresponded video port.
 
 \begin{figure} %[htbp]
     \centering
@@ -949,8 +960,11 @@ Using the ARM side libraries \textit{userland}~\url{https://github.com/raspberry
 
 %vision algo
 In the case-study, shown in Section~\ref{sec:caseStudy}, we always use the camera at 30 frames per second.
-In order to simplify the image processing algorithm, we marked the four corners of the window with four illuminated balls (see Figure~\ref{fig:window_lights}). This allowed us to apply a simple minded corner detection algorithm: 
-look for a blob of burned pixels and calculate the ``center of mass'' of all those pixels as a window corner. Higher resolution give us a more accurate measurement of corner ``center of mass'' but require more processing time.
+In order to simplify the image processing algorithm, we marked the four corners of the window with four illuminated balls (see Figure~\ref{fig:window_lights}). This allows us to apply a simple algorithm for corner recognition: 
+look for a blob of burned pixels in the image, then calculate the ``center of mass'' of all those pixels as a window corner. Higher resolution give a more accurate measurement of corner ``center of mass'', but require more processing time.
+
+%TODO hanoch algo
+Then we just perform the calculations presented in Section~\ref{sec:Observer Design} in order to extract the position measurements from the window corners.
 
 \begin{figure} %[htbp]
     \centerline{\includegraphics[width=70mm]{window_lights.jpg}}
@@ -984,8 +998,9 @@ In our implementation, in order to lower the complexity, we will pre-define few 
 %OptiTrack
 In order to evaluate the performance, we needed to know the accurate position of the drone during the flight. For this purpose, we used the \textit{OptiTrack} (\url{optitrack.com}) system 
 consisting of an array of high-speed tracking cameras that provide low latency and high accuracy position and attitude tracking of the drone. The data from \textit{OptiTrack} system is sent over the client-server data streaming protocol \textit{NatNet}.
+
 For best synchronization, we create a NatNet client library inside the APM code. This library allows the controller check anytime for the current state and log that information in parallel to the other controller parameters.
-We also use the OptiTrack information in early stages of the research as the feedback of the controller before we use the camera .
+We also use the OptiTrack information in early stages of the research as the feedback of the controller before we use the Raspberry-pi camera.
 
 \section{Scheduler Interface}
 \label{sec:scheduler}
@@ -1449,6 +1464,7 @@ In the case-study of this thesis we control and regulate the position and attitu
 % develop the framwork
 % invent mathematical / automatic technics to create the automata
 %TODO - online composition
+%TODO - simucopter
 
 %TODO - say somthing about the camera driver
 We introduced a new approach for resource allocation that allows dynamic scheduling where resources are only allocated when needed.
