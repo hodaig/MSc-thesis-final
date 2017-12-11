@@ -1020,6 +1020,7 @@ We suggest designing control system in the \textit{component} level, where each 
 
 \begin{dfn}
     A component is a pair $\langle T,G\rangle$ where $T$ is a set of subroutines (representing, e.g., procedures of a class in C++) and $G=\langle A,\langle P_{schd}, P_{env}\rangle \rangle$ is a generalized B{\"u}chi game (GNBG), over a generalized \buchi automaton $A= \langle Q,\Sigma,\Delta,q_0,\mathcal{F} \rangle $ (see Section~\ref{sec:GNBG}), such that:
+    \todo{fix GNBG appendix}
     \begin{enumerate}
         \item The \textit{alphabet} is $\Sigma = 2^{T} \cup \R^n$ where $n$ is the number of scheduler feedback variables in the system (real numbers that the scheduler can base its decision on).
         \item 
@@ -1391,14 +1392,25 @@ In order to adjust the sensor error variance, each time step the scheduler will 
 APM, the control software that we will use, is already using kalman filter as the state estimator, so we only need to adjust the existing module to the variable sensor error variance, and to send the estimation error variance to the scheduler (see Section~\ref{sec:scheduler}).
 }
 
-\subsection{Raspberry-Pi Camera Driver}
-%TODO - problems and solutions
 \subsection{Complementary-Kalman design (with physical computation)}
 \subsection{Generalize Non-Deterministic \buchi Game (GNBG)}
 \label{sec:GNBG}
-\todo{Add an appendix on games}
 
+Generalize Non-Deterministic \buchi automaton (GNBA) $A= \langle Q,\Sigma,\Delta,q_0,\mathcal{F} \rangle $, is an $\omega$-word automaton (a variant of \buchi automaton).
+Similar to all types of finite automata~\cite{???}\todo{fix cite}, $Q$ is the set of states, $q_0$ is the initial state and $\Delta : Q \times \Sigma \xrightarrow{} Q$ is the transition function over the alphabet $\Sigma$.
+The main difference between all finite automata types is the acceptance condition.
+In generalize \buchi, $\mathcal{F} = \{ F_1 , \dots , F_m \}$, where $F_i \subseteq Q$.
+A valid run of $A$ that correspond to $\omega \in \Sigma^\omega$ ($\omega = \omega[1], \omega[2], \dots$), is a sequence $p=q_0,q_1, \dots$ such that $q_0$ is the initial state, and $\forall i>0 : q_i \in \Delta(Q_{i-1}, \omega[i])$.
+The GNBA automaton $A$ accepts infinite word $\omega \in \Sigma^\omega$ iff there exist a run $p$ correspond to $\omega$ such that $\forall 1 \le i \le : \inf(p) \cap F_i \neq \emptyset$~\footnote{$\inf(p)$ is the set of elements in $p$ that appears infinite times in $p$.}, noted $\omega \in \mathcal{L}(A)$.
 
+Generalize Non-Deterministic \buchi Game $G=\langle A,\langle P_{schd}, P_{env}\rangle \rangle$, is a two player game, and is played on the induced graph $\langle V , E \rangle$ of $A$.
+In this graph, $V=Q$ and for every $q, q' \in Q$ such that there exist $\sigma \in \Sigma$ that $q' \in \Delta(q,\sigma)$ we add the edge $\langle q,q' \rangle \in E$.
+During the game $P_{schd} \subseteq Q$ are all the graph nodes where the \textit{sched} player choose the next transition, and $P_{env} \subseteq Q$ are all the graph nodes where the \textit{env} player choose the next transition.
+$P_{schd}$ and $P_{env}$ is a division of $Q$, i.e $P_{schd} \cup P_{env} = Q$ and $P_{schd} \cap P_{env} = \emptyset$
+the \textit{sched} player win the game iff the resulting run $p$ of the implies that, $\forall 1 \le i \le : \inf(p) \cap F_i \neq \emptyset$.
+In other words, if \textit{sched} player win, the corresponding word $\omega$ of this game is in $\mathcal{L}(A)$.
+
+Note: for the mater of this thesis, the turns are always alternating, and the \textit{env} (envirinment) player is always first. Hence, the notion of $P_{schd}$ and $P_{env}$ is not needed. $q_0 \in P_{env}$, then for every $\langle p , p' \rangle \in E$ $p' \in P_{schd}$, and so on.
 
 
 \commentOut{
