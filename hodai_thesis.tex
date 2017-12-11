@@ -1543,15 +1543,6 @@ The control task is usually a very low CPU consumer and been well studied~\cite{
 For our testing we use the commonly used and well known technique from control theory called PID, A proportional-integral-derivative controller.
 In this technique the control output is based on the physical knowledge of the system dynamics, and have three variable parameters (P, I and D) that define the controller convergence behavior \cite{PID} ???.
 
-%TODO
-\commentOut{
-    We also plan to try to use an ``adjustable'' LQR (Linear-quadratic regulator) control, as follows.
-    LQR is an optimal controller that take into account the level of certainty of the state estimation. 
-    Is usually a hard task to know the certainty of estimation, but in our case we need to calculate it anyway, and we mark it as $var(x-\tilde{x})$.
-    We will make LQR ``adjustable'' in the sense that each iteration the controller will consider the new (variable) $var(x-\tilde{x})$. This is similar to the architecture we proposed for the estimator.
-    We will check if adjustable LQR has significant advantages over PID in cases were we have variable certainty of estimation.
-}
-
 \subsection{Computation Resource Scheduler: Automata Based Scheduler}
 \label{sec:scheduler}
 
