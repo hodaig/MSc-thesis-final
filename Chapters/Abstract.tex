@@ -4,18 +4,24 @@
 \LARGE \textbf{Abstract}
 \end{center}
 
-    In this thesis we present an approach and a proof-of-concept experiments, for reactive scheduling of computations in software control systems. The main motivation comes form the growing use of computer vision algorithms in real-time, as sensors.
-    In this thesis we are trying to combine the dynamicity and efficiency of desktop operating systems with the predictability of real-time operating systems.
-    The term reactive, as in this thesis title, refers to the ability of the scheduler to adapt the scheduling characteristics to the current physical conditions. The scheduler continuously react to the environmental inputs and to the internal system state. 
-    
-    We propose an extension of the automata based scheduling approach, as a direct continuation of RTComposer~\cite{RTComposer}, with an addition of guards to transitions that allow for reactive specifications. 
-    Automata are reach interface for requirements specifications of tasks, it allows a dynamic schedule without break the predictability of traditional real-time schedulers.
-    The scheduler reactivity allows for efficiency schedule, based on the environmental inputs we can use more processing only when they are needed, and use the extra processing time for other tasks or for background tasks.
-    
-    The main contributions of this thesis relative to the earlier work of RTComposer~\cite{RTComposer} and GameComposer~\cite{Merav}, are twofolds: (1) We develop methodologies for creating ``enviroment''-depended component, using e.g. Kalman filters, traditional or its variants, to provide valuable data that guides these automata. We demonstrate the combined approach in computer simulations. 
-    (2) We examine the concepts with a real life case study.
-    
-    The case study is a development of a software controller that stabilizes a drone in front of a window, using a vision based sensor with a time-varying resolution, i.e., computation load is controlled by taking images in reduced resolution when the state of the controlled loop allows.
-    This controller has developed based on a wide used open-source software, ArduPilotMega~\cite{APM}, with minimum changes of the original software. This allows us to better understand the needs of today's common systems, this will accelerate the integration process of the automata based schedulers in today's common systems. 
+In this thesis we present an approach, a proof-of-concept tool, and experiments, for reactive scheduling of computations in software control systems. 
+Such scheduling techniques are needed, for example, due to the growing use of computer vision algorithms in real-time, as sensors.
+The goal of developing reactive schedulers is to combine the dynamicity and efficiency of desktop operating systems with the predictability of real-time operating systems.
+The term reactive here (and in the title of the thesis) refers to the ability of the scheduler to adapt the scheduling characteristics to the physical conditions at run-time. 
+Specifically, we propose mechanisms that allow the scheduler continuously reacts to the environmental inputs and to the internal system state. 
+
+We propose an extension of the automata based scheduling approach, as implemented, e.g., in the RTComposer~\cite{RTComposer} tool, with an addition of guards on the
+transitions. This addition allows for schedulers that react to data from the plants and from the controllers. Automata are reach interfaces for requirements specifications of tasks. They
+allows a dynamic schedule without breaking the predictability of real-time schedulers. The scheduler reactivity that we add allows for efficient schedules that 
+alocated resources only when needed, based the inputs. The saved processing time can be used for other tasks or for lowering the cost of the system.
+
+The main contributions of this thesis relative to the earlier work of RTComposer~\cite{RTComposer} and GameComposer~\cite{Merav}, are twofolds: (1) We develop methodologies for
+creating ``enviroment''-depended component, using Kalman anc Complementary filters that provide valuable data that guides these automata. (2) We validate the concepts with a real-life 
+case study and with computer simulations.
+
+The case study we use in this thesis is the development of a software controller that stabilizes a drone in front of a window. We show how a vision based sensor can be used with a varying resolution, i.e.,
+computation load is controlled by taking images in reduced resolution when the state of the controlled loop allows. We developed this controller using the well known 
+open-source autopilot software ArduPilotMega (APM)~\cite{APM} with minimum changes of the original software. This allows us to draw some conclusions regarding the possibility of integrating the extended 
+automata based approach proposed here with the state of the art.
 
 \end{document}
