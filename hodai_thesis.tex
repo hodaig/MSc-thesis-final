@@ -1234,6 +1234,17 @@ Every time the system is executed, the scheduler construct the strategy automato
 \subsection{Few Words about Implementation}
 
 % finite space by discretization of observations (Merav)
+From the beginning we define the alphabet of a component game to be $\Sigma = T \cup \R^r$, but $\R^n$ is of course infinite set so we can not store the game in the finite storage of the control computer.
+We need to transfer the infinite continues space $\R^n$ to discrete space, without loosing any flexibility.
+In practice, we do not need to create explicit transition for every possible value of the observation $\vec{y}$.
+The environment transitions are annotated with values intervals, which define a subset of $\R^n$, for example the transition $q \xrightarrow[]{-1<y_1<1, -1<y_2<1, \dots , -1<y_n<1 } q'$ can be used for every $\vec{y}' = \langle y'_1, \dots , y'_n \rangle \in \R^n$ such that $\forall 1 \le i \le n : -1 < y'_i < 1$.
+With this annotation we can store infinite games (and strategies solutions) in a small computer.
+
+In addition, for successfully calculate the automata operations, such as, compose games with intersect intervals on the transitions, we need to proper define the intervals.
+The solution, which elaborated in details in the work of Merav~\cite{Merav}, is to collect all the scalar numbers in all the component games, and define interval for every two adjacent scalars. Then the alphabet contain 
+only ....
+all the pernutations of every $n$ intervals of the 
+
 % game solver - GOAL
 
 % preparation time vs run time
