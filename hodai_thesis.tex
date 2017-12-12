@@ -919,28 +919,6 @@ Then we just perform the calculations presented in Section~\ref{sec:Observer Des
     \label{fig:window_lights}
 \end{figure}
 
-\commentOut{
-\subsubsection{Vision based Autonomous In-Door Flying}
-%Anitime reserch of zilbershtain (\cite{Shlomo})
-%contract based
-%http://ardupilot.org/copter/docs/common-mouse-based-optical-flow-sensor-adns3080.html
-
-\textit{Computer~Vision~Based~Sensor} is the module that is responsible for taking a picture or a series of pictures and produce measurements of quantities such as speed and position relative to the environment.
-In our research we will use the \textit{Computer~Vision} in order to detect two dimensional movement in the camera surface (i.e., the drone speed).
-There are many such algorithms (called optical flow) differing in running times and in accuracy. Usually more invested time leads to more accuracy.
-
-In our case we need to be able to control the \textit{Computer~Vision} running time and to have some good knowledge of the solution accuracy in order to achieve optimal state estimation (see Section~\ref{sec:estimator}).
-We assume that the \textit{Computer~Vision} error is distributed normally, and we will use the error variance as a measure of accuracy. 
-We believe that this is a reasonable assumption because the estimated speed is usually computed as the avarage of of many independent random variables, as follows. Optic flow algorithms usually go by identifying similar regions in consecutive pictures and then averaging the distances that each feature ``traveled''. Assuming that the error in measurement of each feature is independent of the other errors, we get that the total error is the average of independent random variables. Then, by the law of large numbers, we get that the error should have a normal distribution. We will validate this assumption by experimentation with different parameters of different algorithms.
-
-%TODO - reed a litle the article (\cite{UPenn-Pant}) and re-write the next.
-%TODO - check if Anitime reserch (\cite{Shlomo}) can fit here.
-%TODO - Make sure that we use the terms contract-base and any-time correctly
-In order to control the running time, we will use anytime based algorithms~\cite{Shlomo} and will mainly concentrate on ``contract based" vision algorithms proposed by Pant~\cite{UPenn-Pant}.
-This type of algorithms run until we stop them, and when we stop them they will provide a solution with accuracy that is a monotonic function of the amount of time it was running. That way we can control the solution accuracy by controlling the running time.
-In our implementation, in order to lower the complexity, we will pre-define few specific ``operation modes" of the \textit{Computer~Vision} task, that differ by their running time and they are identified by a pair $\langle RunTime, Variance \rangle$ where $Variance$ is the error variance of running time $RunTime$.
-}
-
 \subsection{Reference Measurement with OptiTrack System}
 %OptiTrack
 In order to evaluate the performance, we needed to know the accurate position of the drone during the flight. For this purpose, we used the \textit{OptiTrack} (\url{optitrack.com}) system 
@@ -967,7 +945,6 @@ We suggest designing control system in the \textit{component} level, where each 
 
 \begin{dfn}
     A component is a pair $\langle T,G\rangle$ where $T$ is a set of subroutines (representing, e.g., procedures of a class in C++) and $G=\langle A,\langle P_{schd}, P_{env}\rangle \rangle$ is a generalized B{\"u}chi game (GNBG), over a generalized \buchi automaton $A= \langle Q,\Sigma,\Delta,q_0,\mathcal{F} \rangle $ (see Section~\ref{sec:GNBG}), such that:
-    \todo{fix GNBG appendix}
     \begin{enumerate}
         \item The \textit{alphabet} is $\Sigma = 2^{T} \cup \R^n$ where $n$ is the number of scheduler feedback variables in the system (real numbers that the scheduler can base its decision on).
         \item 
@@ -1360,267 +1337,6 @@ In other words, if \textit{sched} player win, the corresponding word $\omega$ of
 Note: for the mater of this thesis, the turns are always alternating, and the \textit{env} (envirinment) player is always first. Hence, the notion of $P_{schd}$ and $P_{env}$ is not needed. $q_0 \in P_{env}$, then for every $\langle p , p' \rangle \in E$ $p' \in P_{schd}$, and so on.
 
 
-\commentOut{
-\section{Architecture: Automata Base Scheduler (From proposal)}
-
-As describe in Section~\ref{sec:Problem} control systems have two main parts: \textit{state estimation} and \textit{controller}. 
-The common used techniques for controllers, e.g PID, are relatively low resources consumers and there is no real justification of optimizing it, but this is not always the case for estimation process, some times there are heavy computational tasks as part of state estimation task, this refers to both the estimator and sensing stage.
-The sensor can be complex computations of Global Positioning System (GPS) in small processor or even camera with heavy computer vision.
-% TODO
-Those sensing task need to run in real-time and can interfere with rest of the system tasks.
-In our architecture we concentrate more in those heavy sensing processes in order to improve the resource utilization and control performance.
-%One wide used example is the use of computer vision in UAV's 
-(See~\ref{state estimation & why choose the window mission})
-
-\commentOut{ %move to preveius section
-    
-    %TODO - i think fig:general_hybrid_loop is Unnecessary and fig:hybrid_loop is enough 
-    The architecture of control system as we believe, is illustrated in Figure~\ref{fig:general_hybrid_loop}.
-    The architecture, that is based on modern controller architecture where the system has multiple controlling tasks, comes to support an efficient scheduling protocols in modern control systems consisting of a processor that runs all the tasks of many independent control loops in the system. 
-    The current state of art, as described above and as we observed, e.g. in the code of APM~\cite{APM}, is that the designers of each task, control or estimation task, specify a fixed rate for invocations of the corresponding task (called \textit{period}).
-    % TODO: Use the terminology of the figure
-    In our methodology, there is a richer and more intense interaction between the \textit{Scheduler} and the control loops. Each control loop (blue components in the Figure~\ref{fig:general_hybrid_loop}) will tell the \textit{scheduler} of its level of certainty ($P = var(\hat{x} - x)$) and the allocator will allocate resource (processor time) based on this data, meaning the \textit{scheduler} allocate resource dynamically based on the system current needs rather than the worst case needs.
-    %TODO - ?? what next centence mean? needed?
-    %TODO: This can be useful on its own sake or together with a mathematical analysis that allows to use this feedback mechanism to certify some pre-defined specifications of state certainty or stability is maintained.
-    
-    %TODO - probably need to be in the Tests section
-    Our methodology is general and may be applicable in a wide range of applications. However, in this initial phase of the research, we focus on a specific sub-domain and in handling all technical issues in order to prove the concept.
-    In this thesis we develop and implement a vision based controller for drone (see Section~\ref{sec:tests}) and analyze the concept with it.
-    
-    \begin{figure}[]
-        \centering
-        
-        \begin{tikzpicture}[node distance=2cm]
-        \node (in) [eNode] {};
-        \node (control) [recNodeB, right of=in, xshift=1.5cm] {Control Law};
-        \node (sys) [recNodeB, right of=control, xshift=3cm] {System};
-        \node (sensor) [recNodeB, below of=sys, xshift=1.9cm] {Sensing};
-        \node (estimator) [recNodeB, below of=control] {State Estimation};
-        \node (sched) [recNodeG, below of=estimator, xshift=3.5cm, text width=3cm] {Scheduler};
-        
-        \draw [arrowB] (in) -- node[above] {refference} node[below] {($r$)} (control);
-        \draw [arrowB] (control) -- node[above] {actuation} node[below] {($u$)} (sys);
-        \draw [arrowB] (sys) -| node[right,text width=1cm] {output ($x$)} (sensor);
-        \draw [arrowB] (sensor) -- node[above] {sensed data (noisy)} node[below] {$(y = Cx +v$)} (estimator);
-        \draw [arrowB] (estimator) -- node[left] {state estimation} node[right] {($\hat{x}$)} (control);
-        
-        \draw [arrowG] (sched) -| node[right,text width=2cm] {computation resources} (sensor);
-        %\draw [arrowG] (sched) --  node[right] {$var(v)$} (estimator);
-        \draw [arrowG] (estimator) |- node[left,text width=2cm] {quality of estimation ($P$)} (sched);
-        
-        
-        \end{tikzpicture}
-        
-        \caption{A general scheduling framework. Each control loop (depicted in blue) informs the resource allocator (Scheduler) of its quality of estimation and the allocator allocates accordingly the computation resources among all the control loops, in order to maintain valid estimation quality. 
-            %The underlying assumption here is that the noise in the sensed data is a function of the amount of computation resources. We assume that the more resources are invested in sensing the better (less noisy) sensed data is obtained.
-            \label{fig:general_hybrid_loop}}
-    \end{figure}
-    
-    \begin{figure}[h]
-        \centering
-        \begin{tikzpicture}[node distance=2cm]
-        \node (in) [eNode] {Input};
-        \node (control) [recNodeB, right of=in, xshift=1cm, text width=3cm] 
-        {Control Law (State Feedback)};
-        \node (sys) [recNodeB, right of=control, xshift=2.5cm] {System};
-        \node (sensor) [recNodeB, below of=sys, xshift=2.5cm, text width=3cm] 
-        {Computer Vision Based Sensor};
-        \node (estimator) [recNodeB, below of=control, text width=3cm] 
-        {State Estimation (Kalman Filter)};
-        \node (sched) [recNodeG, below of=estimator, xshift=3.5cm, text width=3cm] {Automata Based Scheduler};
-        
-        \draw [arrowB] (in) -- node[above] {$r$} (control);
-        \draw [arrowB] (control) -- node[above] {$u$} (sys);
-        \draw [arrowB] (sys) -| node[above] {$Image$} (sensor);
-        \draw [arrowB] (sensor) -- node[above] {$y+v$} (estimator);
-        \draw [arrowB] (estimator) -- node[left] {$\tilde{x}$} (control);
-        
-        \draw [arrowG] (sched) -| node[right] {$\langle time,var(v) \rangle$} (sensor);
-        \draw [arrowG] (sched) --  node[right] {$var(v)$} (estimator);
-        \draw [arrowG] (estimator) |- node[left] {$var(x-\tilde{x})$} (sched);
-        
-        \end{tikzpicture}
-        
-        \caption{The controller framework we will implement, the \textit{scheduler} will allocate CPU time ($\langle time,var(v) \rangle$) for the \textit{Computer Vision} task base on the state estimation certainty using guarded Automata.
-            \label{fig:hybrid_loop}}
-    \end{figure}
-    
-}
-
-%TODO - probably need to be in the Tests section
-TODO - need to fix here!!!
-\commentOut{
-    As shown in Figure~\ref{fig:hybrid_loop}, the system framework consists of an interaction between the scheduler and the control loops, in this case the estimator (\textit{State~Estimator}) accuracy strongly depends on the sensing task (\textit{Computer~Vision}) and they both collaborate with the \textit{scheduler} in order to achieve their \textbf{control objectives} (g.e. stability).
-    In this framework the scheduler is part of the control logic and therefore it can make scheduling decisions based on the current control state, the scheduling of \textit{Computer~Vision} task depends on the accuracy of state estimation.
-    For example, if the vision is clear, the \textit{Computer~Vision} will produce good measurement of the \textit{System} and therefore good accuracy will be achieved so the \textit{Scheduler} can allocate less computation time to the heavy \textit{Computer~Vision} task and still remain stable while allocating more CPU to others control loops or to background tasks (like navigation).
-    
-    We will use an existing open-source implementation of drone software as a basis for our experimentation. However, the above collaboration requires to re-adjust some parts of the control system, e.g. the \textit{State~Estimator} needs to work with variable error variance of \textit{Computer~Vision} measurement,  the \textit{Computer~Vision} needs to be able run within variable time limits, and the tasks pre-defined requirements need to be re-adjusted in order to define the relation between tasks such as \textit{Computer~Vision} and \textit{State~Estimator}.
-}
-
-% TODO - make some connection
-Below we will dive in each part of the new architecture and explain how it should be adjusted.
-
-\subsection{Sensors}
-\label{sec:sensors}
-The sensing process are assumed to be periodic task. 
-In order to allow dynamic scheduling it must be able to execute in a variable period between executions or to allow control of the execution duration time.
-There are two general approaches we consider for this task: use \textit{any-time} algorithms or finite \textit{execution-modes} based tasks.
-\textit{any-time} algorithms are algorithms that always try to improve the solution quality, for sensing processes, we can define deadline for the ``searching" process every execution, ??? present any-time solution for image processing~\cite{Shlomo}.
-%TODO - "its also can be apllyed to general task by avaraging berst of exeqution in short time
-%TODO also used by "anytime"
-%TODO contract-based
-Set of \textit{execution-modes} based, a discrete version influence from ``contract-based'' presented by ??? Pant~\cite{UPenn-Pant}, here each sensing task have finite number of ``operation modes'', e.g. different algorithms to proximate the same observations value, then the scheduler can perform the apropriate mode for every cycle.
-
-For simplicity, we only work with \textit{execution-modes} based sensing tasks, all the modes are pre-defined and identified by a pair $\langle Duration, Variance \rangle$,
-which define the error $Variance$ of this mode and the run-time $Duration$ is the of this mode. 
-We assume that longer modes produce solution with smaller error variance.
-%TODO - reed a litle the article (\cite{UPenn-Pant}) and re-write the next.
-%TODO - check if Anitime reserch (\cite{Shlomo}) can fit here.
-%TODO - Make sure that we use the terms contract-base and any-time correctly
-
-\subsection{State Estimator}
-\label{sec:estimator}
-% kalman filter & ...
-% seperation rule of kalman
-
-State Estimator (the filter) is part of the estimation process, this unit receive the measurements ($y$) from the \textit{Sensors} and produce from them the state estimation required by the controller ($\hat{x}$).
-When the \textit{Sensors} is accurate enough we may be able to pass it directly to the \textit{Controll Law} ($\hat{x} = y$), but usually the measurement is noisy and the main goal of the State Estimator is to reduce this noise from the measurement (see Section~\ref{sec:kalman}).
-%TODO mybe add this: some times the sensor measure not mesure the needed state parameters, for example if we need to know the amount of water in the botle baut we only know the flow during all the rime we need to integrate in order to know the quantity.
-
-If one consider using the optimal estimator Kalman filter (describe at Section~\ref{sec:kalman}) in the estimation process, one of the parameter that need to be consider in calculation is the covariance of sensor error (noted by $R$ in Section~\ref{sec:kalman}).
-But in the new framework the sensor have diferents operation modes with variable error covariance, this means that we need to have also variable state estimators correspondingly.
-In order to adjust the sensor error covariance, each cycle the scheduler will inform the state estimator about the new error covariance, and the state estimator will use corresponding parameters to make the next estimation.
-%TODO - if the next is included need to read and learn "time-variant kalman filter"
-%The second parameter that may be problematic is the state evolution in time ($A$ matrix in KF), which is defined for specific time period, and need to be adjusted if we use variable period, or maybe use time-variant kalman filter.
-
-\subsection{Control Tasks} 
-\label{sec:control} 
-The control task (regulator) itself (\textit{Control Law} in Figure~\ref{fig:general_hybrid_loop}) is responsible for closing the gap between current state estimation ($\hat{x}$) and the reference state ($r$), by manipulating the system actuators (e.g. changing the speed of the motors), that output to the actuators is noted by $u$.
-
-%Optimal estimation or optimal control law is not guarantee the overall optimal feedback controller, but as Kalman prove, 
-The control task is usually a very low CPU consumer and been well studied~\cite{Bennett,Cervin}. Hence, the control task is not needed to be manipulated.
-For our testing we use the commonly used and well known technique from control theory called PID, A proportional-integral-derivative controller.
-In this technique the control output is based on the physical knowledge of the system dynamics, and have three variable parameters (P, I and D) that define the controller convergence behavior \cite{PID} ???.
-
-\subsection{Computation Resource Scheduler: Automata Based Scheduler}
-\label{sec:scheduler}
-
-Real-time systems are mostly composed of multiple real-time tasks, tasks with time constraint, for example task that must response to an event within specified time constraints.
-The purpose of schedulers in such systems is to allocate the limited computational resources (CPU time) within all the task in the system. To do so, we need a well defined interface between the real-time tasks and the scheduler.
-
-The most common way of describing the requirements of a real-time component is to specify a period, sometimes along with a deadline, which gives the frequency at which the component must execute. 
-The designer of the component makes sure that the performance objectives are met as long as the component is executed consistent with its period. The scheduler guarantees that all components get enough resources.
-%not directly in this article
-Specifying resource requirements using periods has advantages due to simplicity and analyzability, but has limited expressiveness, as elaborated in~\cite{RTComposer}. 
-%For example, a specification such as “execute the component every 5ms” does not say whether the scheduler should or should not execute it more frequently if enough computing resources are available, and if a component has multiple methods, say, for different control tasks, each needing a different period, the requirement cannot be naturally captured by a single period.
-
-
-
-
-
-% TODO - stop here!
-\subsubsection{The Proposed Scheduling Methodology}
-In this thesis we develop a new methodology for allocation resources. We focus on how should engineers describe the requirements of a real-time component.
-To simplify, we will assume that the resource is allocated in discrete \textit{time slots} of fixed duration in the style of time-triggered architecture~\cite{RTComposer}.
-%TODO - read again this section
-%We will develop automata based (hybrid automata) methodologies and schedulers based on the work of Alur~\cite{RTComposer} and Bukra~\cite{Merav}, and will demonstrate with measurable data how they improve the performance of real flying drones (see Section~\ref{sec:results}).
-The specification framework for resource requirements is based on \textit{Nondeterministic $\omega$-automata} (finite automata over infinite words)~\cite{???}.
-Automata can be more expressive for describing specific requirements, and they are composable, i.e., it is easy to compose all the tasks requirements into an integrated automata, and its easy to analyze and manipulate using tools like GOAL~\cite{???}.
-
-
-%TODO - what we do with $Acc$
-Formally \textit{task specification automata} is defined, similarly to Nondeterministic $\omega$-automata, as tuple $A=(Q,\Sigma,\Delta,Q_0,Acc)$.
-In our setting, the \textit{alphabet} of the automata is $\Sigma = T^2 \times C^2$ where 
-$C$ is the set of Boolean conditions variables, will be describe later, and $T$ is the set of all tasks in the system.
-Each infinite word ($\alpha \in \Sigma^\omega$) of the automata define a possible tasks scheduling over a fixed period (time slots), and the automata language define all the possible scheduling.
-Now the scheduler only need to ``walk through'' the automata as follows, before every iteration (time slot) the scheduler choose state transition $(q_i , \{t_j , c_j\}, q_{i+1})$ from the current state $q_i$ to the state $q_{i+1}$
-
-
-Let's define $s()$
-
-
-
-
-
-
-
-
-
-%Hybrid automata is a variation of finite automata for real-valued continuously progressing words~\cite{hibrid-systems}.
-In our setting, the automata define continuous (fixed period) operation modes, and the condition of mode changing.
-The operation mode directly define a set of tasks that will be executed in the time slot (for example $s_{0.7}$ in Figure~\ref{fig:sched_sense_auto}).
-We can stay at a single mode for some iterations, in this case the same tasks will be scheduled in each iteration. 
-We can also take \textbf{discrete mode transition} in order to change operation mode after few iterations and schedule different set of tasks, for example, in Figure~\ref{fig:sched_sense_auto} the edge $(m_1,m_2)$ says that if the previous iteration mode was $m_1$ and $estVar < 0.7$ we can change the mode and schedule the set $\{s_{0.2}\}$ in the next iteration.
-
-Each infinite path on the composed hybrid automata (not necessarily with infinitely many mode transitions) represents a schedule that satisfy all the tasks requirements. 
-In this architecture the scheduler only need to ``walk through'' the composed automata, this is, of course, a fast and easy computational task. 
-In order to assure that we do not exceed the time slot duration, each task will have pre-defined maximum duration time like ``deadline'' in the traditional architecture. Now we can verify that every possible scheduling step can execute within a single time slot, in other words, every mode of the composed automata can be executed in a single time slot, by simply summing the ``deadlines'' of all the tasks in the mode tasks set.
-%we can summarize the total slot ``deadline'' as follows:\\
-%$\forall mode~e ~~(\sum_{t \in Guard(e)} deadline(t) ) \leq slot~duration$ \\
-If we find a mode that goes beyond the maximum duration we can remove it from the automata so we never exceed the time slot duration.
-
-
-\begin{figure}[]
-    \centering
-    
-    \begin{tikzpicture}[node distance=4cm, text centered, auto]
-    \node (A) [state, accepting, text width=1cm, initial] {$m_1$ $\{s_{0.7}\}$};
-    \node (B) [state, accepting, text width=1cm] [right of=A] {$m_2$ $\{s_{0.2}\}$};
-    \node (C) [state, accepting, text width=1cm] [right of=B] {$m_3$ $\{s_{0.2}\}$};
-    
-    \path[->] (A) edge [loop above] node {$true$} (A);
-    %\path[->] (A) edge [bend left] node {$\neg est_{bad} \wedge s_{0.2}$} (B);
-    \path[->] (A) edge [bend left] node {$estVar < 0.7$} (B);
-    \path[->] (B) edge [bend left] node {$true$} (A);
-    %\path[->] (B) edge [loop above] node {$\neg var3$} (B);
-    %\path[->] (B) edge [bend left] node {$est_{good} \wedge s_{0.2}$} (C);
-    \path[->] (B) edge [bend left] node {$ estVar < 0.3$} (C);
-    %\path[->] (C) edge [loop above] node {$var1$} (C);
-    \path[->] (C) edge [bend left=60] node {$true$} (A);
-    
-    
-    \end{tikzpicture}
-    
-    \caption{Example of guarded automata for our vision based sensor task, in this example the task has two operation modes, $\mathbf{s_{0.7}}$ which need 70\% of the time slot but is more accurate vision computation and $\mathbf{s_{0.2}}$ which is less accurate but faster (need only 20\% of the slot).
-        The value of $estVar$ is $var(x-\tilde{x})$ of the previous iteration.
-        Every time slot exactly one of the modes will be executed.
-        \label{fig:sched_sense_auto}}
-\end{figure}
-
-\begin{figure}[]
-    \centering
-    
-    \begin{tikzpicture}[node distance=4cm,auto]
-    \node (A) [state, accepting, initial] {$\{est_1\}$};
-    \node (B) [state, accepting] [right of=A] {$\{est_2\}$};
-    
-    \path[->] (A) edge [loop above] node {$s_{0.7}$} (A);
-    \path[->] (B) edge [bend left] node {$s_{0.7}$} (A);
-    %\path[->] (A) edge [bend left] node {$s_{0.2} \wedge est_2$} (B);
-    %\path[->] (B) edge [loop above] node {$s_{0.2} \wedge est_2$} (B);
-    \path[->] (A) edge [bend left] node {$s_{0.2}$} (B);
-    \path[->] (B) edge [loop above] node {$s_{0.2}$} (B);
-    %\path[->] (B) edge [bend left] node {$s_{0.7} \wedge est_1$} (A);
-    
-    \end{tikzpicture}
-    
-    \caption{Example of guarded automata for our state estimator, in this example the estimator has two operation modes, $\mathbf{est_1}$ correspond to $\mathbf{s_{0.7}}$ and $\mathbf{est_2}$ correspond to $\mathbf{s_{0.2}}$~(see Figure \ref{fig:sched_sense_auto}).
-        \label{fig:sched_estimator_auto}}
-\end{figure}
-
-Let us demonstrate the proposed automata based interface using the system depicted in Figure~\ref{fig:hybrid_loop}.
-Assume we have two operation modes of the vision based sensor: (1) $s_{0.7}$ a very accurate operation mode that takes 70\% of the time slot to execute, that is of course a significant amount of time, and (2) $s_{0.2}$ a less accurate operation mode but takes only 20\% of the slot.
-In each time slot we can execute one of them and get the sensing process done, but if we use only $s_{0.7}$ every time slot we may not have enough time to execute all the tasks. On the other hand, if we use only $s_{0.2}$ we will have inferior estimates.
-Figure~\ref{fig:sched_sense_auto} shows an example of a guarded automata that guides the schedule. With this automata we can express rich specifications. 
-In this example, execute $s_{0.7}$ is always allowed but if we need faster sensing we can use $s_{0.2}$ but only once in a row if the estimation error is not extremely bad~(if~$var(x-\tilde{x}) < 0.7$), or even twice in a row if the estimation error is good~(if~$var(x-\tilde{x}) < 0.3$).
-
-The estimated estimation error ($estVar$ in the figure) is, in this case, the estimation error variance ($var(x-\tilde{x})$ in Figure~\ref{fig:hybrid_loop}). 
-%if $var(x-\tilde{x})$ is small then $est_{good} = true$, if is normal then $est_{normal} = true$ end $est_{bad} = true$ if $var(x-\tilde{x})$ is  bigger then some boundary.
-\\This value ($estVar~=~var(x~-~\tilde{x})$) is calculated by the state estimator task (Section~\ref{sec:estimator}) and is passed to the scheduler as discussed before.
-
-Each of this operation modes ($s_{0.7}$ and $s_{0.2}$) have different accuracy, specified by $var(v)$ in Figure~\ref{fig:hybrid_loop}, and if we want to get optimal estimation the state estimator mast be configure correspondingly, i.e., the sensing error variance should be adjusted to the correct value ($var(s_{0.7})$), an easy solution for specifying the different configurations is by the guarded automata shown in Figure~\ref{fig:sched_estimator_auto}, which defines two operation modes of the state estimator, $est_1$ and $est_2$, that correspond to $var(s_{0.7})$ and $var(s_{0.2})$. So of course if we sense in mode $s_{0.7}$ we must estimate with mode $est_1$ that has the correct configurations for $s_{0.7}$, and if we sense in mode $s_{0.2}$ we must estimate with mode $est_2$.    
-}
-
 %\begin{samepage}
 \bibliographystyle{abbrv}
 \bibliography{hodai_thesis}
@@ -1632,5 +1348,23 @@ Each of this operation modes ($s_{0.7}$ and $s_{0.2}$) have different accuracy, 
 
 %\includepdf[pages={1-}]{./Chapters/HebrewPages.pdf}
 \todo[inline]{Need to update the hebrew pages}
+
+
+\commentOut{
+    %TODO - consider using parts from here to the vision part of "experiment setup" or "state estimator"
+    
+    %Anitime reserch of zilbershtain (\cite{Shlomo})
+    %contract based
+    %http://ardupilot.org/copter/docs/common-mouse-based-optical-flow-sensor-adns3080.html
+
+    
+    %TODO - reed a litle the article (\cite{UPenn-Pant}) and re-write the next.
+    %TODO - check if Anitime reserch (\cite{Shlomo}) can fit here.
+    %TODO - Make sure that we use the terms contract-base and any-time correctly
+    In order to control the running time, we will use anytime based algorithms~\cite{Shlomo} and will mainly concentrate on ``contract based" vision algorithms proposed by Pant~\cite{UPenn-Pant}.
+    This type of algorithms run until we stop them, and when we stop them they will provide a solution with accuracy that is a monotonic function of the amount of time it was running. That way we can control the solution accuracy by controlling the running time.
+    In our implementation, in order to lower the complexity, we will pre-define few specific ``operation modes" of the \textit{Computer~Vision} task, that differ by their running time and they are identified by a pair $\langle RunTime, Variance \rangle$ where $Variance$ is the error variance of running time $RunTime$.
+}
+
 
 \end{document}}
