@@ -162,7 +162,7 @@ fill=orange!20!yellow!20]
 \newcommand{\buchi}{B\"uchi }
 
 
-\title{\vspace{2cm}\LARGE BEN- GURION UNIVERSITY OF THE NEGEV \\
+\title{\vspace{2cm}\LARGE BEN - GURION UNIVERSITY OF THE NEGEV \\
     \Large THE FACULTY OF NATURAL SCIENCES \\ ~
     \large DEPARTMENT OF COMPUTER SCIENCE \\ ~ \\ \vspace{1cm}Reactive Scheduling of Computational Resources in Control Systems \\ ~ \\ \vspace{1cm}
     \normalsize THESIS SUBMITTED IN PARTIAL FULFILLMENT OF THE REQUIREMENTS FOR 
@@ -985,6 +985,7 @@ We suggest designing control system in the \textit{component} level, where each 
 
 \begin{dfn}
     A component is a pair $\langle T,G\rangle$ where $T$ is a set of subroutines (representing, e.g., procedures of a class in C++) and $G=\langle A,\langle P_{schd}, P_{env}\rangle \rangle$ is a generalized B{\"u}chi game (GNBG), over a generalized \buchi automaton $A= \langle Q,\Sigma,\Delta,q_0,\mathcal{F} \rangle $ (see Section~\ref{sec:GNBG}), such that:
+    \todo{fix GNBG appendix}
     \begin{enumerate}
         \item The \textit{alphabet} is $\Sigma = 2^{T} \cup \R^n$ where $n$ is the number of scheduler feedback variables in the system (real numbers that the scheduler can base its decision on).
         \item 
@@ -1199,188 +1200,25 @@ Every time the system is executed, the scheduler construct the strategy automato
 \subsection{Few Words about Implementation}
 
 % finite space by discretization of observations (Merav)
-From the beginning we define the alphabet of a component game to be $\Sigma = T \cup \R^r$, but $\R^n$ is of course infinite set so we can not store the game in the finite storage of the control computer.
+From the beginning we define the alphabet of a component game to be $\Sigma = T \cup \R^n$, but $\R^n$ is of course infinite set so we can not store the game in the finite storage of the control computer.
 We need to transfer the infinite continues space $\R^n$ to discrete space, without loosing any flexibility.
 In practice, we do not need to create explicit transition for every possible value of the observation $\vec{y}$.
 The environment transitions are annotated with values intervals, which define a subset of $\R^n$, for example the transition $q \xrightarrow[]{-1<y_1<1, -1<y_2<1, \dots , -1<y_n<1 } q'$ can be used for every $\vec{y}' = \langle y'_1, \dots , y'_n \rangle \in \R^n$ such that $\forall 1 \le i \le n : -1 < y'_i < 1$.
 With this annotation we can store infinite games (and strategies solutions) in a small computer.
 
 In addition, for successfully calculate the automata operations, such as, compose games with intersect intervals on the transitions, we need to proper define the intervals.
-The solution, which elaborated in details in the work of Merav~\cite{Merav}, is to collect all the scalar numbers in all the component games, and define interval for every two adjacent scalars. Then the alphabet contain 
-only ....
-all the pernutations of every $n$ intervals of the 
+The solution, which elaborated in details in the work of Merav~\cite{Merav}, is to collect all the scalar numbers in all the component games, and define interval for every two adjacent scalars. Then the alphabet contain only tuples of $n$ intervals for every $n$ intervals combination. 
+
 
 % game solver - GOAL
+With the above discrete alphabet, we can perform most of the automata operations with common automata algorithms and existing automata tools. 
+In this thesis we used the GOAL tool~\cite{goal} for composing games, finding wining strategy for a game and other analysis such as emptiness and simplification of automata.
 
 % preparation time vs run time
-
-
-
-
-
-
-
-
-
-
-
-
-\commentOut{
-
-
-
-
-
-\subsection{Automata Operation - Creating the Composed automaton }
-
-In order to schedule the complete system, we need first to construct an automaton (called composed automaton) that represent the requirement of the entire system, and never exceed the time-slot.
-The composed automaton, called $A_{cmp}$, is constructed at the initialization or compilation time as follows:
-Assume we have $n$ guarded automatons $[A_1 .. A_n]$ over $m$ subroutines (tasks) in the system, then:
-\begin{enumerate}
-    \item Intersect all automata: $A_{int}= \cap_{i=1}^{n} A_i$
-    \item Construct overflow protection automaton ($A_{nof}$) as demonstrate in Figure~\ref{fig:A_{nof}} where $\Sigma_{nof}$ is set of all the letters that do not exceed the time-slot
-    \item Intersect with the overflow protection automaton: $A_{cmp} =  A_{nof} \cup A_{int}$
-    \item Analyze $A_{cmp}$ for schedule-ability, emptiness, etc.
-\end{enumerate}
-
-% Prof that composed automaton represent the requirement of the entire system
-\todo{fix the definition of tasks that can consist of many subroutines}
-A short proof that $A_{cmp}$ we construct satisfy the requirement of the entire system:
-By definition, the language $L(A_i)$ of $A_i$ contain all the schedules that satisfy the requirement of $t_i$ and only them.
-The intersection language $L(A_{int})= \cap_{i=1}^{n} L(A_i) $ state that: 
-(1) if $\omega_j$ is legal schedule for the entire system $\omega_j \in L(A_{int})$ then $\forall i \in [1..n] : \omega_j \in L(A_i)$ mean $\omega_j$ is a schedule that satisfy the requirements of all the tasks in the system,
-and (2) if $\omega_j$ not satisfy some task $i$ requirements ($\exists i \in [1..n] : \omega_j \notin L(A_i) $) then $\omega_j \notin L(A_{int})$. 
-Therefore, the intersection automaton $A_{int}$ contains all the schedules that satisfy the requirements of all the tasks and only them.
-
-% eliminate exceeds words
-The automaton $A_{int}$ may still contain schedule that exceeds the time slot, we need to make sure that the scheduler never exceeds a single time-slot size ($ts$), that is, $\forall \omega_j \in A_{int} : \forall \sigma_k \in \omega_j \text{~s.t.~} time( task(\sigma_k)) \le st $.
-Let's define $\Sigma_{nof} \subseteq \Sigma$ as set of all the letters $\sigma \in \Sigma$ that their tasks group do not exceed the time-slot ($time( task(\sigma)) \le ts$), then $L((\Sigma_{nof})^\omega)$ contain all the schedules that never exceeds the time-slot, this language can be easy defined by the automaton $A_{nof}$ presented in Figure~\ref{fig:A_{nof}}. 
-Therefore, the automaton $A_{cmp} =  A_{nof} \cup A_{int}$ define exactly all the schedules that satisfy the requirements of all the tasks and never exceeds the time-slot.
-
-% Analisys
-After we construct $A_{cmp}$ we need to analyze it, we need to make sure that the system is schedule-able, that is, the scheduler never got stuck in a state with no appropriate transition for the next iteration.
-This can be verified in few different levels, for example an easy and conservative technique is to check formally that from every accessible state $q_i$ of $A_{cmp}$ ``OR'' operation of all it outgoing transitions is ``True'': $\vee_{(q_i, \left < t_j, c_j \right > , q_k)}  c_j = \text{true} $. 
-In case that we have some assumptions about the system behavior, we can use that information to make more accurate analysis, for example, assuming after executing ``high quality'' mode of image processing always $|y-\hat{y}| < 0.5$, under that assumption we can conclude that schedule using the follows automaton never stack:
-\todo{I think the example is meaningless without explanation}
-\begin{center}
-    \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=8cm, semithick]
-    
-    \node[initial,state] (A)                 {$0$};
-    \node[state]         (B) [right of=A]    {$1$};
-    
-    \path (B) edge [bend left]             node {$\left < |y-\hat{y}|< 1/2 , L \right >$} (A);
-%    (A) edge [loop below] node {$|y-\hat{y}|<1$} (A);
-    
-    \path (A) edge [bend left]             node {$\left < |y-\hat{y}| > 1/2 , H \right >$} (B);
-    \path (A) edge [loop above] node {$\left < |y-\hat{y}| < 1/2 , L \right >$} (A);
-    
-    \end{tikzpicture}
-\end{center}
-} 
-
-\commentOut{
-\subsubsection{The Proposed Scheduling Methodology}
-In this thesis we develop a new methodology for allocation resources. We focus on how should engineers describe the requirements of a real-time component.
-To simplify, we will assume that the resource is allocated in discrete \textit{time slots} of fixed duration in the style of time-triggered architecture~\cite{RTComposer}.
-%TODO - read again this section
-%We will develop automata based (hybrid automata) methodologies and schedulers based on the work of Alur~\cite{RTComposer} and Bukra~\cite{Merav}, and will demonstrate with measurable data how they improve the performance of real flying drones (see Section~\ref{sec:results}).
-The specification framework for resource requirements is based on \textit{Nondeterministic $\omega$-automata} (finite automata over infinite words)~\cite{???}.
-Automata can be more expressive for describing specific requirements, and they are composable, i.e., it is easy to compose all the tasks requirements into an integrated automata, and its easy to analyze and manipulate using tools like GOAL~\cite{???}.
-
-
-%TODO - what we do with $Acc$
-Formally \textit{task specification automata} is defined, similarly to Nondeterministic $\omega$-automata, as tuple $A=(Q,\Sigma,\Delta,Q_0,Acc)$.
-In our setting, the \textit{alphabet} of the automata is $\Sigma = T^2 \times C^2$ where 
-$C$ is the set of Boolean conditions variables, will be describe later, and $T$ is the set of all tasks in the system.
-Each infinite word ($\alpha \in \Sigma^\omega$) of the automata define a possible tasks scheduling over a fixed period (time slots), and the automata language define all the possible scheduling.
-Now the scheduler only need to ``walk through'' the automata as follows, before every iteration (time slot) the scheduler choose state transition $(q_i , \{t_j , c_j\}, q_{i+1})$ from the current state $q_i$ to the state $q_{i+1}$
-
-
-Let's define $s()$
-
-
-
-
-
-
-
-
-
-%Hybrid automata is a variation of finite automata for real-valued continuously progressing words~\cite{hibrid-systems}.
-In our setting, the automata define continuous (fixed period) operation modes, and the condition of mode changing.
-The operation mode directly define a set of tasks that will be executed in the time slot (for example $s_{0.7}$ in Figure~\ref{fig:sched_sense_auto}).
-We can stay at a single mode for some iterations, in this case the same tasks will be scheduled in each iteration. 
-We can also take \textbf{discrete mode transition} in order to change operation mode after few iterations and schedule different set of tasks, for example, in Figure~\ref{fig:sched_sense_auto} the edge $(m_1,m_2)$ says that if the previous iteration mode was $m_1$ and $estVar < 0.7$ we can change the mode and schedule the set $\{s_{0.2}\}$ in the next iteration.
-
-Each infinite path on the composed hybrid automata (not necessarily with infinitely many mode transitions) represents a schedule that satisfy all the tasks requirements. 
-In this architecture the scheduler only need to ``walk through'' the composed automata, this is, of course, a fast and easy computational task. 
-In order to assure that we do not exceed the time slot duration, each task will have pre-defined maximum duration time like ``deadline'' in the traditional architecture. Now we can verify that every possible scheduling step can execute within a single time slot, in other words, every mode of the composed automata can be executed in a single time slot, by simply summing the ``deadlines'' of all the tasks in the mode tasks set.
-%we can summarize the total slot ``deadline'' as follows:\\
-%$\forall mode~e ~~(\sum_{t \in Guard(e)} deadline(t) ) \leq slot~duration$ \\
-If we find a mode that goes beyond the maximum duration we can remove it from the automata so we never exceed the time slot duration.
-
-
-\begin{figure}[]
-    \centering
-    
-    \begin{tikzpicture}[node distance=4cm, text centered, auto]
-    \node (A) [state, accepting, text width=1cm, initial] {$m_1$ $\{s_{0.7}\}$};
-    \node (B) [state, accepting, text width=1cm] [right of=A] {$m_2$ $\{s_{0.2}\}$};
-    \node (C) [state, accepting, text width=1cm] [right of=B] {$m_3$ $\{s_{0.2}\}$};
-    
-    \path[->] (A) edge [loop above] node {$true$} (A);
-    %\path[->] (A) edge [bend left] node {$\neg est_{bad} \wedge s_{0.2}$} (B);
-    \path[->] (A) edge [bend left] node {$estVar < 0.7$} (B);
-    \path[->] (B) edge [bend left] node {$true$} (A);
-    %\path[->] (B) edge [loop above] node {$\neg var3$} (B);
-    %\path[->] (B) edge [bend left] node {$est_{good} \wedge s_{0.2}$} (C);
-    \path[->] (B) edge [bend left] node {$ estVar < 0.3$} (C);
-    %\path[->] (C) edge [loop above] node {$var1$} (C);
-    \path[->] (C) edge [bend left=60] node {$true$} (A);
-    
-    
-    \end{tikzpicture}
-    
-    \caption{Example of guarded automata for our vision based sensor task, in this example the task has two operation modes, $\mathbf{s_{0.7}}$ which need 70\% of the time slot but is more accurate vision computation and $\mathbf{s_{0.2}}$ which is less accurate but faster (need only 20\% of the slot).
-        The value of $estVar$ is $var(x-\tilde{x})$ of the previous iteration.
-        Every time slot exactly one of the modes will be executed.
-        \label{fig:sched_sense_auto}}
-\end{figure}
-
-\begin{figure}[]
-    \centering
-    
-    \begin{tikzpicture}[node distance=4cm,auto]
-    \node (A) [state, accepting, initial] {$\{est_1\}$};
-    \node (B) [state, accepting] [right of=A] {$\{est_2\}$};
-    
-    \path[->] (A) edge [loop above] node {$s_{0.7}$} (A);
-    \path[->] (B) edge [bend left] node {$s_{0.7}$} (A);
-    %\path[->] (A) edge [bend left] node {$s_{0.2} \wedge est_2$} (B);
-    %\path[->] (B) edge [loop above] node {$s_{0.2} \wedge est_2$} (B);
-    \path[->] (A) edge [bend left] node {$s_{0.2}$} (B);
-    \path[->] (B) edge [loop above] node {$s_{0.2}$} (B);
-    %\path[->] (B) edge [bend left] node {$s_{0.7} \wedge est_1$} (A);
-    
-    \end{tikzpicture}
-    
-    \caption{Example of guarded automata for our state estimator, in this example the estimator has two operation modes, $\mathbf{est_1}$ correspond to $\mathbf{s_{0.7}}$ and $\mathbf{est_2}$ correspond to $\mathbf{s_{0.2}}$~(see Figure \ref{fig:sched_sense_auto}).
-        \label{fig:sched_estimator_auto}}
-\end{figure}
-
-Let us demonstrate the proposed automata based interface using the system depicted in Figure~\ref{fig:hybrid_loop}.
-Assume we have two operation modes of the vision based sensor: (1) $s_{0.7}$ a very accurate operation mode that takes 70\% of the time slot to execute, that is of course a significant amount of time, and (2) $s_{0.2}$ a less accurate operation mode but takes only 20\% of the slot.
-In each time slot we can execute one of them and get the sensing process done, but if we use only $s_{0.7}$ every time slot we may not have enough time to execute all the tasks. On the other hand, if we use only $s_{0.2}$ we will have inferior estimates.
-Figure~\ref{fig:sched_sense_auto} shows an example of a guarded automata that guides the schedule. With this automata we can express rich specifications. 
-In this example, execute $s_{0.7}$ is always allowed but if we need faster sensing we can use $s_{0.2}$ but only once in a row if the estimation error is not extremely bad~(if~$var(x-\tilde{x}) < 0.7$), or even twice in a row if the estimation error is good~(if~$var(x-\tilde{x}) < 0.3$).
-
-The estimated estimation error ($estVar$ in the figure) is, in this case, the estimation error variance ($var(x-\tilde{x})$ in Figure~\ref{fig:hybrid_loop}). 
-%if $var(x-\tilde{x})$ is small then $est_{good} = true$, if is normal then $est_{normal} = true$ end $est_{bad} = true$ if $var(x-\tilde{x})$ is  bigger then some boundary.
-\\This value ($estVar~=~var(x~-~\tilde{x})$) is calculated by the state estimator task (Section~\ref{sec:estimator}) and is passed to the scheduler as discussed before.
-
-Each of this operation modes ($s_{0.7}$ and $s_{0.2}$) have different accuracy, specified by $var(v)$ in Figure~\ref{fig:hybrid_loop}, and if we want to get optimal estimation the state estimator mast be configure correspondingly, i.e., the sensing error variance should be adjusted to the correct value ($var(s_{0.7})$), an easy solution for specifying the different configurations is by the guarded automata shown in Figure~\ref{fig:sched_estimator_auto}, which defines two operation modes of the state estimator, $est_1$ and $est_2$, that correspond to $var(s_{0.7})$ and $var(s_{0.2})$. So of course if we sense in mode $s_{0.7}$ we must estimate with mode $est_1$ that has the correct configurations for $s_{0.7}$, and if we sense in mode $s_{0.2}$ we must estimate with mode $est_2$.    
-}
-
+An important characteristic of task scheduler is run time, sometimes referred to as switching time.
+The scheduler must consume minimum of CPU time. In the proposed methodology the scheduler need to perform many automata and game related operations, which can take significant processing time to calculate.
+In practice, all those calculations need to be performed only once for a system. 
+We can perform all those calculations once in the compilation time, and then the scheduler only need to walk through the strategy automaton, which require only constant amount of calculations before every time slot.
 
 
 \section{Related Work}
@@ -1519,14 +1357,25 @@ In order to adjust the sensor error variance, each time step the scheduler will 
 APM, the control software that we will use, is already using kalman filter as the state estimator, so we only need to adjust the existing module to the variable sensor error variance, and to send the estimation error variance to the scheduler (see Section~\ref{sec:scheduler}).
 }
 
-\subsection{Raspberry-Pi Camera Driver}
-%TODO - problems and solutions
 \subsection{Complementary-Kalman design (with physical computation)}
 \subsection{Generalize Non-Deterministic \buchi Game (GNBG)}
 \label{sec:GNBG}
-\todo{Add an appendix on games}
 
+Generalize Non-Deterministic \buchi automaton (GNBA) $A= \langle Q,\Sigma,\Delta,q_0,\mathcal{F} \rangle $, is an $\omega$-word automaton (a variant of \buchi automaton).
+Similar to all types of finite automata~\cite{???}\todo{fix cite}, $Q$ is the set of states, $q_0$ is the initial state and $\Delta : Q \times \Sigma \xrightarrow{} Q$ is the transition function over the alphabet $\Sigma$.
+The main difference between all finite automata types is the acceptance condition.
+In generalize \buchi, $\mathcal{F} = \{ F_1 , \dots , F_m \}$, where $F_i \subseteq Q$.
+A valid run of $A$ that correspond to $\omega \in \Sigma^\omega$ ($\omega = \omega[1], \omega[2], \dots$), is a sequence $p=q_0,q_1, \dots$ such that $q_0$ is the initial state, and $\forall i>0 : q_i \in \Delta(Q_{i-1}, \omega[i])$.
+The GNBA automaton $A$ accepts infinite word $\omega \in \Sigma^\omega$ iff there exist a run $p$ correspond to $\omega$ such that $\forall 1 \le i \le : \inf(p) \cap F_i \neq \emptyset$~\footnote{$\inf(p)$ is the set of elements in $p$ that appears infinite times in $p$.}, noted $\omega \in \mathcal{L}(A)$.
 
+Generalize Non-Deterministic \buchi Game $G=\langle A,\langle P_{schd}, P_{env}\rangle \rangle$, is a two player game, and is played on the induced graph $\langle V , E \rangle$ of $A$.
+In this graph, $V=Q$ and for every $q, q' \in Q$ such that there exist $\sigma \in \Sigma$ that $q' \in \Delta(q,\sigma)$ we add the edge $\langle q,q' \rangle \in E$.
+During the game $P_{schd} \subseteq Q$ are all the graph nodes where the \textit{sched} player choose the next transition, and $P_{env} \subseteq Q$ are all the graph nodes where the \textit{env} player choose the next transition.
+$P_{schd}$ and $P_{env}$ is a division of $Q$, i.e $P_{schd} \cup P_{env} = Q$ and $P_{schd} \cap P_{env} = \emptyset$
+the \textit{sched} player win the game iff the resulting run $p$ of the implies that, $\forall 1 \le i \le : \inf(p) \cap F_i \neq \emptyset$.
+In other words, if \textit{sched} player win, the corresponding word $\omega$ of this game is in $\mathcal{L}(A)$.
+
+Note: for the mater of this thesis, the turns are always alternating, and the \textit{env} (envirinment) player is always first. Hence, the notion of $P_{schd}$ and $P_{env}$ is not needed. $q_0 \in P_{env}$, then for every $\langle p , p' \rangle \in E$ $p' \in P_{schd}$, and so on.
 
 
 \commentOut{
@@ -1670,15 +1519,6 @@ The control task (regulator) itself (\textit{Control Law} in Figure~\ref{fig:gen
 The control task is usually a very low CPU consumer and been well studied~\cite{Bennett,Cervin}. Hence, the control task is not needed to be manipulated.
 For our testing we use the commonly used and well known technique from control theory called PID, A proportional-integral-derivative controller.
 In this technique the control output is based on the physical knowledge of the system dynamics, and have three variable parameters (P, I and D) that define the controller convergence behavior \cite{PID} ???.
-
-%TODO
-\commentOut{
-    We also plan to try to use an ``adjustable'' LQR (Linear-quadratic regulator) control, as follows.
-    LQR is an optimal controller that take into account the level of certainty of the state estimation. 
-    Is usually a hard task to know the certainty of estimation, but in our case we need to calculate it anyway, and we mark it as $var(x-\tilde{x})$.
-    We will make LQR ``adjustable'' in the sense that each iteration the controller will consider the new (variable) $var(x-\tilde{x})$. This is similar to the architecture we proposed for the estimator.
-    We will check if adjustable LQR has significant advantages over PID in cases were we have variable certainty of estimation.
-}
 
 \subsection{Computation Resource Scheduler: Automata Based Scheduler}
 \label{sec:scheduler}
