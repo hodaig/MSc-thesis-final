@@ -1,6 +1,6 @@
 %TODO Hodai: get rid of the CPU (use processor/computational time...)
 %TODO Hodai: find the correct word for "guarded automata"
-%TODO Hodai: mybe add the symucopter project
+%TODO Hodai: mybe add the simucopter project
 
 \documentclass[ twoside, 12pt ]{article}
 %\linespread{1.5}
@@ -383,7 +383,7 @@ Our methodology is general and may be applicable in a wide range of applications
     \caption{The controller framework we implement, Each control loop (depicted in blue) informs the resource allocator (Scheduler) of its quality of estimation, the \textit{scheduler} will allocate CPU time accordingly in order to maintain valid estimation quality. 
         Specifically for the Sensing processes, for example in our case \textit{Computer Vision} task, the guard automaton specify the required sensing quality ($var(v)$) which determines the required execution time ($time$). The Sensing alocation is noted by $\langle time,var(v) \rangle$.
         %The underlying assumption here is that the noise in the sensed data is a function of the amount of computation resources. We assume that the more resources are invested in sensing the better (less noisy) sensed data is obtained.
-        \label{fig:general_hybrid_loop}}
+    \label{fig:general_hybrid_loop}}
 \end{figure}
 
 \subsection{Guarded Automata as Interfaces for Control and Scheduling}
@@ -435,15 +435,21 @@ To allow a reactive scheduler that runs different modes of the software-based co
 \end{figure}
 
 \subsection{Integration With a Kalman Filter}
+\todo{hey, please read this subsection, I added the detailed explanation of our Kalman filter technique}
 The third layer of the approach we propose is based on the observation that a standard Kalman filter produces information that can be used to guide the automata of the components. 
 
-As we will elaborate in the description of the simulations and of the case study below, we propose to schedule the functions that implement algorithms for sensing and for actuation based on the error variance of the estimation that a Kalman filter provides, the idea is to operate different sensing modes in order to regulate the estimation error variance, see Section~\ref{sec:kalman} for Kalman-filter characteristics. 
-\todo[inline]{ maybe add paragraph with details and examples in the real word: changing in dayligth surface texture...}
-\todo[inline]{we can show diferent prespectives: 1. offline scheduling using only $P$ (eror covariance matrix), 2. online scheduling using $\tilde{y_k|k}$ with the explenation that in the real world the errors are not always normal.}
+As we will elaborate in the description of the simulations and of the case study below. We propose to schedule the functions that implement algorithms for sensing and for actuation, based on some measurement of the estimation quality that Kalman filter produce (noted by $P$ in Figure~\ref{fig:general_hybrid_loop}).
+The estimation quality ($P$) is pass to the scheduler, then the scheduler schedule higher quality sensing if $P$ is less then the required value, and lower quality sensing otherwise. And of course the scheduler updates Kalman filter about the current sensing quality (noted by $var(v)$ in Figure~\ref{fig:general_hybrid_loop}).   
+This way we operate different sensing modes in order to \textbf{adjust} the quality of estimation ($P$).
+%, see Section~\ref{sec:kalman} for Kalman-filter characteristics. 
+There are two basic values that we can use for the quality of estimation ($P$):
 
+The first option is to use directly the estimate covariance ($P_{k|k}$) that Kalman filter produce (see Section~\ref{sec:kalman}). This technique can be used if we just need to adjust or control the error covariance of the estimation. This is offline scheduling, as $P_{k|k}$ value is not affected by the outer environment state, and the environment noises are assumed to be known and stable.
+    
+The second option, is also the technique we implement in this thesis (Section~\ref{sec:Analysis}), is trying to estimate the overall noise of the system, actuating, sensing and process noise together. Here instead of using $P_{k|k}$, the quality measure that is used is $\tilde{y}_{k|k}$, this value represent the difference between the expected measurement (in case that all the noises are zero) and the actual measurement that was observed. By this definition $\tilde{y}_{k|k}$ is an approximation of the overall noises.
+    
+This technique called adoptive scheduling, and is highly powerful, as proved in this thesis, in cases where the system behavior is not monotonic, e.g. may observe different light sources with vision sensing or changing battery state, or in cases that the system behavior is not precisely known.
 
-%In this framework the scheduler is part of the control logic and therefore it can make scheduling decisions based on the current control state, the scheduling of \textit{Computer~Vision} task depends on the accuracy of state estimation.
-%For example, if the vision is clear, the \textit{Computer~Vision} will produce good measurement of the \textit{System} and therefore good accuracy will be achieved so the \textit{Scheduler} can allocate less computation time to the heavy \textit{Computer~Vision} task and still remain stable while allocating more CPU to others control loops or to background tasks (like navigation).
 
 \section{A demonstration of the approach in simulation}
 \label{sec:simulation}
@@ -1247,6 +1253,7 @@ The use of automata allows to compose and to analyze the scheduling characterist
 
 \section{Apendix}
 \subsection{Kalman Filter and State Estimation}
+\todoil{use the wiki notations (change $\hat{x}_k^-$ to $\hat{x}_{k|k-1}$) and so on}
 \label{sec:kalman}
 Te role of state estimation as the name suggest is to estimate the current state of the system, usually represented as the vector $x$.
 One can monitor the system with an array of sensors, the measurement devices intend to be uncertain, the measurement vector noted by $y=Cx+v$ where $v$ represent the measurement error.
