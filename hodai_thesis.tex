@@ -307,7 +307,7 @@ The idea of using reactive schedulers, as described in the preceding paragraph, 
 In this thesis we focus on feedback control systems as shown in Figure~\ref{fig:control loop}. We assume a closed (feedback) control loop where the physical \textit{plant} state $x$, is monitored via an array of sensors (\textit{Sensing}) which produce measurements array $y$ that represents noisy sample of some functions of the state variables.
 
 Since the model includes uncertainty in observations, the data collected from the sensors is sent to an entity called \textit{State Estimator}, that aggregates the measurements (the $y$ array) and makes an educated estimation (called $\hat{x}$) of the current state. Then the \textit{Control Law} entity generates the controller outputs ($u$) sent to the the actuators that, in turn, change the state of the system, such that (hopefully) the gap between the current estimated state and the reference desired state (\textit{Input} $r$) is narrowed.
-
+\todo{Fix me}
 'ק שדדוצק אישא איק בםמארםךךקג פרםבקדד בשמ נק צםגקךקג 'ןאי ש עקמקרשך ךןמקשר גטמשצןבשך דטדאקצ גןדברקאןזקג ןמ איק אןצק גםצשןמץ שא קשבי גןדברקאק אןצק ןמברקצקמאת איק ארוק דאשאק $x_k$ is evolved from the previews state $x_{k-1}$ according to: $$ x_{k}=Ax_{k-1} + Bu_{k} + w_{k} $$ Where, $A$ is the state transition model which is applied to the previous state $x_{k-1}$, $B$ is the control-input model which is applied to the control vector $u_k$, and $w_k$ is the process and actuation noise which is assumed to be drawn from a zero mean normal distribution with covariance $Q_k$. The observation (or measurement) value $y_k$ at time $k$, of the true state $x_k$, is assumed to be: $$y_k=Cx_k+v_k$$ Where, $C$ is the observation model which maps the true state space into the observed space and $v_k$ is the observation noise which is assumed to be zero mean Gaussian white noise with covariance $R_k$.
 
 The current state-of-the-art cyber-physical control systems, as described e.g. in~\cite{Cervin}, are developed as follows, control engineers first design control tasks (control and estimation tasks) as periodic computations, then they specify the required periodic frequency for the task, and then software engineers design a scheduler that ensures the periodic frequency requirements are met. The last step is usually done using pre-computed knowledge of the expected (maximum) duration of the tasks. Note that in order to ensure that the state of the controlled plant is always properly maintained, for example engine temperature never exceeds maximal safe temperature, the periodic frequency must be tuned for the worst-case condition that the system might be in.
@@ -347,7 +347,7 @@ In this section we elaborate on the specifics of the proposed approach.
 In our methodology, we use rich component specification represented by automata.
 As presented above, the main advantage of this technique is the ability of the scheduler to ``react'' to the state of the system, therefore we need a richer interaction between the \textit{Scheduler} and the control loops, particularly with the estimator.
 The architecture of control system as we believe, is illustrated in Figure~\ref{fig:general_hybrid_loop}.
-The architecture, that is based on modern controller architecture where the system has multiple controlling tasks, comes to support an efficient scheduling protocols in modern control systems consisting of a processor that runs all the tasks of many independent control loops in the system. 
+The architecture, that is based on modern controller architecture where the system has multiple controlling tasks, comes to support an efficient scheduling protocols in modern control systems, consisting of a processor that runs all the tasks of many independent control loops in the system. 
 Each control loop (blue components in Figure~\ref{fig:general_hybrid_loop}) will tell the \textit{scheduler} of its level of certainty ($P = var(\hat{x} - x)$) and the scheduler will allocate resource (processor time) based on this data, meaning the \textit{scheduler} allocate resource dynamically based on the system current needs rather than the worst case needs, making the scheduler an active part of the control loop.
 
 %TODO - probably need to be in the Tests section
@@ -387,7 +387,7 @@ Our methodology is general and may be applicable in a wide range of applications
 \end{figure}
 
 \subsection{Guarded Automata as Interfaces for Control and Scheduling}
-As our goal is to allow dynamic selection of the computation load in the feedback loops based on the states of the systems, we start with a general software architecture in which each component (implementation of a specific feedback loop) is represented by a code module (in our case, a class in C++) and an automaton that specifies when to invoke its methods. The transition relation of the automaton depends, in addition to the current state, also on data produced by the estimator of the feedback loop (we experimented with different options for this data, as discussed below).
+As our goal is to allow dynamic selection of the computation load in the feedback loops based on the states of the systems, we start with a general software architecture in which each component (implementation of a specific feedback loop or a sub-task of the controller) is represented by a code module (in our case, a class in C++) and an automaton that specifies when to invoke its methods. The transition relation of the automaton depends, in addition to the current state, also on data produced by the estimator of the feedback loop (we experimented with different options for this data, as discussed below).
 
 The motivations of using automata as described above are: (1) Automata allow for a rich specification language; (2) It is easy to construct schedules that obey the specification with negligible computational burden; (3) Automata theory gives a solid framework for composing the specifications of competing requirements for analysis and for schedule synthesis. 
 
@@ -395,7 +395,7 @@ The motivations of using automata as described above are: (1) Automata allow for
 In this thesis we focus on the first two motivations in the above list. The third is discussed in details in earlier works on automata based scheduling and is the focus of future paper that we are preparing where we describe some analysis techniques we have developed for guarded automata.   
 
 \subsection{Implementation in an Auto Pilot Software}
-As our main case study is in flight control (see Section~\ref{sec:caseStudy}), we chose the ArduPilot Mega (APM) platform for experiments~\cite{APM}. To this end, we implemented a basic automata based scheduler for this platform. The built-in task scheduling specification in APM consist of a table as shown in Figure~\ref{fig:apm-scheduler}. This table is easy to maintain and to adjust, but it is used under an assumption that there is enough CPU power to run all the tasks in the specified frequencies. APM does contain a mechanism to handle overruns, by moving tasks to the next window when there is not enough time to run them now, but the system is designed under the assumption that this only happen in rare situations.
+As our main case study is in flight control (see Section~\ref{sec:caseStudy}), we chose the ArduPilot Mega (APM) platform~\cite{APM} for experiments. To this end, we implemented a basic automata based scheduler for this platform. The built-in task scheduling specification in APM consist of a table as shown in Figure~\ref{fig:apm-scheduler}. This table is easy to maintain and to adjust, but it is used under an assumption that there is enough CPU power to run all the tasks in the specified frequencies. APM does contain a mechanism to handle overruns, by moving tasks to the next window when there is not enough time to run them now, but the system is designed under the assumption that this only happen in rare situations.
 %TODO - maybe add APM section in apendex describing this scheduler with image
 
 To allow a reactive scheduler that runs different modes of the software-based controllers depending on their state, we replaced the scheduling table in our version of the APM with automata that specify when to run the tasks. Note that automata allow for specifying the requirements that the table represents, using simple circular automata without guards (see, e.g., \cite{weiss2007automata}). Automata, however, can model more advanced scheduling instructions with very little addition to the complexity of the scheduler, as we will demonstrate in Section~\ref{sec:simulation} and in Section~\ref{sec:caseStudy} below.
@@ -435,6 +435,7 @@ To allow a reactive scheduler that runs different modes of the software-based co
 \end{figure}
 
 \subsection{Integration With a Kalman Filter}
+\label{sec:Arch-kalman}
 \todo{hey, please read this subsection, I added the detailed explanation of our Kalman filter technique}
 The third layer of the approach we propose is based on the observation that a standard Kalman filter produces information that can be used to guide the automata of the components. 
 
@@ -455,12 +456,14 @@ This technique called adoptive scheduling, and is highly powerful, as proved in 
 \label{sec:simulation}
 %TODO - explain that we developing an idea that culd in the future become a tool
 
-Our approach for using automata for scheduling resources in software based controllers is based on the observation that in most systems the computational load is in the implementation of the sensors and actuators, not in the implementation of the controllers that usually consist of quick arithmetic manipulation of a small amount of variables. We therefore focus our attention on allowing a trade-off between CPU usage of sensors and actuators and their accuracy. %In this work, as a main motivating example, we focus on the case of visual sensors that employ image processing algorithms.
+Our approach for using automata for scheduling resources in software based controllers, is based on the observation that in most systems the computational load is in the implementation of the sensors and actuators, not in the implementation of the controllers that usually consist of quick arithmetic manipulation of a small amount of variables. We therefore focus our attention on allowing a trade-off between CPU usage of sensors and actuators and their accuracy. %In this work, as a main motivating example, we focus on the case of visual sensors that employ image processing algorithms.
 
 As said in Section~\ref{sec:architecture}, we propose to implement the resource scheduling decisions using automata that control which procedures are invoked in the control loops. More specifically, for sensors or actuators that require heavy computations, such as vision based sensors, we propose that the software engineers develop several modes of sensing, each consumes a different amount of CPU and provides a different level of accuracy. 
+%In Figure~\ref{fig:simulink} there is an example of a controlled system, in this case an open control loop, that its state is observed using multi-level vision based sensors 
 
-\todo{I'M don't like the actuators here, they are not really modeled. we consider they error as ``process error'' }
-Formally, we assume that each of the physical processes we control is a Linear Time Invariant (LTI) system with a known model, as depicted in Figure~\ref{fig:simulink}. The inaccuracies of the sensors and of the actuators are modeled as additive Gaussian noise with a known variance. As a basis for scheduling, we assume that each sensor (and, possibly, also the actuators) can be scheduled to operate in one of a range of modes at each computation slot, each mode consuming a certain percentage of the CPU and giving a certain variance of the measurement (or actuation) noise.
+Formally, we assume that each of the physical processes we control are a Linear Time Invariant (LTI) system with a known model, as depicted in Figure~\ref{fig:simulink}. 
+The figure shows a controlled system, in this case an open control loop, that its state is monitored via vision based sensor. 
+The inaccuracies of the sensors and of the actuators are modeled as additive Gaussian noise with a known variance. As a basis for scheduling, we assume that each sensor (and, possibly, also the actuators) can be scheduled to operate in one of a range of modes at each computation slot, each mode consuming a certain percentage of the CPU and giving a certain variance of the measurement (or actuation) noise.
 
 \begin{figure}%[htbp]
     \centerline{\includegraphics[width=100mm]{SimulinkModel.jpg}}
@@ -496,16 +499,16 @@ We ran this model with three versions of the `Automata Based Scheduler' block. T
     \node[initial,state] (A)                 {$0$};
     \node[state]         (B) [right of=A]    {$1$};
     
-    \path (A) edge [bend left]             node {$|y-\hat{y}|\geq1$} (B)
-    (A) edge [loop below] node {$|y-\hat{y}|<1$} (A);
+    \path (A) edge [bend left]             node {$|\tilde{y}_{k|k}|\geq1$} (B)
+    (A) edge [loop below] node {$|\tilde{y}_{k|k}|<1$} (A);
     
-    \path (B) edge [bend left]             node {$|y-\hat{y}|\leq 1/2$} (A)
-    (B) edge [loop above] node {$|y-\hat{y}|>1/2$} (B);
+    \path (B) edge [bend left]             node {$|\tilde{y}_{k|k}|\leq 1/2$} (A)
+    (B) edge [loop above] node {$|\tilde{y}_{k|k}|>1/2$} (B);
     
     \end{tikzpicture}
 \end{center}
 The states of the automaton represent operation mode of the sensor, 0 for `Low' mode and 1 for `High' mode.
-$|y-\hat{y}|$ means how far is the last measurement from the expected measurement this value act as indication (and consider approximation) of the overall real noises, process, measurement and actuation noises together.
+$|\tilde{y}_{k|k}|$ which equals to $|y-\hat{y}|$ means how far is the last measurement from the expected measurement this value, and act as indication of the overall real noises, process, measurement and actuation noises together, as elaborated in Section~\ref{sec:Arch-kalman}.
 The automaton try to formalize the expression: ``use `High' mode only after observing high distributed''.
 
 %A = [1.1269   -0.4940    0.1129,
