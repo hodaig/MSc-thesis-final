@@ -1,7 +1,3 @@
-%TODO Hodai: get rid of the CPU (use processor/computational time...)
-%TODO Hodai: find the correct word for "guarded automata"
-%TODO Hodai: mybe add the simucopter project
-
 \documentclass[ twoside, 12pt ]{article}
 %\linespread{1.5}
 \usepackage[onehalfspacing]{setspace}
@@ -919,7 +915,7 @@ In the case-study, shown in Section~\ref{sec:caseStudy}, we always use the camer
 In order to simplify the image processing algorithm, we marked the four corners of the window with four illuminated balls (see Figure~\ref{fig:window_lights}). This allows us to apply a simple algorithm for corner recognition: 
 look for a blob of burned pixels in the image, then calculate the ``center of mass'' of all those pixels as a window corner. Higher resolution give a more accurate measurement of corner ``center of mass'', but require more processing time.
 
-%TODO hanoch algo
+% hanoch algo
 Then we just perform the calculations presented in Section~\ref{sec:Observer Design} in order to extract the position measurements from the window corners.
 
 \begin{figure} %[htbp]
@@ -1041,7 +1037,7 @@ We call this winning strategy guarded automaton \todo{we can add here reference 
 The complete operation of the scheduler is described by the pseudo code~\ref{code:schedulerPrepare}.
 Every time the system is executed, the scheduler construct the strategy automaton $A_s$, and then just walk through the strategy as describe by the pseudo code~\ref{code:scheduler}. 
 %The time is divided into segments of equal length, called ``time step''.
-%At the beginning of each time step the current automaton state is environment player state, so we pick the \todo{continue verbal explanation of the pseudo cod }
+%At the beginning of each time step the current automaton state is environment player state, so we pick the %{continue verbal explanation of the pseudo cod }
 
 
 \begin{algorithm}[h]
@@ -1155,16 +1151,6 @@ Every time the system is executed, the scheduler construct the strategy automato
     \end{enumerate}
 \end{proof}
 
-
-
-
-
-
-
-
-%TODO - continue here!
-%TODO - maybe here insert a reference to preveus "mode based" automata
-%TODO - we can add demonstration of how to define periodic tasks with automata
 \subsection{Few Words about Implementation}
 
 % finite space by discretization of observations (Merav)
@@ -1256,7 +1242,6 @@ The use of automata allows to compose and to analyze the scheduling characterist
 
 \section{Apendix}
 \subsection{Kalman Filter and State Estimation}
-\todoil{use the wiki notations (change $\hat{x}_k^-$ to $\hat{x}_{k|k-1}$) and so on}
 \label{sec:kalman}
 Te role of state estimation as the name suggest is to estimate the current state of the system, usually represented as the vector $x$.
 One can monitor the system with an array of sensors, the measurement devices intend to be uncertain, the measurement vector noted by $y=Cx+v$ where $v$ represent the measurement error.
@@ -1276,7 +1261,6 @@ high-pass filter is its complementary, meaning it filters out the low frequencie
 In vision base measurements we use the only Low-pass filter:
 $ \hat{x}_k = \hat{x}_{k-1} + \alpha \cdot (y_k - \hat{x}_{k-1}) $.
 
-%TODO - in what sens is optimal?
 Complementary and Low-pass are simple and very easy to implement but they not necessary produce the best possible estimation.
 A well known estimator called \textit{Kalman filter} is a more complex but optimal filter, Kalman filter assume linear system ($x_{k}=Ax_{k-1} + Bu_{k} + w_{k}$) and zero mean Gaussian errors with covariance matrices $cov(w_k)=Q$ and $cov(v_k)=R$, if those conditions holds kalman filter produce the best possible estimation, based on all previous information available.
 
@@ -1291,7 +1275,7 @@ $$x_{k}=Ax_{k-1} + Bu_{k} + w_{k}$$
 and the measurement at time $K$ is:
 $$y_k=Cx_k+v_k$$
 Where $x_k$ is the system state at time step $k$ and $y_k$ is the measurement by the sensors at time step $k$.
-%TODO - here we use covariance matrix couse the state variables may be dependent
+% here we use covariance matrix couse the state variables may be dependent
 $w_k$ and $v_k$ represent the process and measurement noise with covariance matrices $Q$ and $R$.
 The system state at time $k-1$ ($x_{k-1}$) is unknown, therefore the previous estimation is used to predict the next step state using the recursive equation:
 $$ \hat{x}_{k|k-1}=A\hat{x}_{k-1|k-1} + Bu_{k} $$
@@ -1319,11 +1303,9 @@ Extended Kalman filter is not guaranty to be optimal filter.
 
 %TODO - think this need to be in the architecture section
 \commentOut{
-In order to produce optimal estimation with Kalman filter, one of the parameter that we need to consider in our calculation is the variance of the sensor error.
-But in our new framework the sensor (vision based sensor) have variable error variance for each time slot, this means that we need to have also variable state estimators correspondingly.
-In order to adjust the sensor error variance, each time step the scheduler will inform the state estimator about the new error variance, and the state estimator will use corresponding parameters to make the next estimation.
+%In order to produce optimal estimation with Kalman filter, one of the parameter that we need to consider in our calculation is the variance of the sensor error.But in our new framework the sensor (vision based sensor) have variable error variance for each time slot, this means that we need to have also variable state estimators correspondingly.In order to adjust the sensor error variance, each time step the scheduler will inform the state estimator about the new error variance, and the state estimator will use corresponding parameters to make the next estimation.
 
-APM, the control software that we will use, is already using kalman filter as the state estimator, so we only need to adjust the existing module to the variable sensor error variance, and to send the estimation error variance to the scheduler (see Section~\ref{sec:scheduler}).
+% APM, the control software that we will use, is already using kalman filter as the state estimator, so we only need to adjust the existing module to the variable sensor error variance, and to send the estimation error variance to the scheduler (see Section~\ref{sec:scheduler}).
 }
 
 %\subsection{Complementary-Kalman design (with physical computation)}
