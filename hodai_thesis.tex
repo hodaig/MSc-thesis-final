@@ -568,7 +568,7 @@ A complementary filter is actually a steady-state Kalman filter for a certain cl
 Specifically, in our case study, we implemented a two steps estimator that: (1) \textit{predicts} the current state evolved from the previous state (denoted by $\hat{x}_{k|k-1}$) using a linearized model of the system, and then \textit{updates} the prediction with current state measurement from the image, denoted by $y_k$.
 The result of the estimation, denoted by $\hat{x}_{k|k}$, is a complementary filter of the prediction ($\hat{x}_{k|k-1}$) and the measured state ($C^{-1}y_k$)~\footnote{The matrix $C$ is the measurement matrix as shown in the model at Figure~\ref{fig:simulink}}:
 $ \hat{x}_{k|k} = K \hat{x}_{k|k-1} + (1-K) C^{-1}y_k $ were $K$ is constant that equals the Kalman filter gain ($K_k$) at a steady-state, see Section~\ref{sec:kalman} for detail information.
-\todo[inline]{need to add section on the system linearized model?}
+\todo[inline]{need to add section on the system linearized model? maybe the Figure~\ref{fig:acceleration_static_diagram} is enough}
 
 The image processing algorithms can run in different operation modes, each mode with different accuracy (see Section~\ref{sec:Analysis}).
 The constant $K$ represents the ratio between the variance of the process noise and the variance of the measurement noise. To achieve best performance, we define a separate value of $K$ for each mode.
@@ -1281,12 +1281,12 @@ Complementary and Low-pass are simple and very easy to implement but they not ne
 A well known estimator called \textit{Kalman filter} is a more complex but optimal filter, Kalman filter assume linear system ($x_{k}=Ax_{k-1} + Bu_{k} + w_{k}$) and zero mean Gaussian errors with covariance matrices $cov(w_k)=Q$ and $cov(v_k)=R$, if those conditions holds kalman filter produce the best possible estimation, based on all previous information available.
 
 This is recursive algorithm that works in a two-step process, \textit{prediction} step and \textit{update} step. 
-In the prediction step, the system model used to predict the current state, this called \textit{A Priory Estimate} and noted by $\hat{x}_k^-$,
-the error covariance $P_k^-$ of the prediction is also calculated.
-Then in the \textit{update} step the prediction is updated to find out the optimal estimation called \textit{A Posteriori Estimate} noted by $\hat{x}_k$) and it's error covariance $P_k$.
-Practically the update step is a weighted average between the prediction ($P_k^-$) and the measurement ($y_k$), with more weight being given to estimates with higher certainty~\cite{Kalman-filter}. 
+In the prediction step, the system model used to predict the current state, this called \textit{A Priory Estimate} and noted by $\hat{x}_{k|k-1}$,
+the error covariance $P_{k|k-1}$ of the prediction is also calculated.
+Then in the \textit{update} step the prediction is updated to find out the optimal estimation called \textit{A Posteriori Estimate} noted by $\hat{x}_{k|k}$) and it's error covariance $P_{k|k}$.
+Practically the update step is a weighted average between the prediction ($P_{k|k-1}$) and the measurement ($y_k$), with more weight being given to estimates with higher certainty~\cite{Kalman-filter}. 
 
-assumes the true state at time $k$ is evolved from the state at $(k − 1)$ according to:
+assumes the true state at time $k$ is evolved from the state at $(k-1)$ according to:
 $$x_{k}=Ax_{k-1} + Bu_{k} + w_{k}$$
 and the measurement at time $K$ is:
 $$y_k=Cx_k+v_k$$
@@ -1294,18 +1294,18 @@ Where $x_k$ is the system state at time step $k$ and $y_k$ is the measurement by
 %TODO - here we use covariance matrix couse the state variables may be dependent
 $w_k$ and $v_k$ represent the process and measurement noise with covariance matrices $Q$ and $R$.
 The system state at time $k-1$ ($x_{k-1}$) is unknown, therefore the previous estimation is used to predict the next step state using the recursive equation:
-$$ \hat{x}_{k}^-=A\hat{x}_{k-1} + Bu_{k} $$
+$$ \hat{x}_{k|k-1}=A\hat{x}_{k-1|k-1} + Bu_{k} $$
 the error covariance of the prediction composed of the error of previous estimation which is:
-$cov(A\hat{x}_{k-1} - x_{k-1}) = A cov(\hat{x}_{k-1} - x_{k-1}) A^T=A P_{k-1} A^T$
+$cov(A\hat{x}_{k-1|k-1} - x_{k-1}) = A cov(\hat{x}_{k-1|k-1} - x_{k-1}) A^T=A P_{k-1|k-1} A^T$
 and the process error of time $k$ ($Q$) and we get prediction error covariance of:
-$$ P_k^- = A P_{k-1} A^T + Q $$
+$$ P_{k|k-1} = A P_{k-1|k-1} A^T + Q $$
 
 After the prediction was calculated the update step combine the prediction and measurements to get the Kalman estimation:
-$$ \hat{x}_{k} = \hat{x}_{k}^- + K_k(y_k - C\hat{x}_{k}^-)$$
-$K_k$, also called Kalman Gain, represent contribution each partial estimation ($\hat{x}_{k}^-$ and $y_k$) to the Kalman estimation, and is calculate each time by:
-$$ K_k = {{P_k^- C^T} \over {C P_k^- C^T + R} }$$
+$$ \hat{x}_{k|k} = \hat{x}_{k|k-1} + K_k(y_k - C\hat{x}_{k|k-1})$$
+$K_k$, also called Kalman Gain, represent the contribution of each partial estimation ($\hat{x}_{k|k-1}$ and $y_k$) to the Kalman estimation, and is calculate each time by:
+$$ K_k = {{P_{k|k-1} C^T} \over {C P_{k|k-1} C^T + R} }$$
 And the Kalman estimation covariance is:
-$$ P_k = (I - K_kC) P_k^- $$
+$$ P_k = (I - K_kC) P_{k|k-1} $$
 
 The Kalman filter is designed for linear systems. It is not suitable in the case of a nonlinear systems, if the state transition function or the measurement function are nonlinear:
 $$x_{k}=f(x_{k-1} , u_{k}) + w_{k}$$
@@ -1326,7 +1326,8 @@ In order to adjust the sensor error variance, each time step the scheduler will 
 APM, the control software that we will use, is already using kalman filter as the state estimator, so we only need to adjust the existing module to the variable sensor error variance, and to send the estimation error variance to the scheduler (see Section~\ref{sec:scheduler}).
 }
 
-\subsection{Complementary-Kalman design (with physical computation)}
+%\subsection{Complementary-Kalman design (with physical computation)}
+
 \subsection{Generalize Non-Deterministic \buchi Game (GNBG)}
 \label{sec:GNBG}
 
