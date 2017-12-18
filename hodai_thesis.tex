@@ -1336,29 +1336,14 @@ Note: for the mater of this thesis, the turns are always alternating, and the \t
 \bibliography{hodai_thesis}
 %\end{samepage}
 
-\begin{titlepage}
-    \hspace{3cm}
-\end{titlepage}
+%\begin{titlepage}
+%    \hspace{3cm}
+%\end{titlepage}
 
-%\includepdf[pages={1-}]{./Chapters/HebrewPages.pdf}
-\todo[inline]{Need to update the hebrew pages}
+\includepdf[]{./Chapters/HebrewAbstract.pdf}
 
+\includepdf[]{./Chapters/HebrewCoverPage.pdf}
 
-\commentOut{
-    %TODO - consider using parts from here to the vision part of "experiment setup" or "state estimator"
-    
-    %Anitime reserch of zilbershtain (\cite{Shlomo})
-    %contract based
-    %http://ardupilot.org/copter/docs/common-mouse-based-optical-flow-sensor-adns3080.html
-
-    
-    %TODO - reed a litle the article (\cite{UPenn-Pant}) and re-write the next.
-    %TODO - check if Anitime reserch (\cite{Shlomo}) can fit here.
-    %TODO - Make sure that we use the terms contract-base and any-time correctly
-    In order to control the running time, we will use anytime based algorithms~\cite{Shlomo} and will mainly concentrate on ``contract based" vision algorithms proposed by Pant~\cite{UPenn-Pant}.
-    This type of algorithms run until we stop them, and when we stop them they will provide a solution with accuracy that is a monotonic function of the amount of time it was running. That way we can control the solution accuracy by controlling the running time.
-    In our implementation, in order to lower the complexity, we will pre-define few specific ``operation modes" of the \textit{Computer~Vision} task, that differ by their running time and they are identified by a pair $\langle RunTime, Variance \rangle$ where $Variance$ is the error variance of running time $RunTime$.
-}
-
+\todo[inline]{Need to add contents in hebrew?}
 
 \end{document}}
