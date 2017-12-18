@@ -60,6 +60,8 @@
     showstringspaces=false, % no special string spaces
     mathescape=true, % allow math typesetting in listings
     upquote=true,
+    xleftmargin=.2\textwidth, 
+    xrightmargin=.2\textwidth,
 }
 %%%%%%%% Package for source-code listing %%%%%%%%%%%%
 
@@ -253,7 +255,7 @@ fill=orange!20!yellow!20]
         \end{minipage}
         
         \vspace{2cm}
-        October, 2014 \\[1.5cm]
+        December, 2017 \\[1.5cm]
         
         %\vfill
         
@@ -303,10 +305,13 @@ The idea of using reactive schedulers, as described in the preceding paragraph, 
 In this thesis we focus on feedback control systems as shown in Figure~\ref{fig:control loop}. We assume a closed (feedback) control loop where the physical \textit{plant} state $x$, is monitored via an array of sensors (\textit{Sensing}) which produce measurements array $y$ that represents noisy sample of some functions of the state variables.
 
 Since the model includes uncertainty in observations, the data collected from the sensors is sent to an entity called \textit{State Estimator}, that aggregates the measurements (the $y$ array) and makes an educated estimation (called $\hat{x}$) of the current state. Then the \textit{Control Law} entity generates the controller outputs ($u$) sent to the the actuators that, in turn, change the state of the system, such that (hopefully) the gap between the current estimated state and the reference desired state (\textit{Input} $r$) is narrowed.
-\todo{Fix me}
-'ק שדדוצק אישא איק בםמארםךךקג פרםבקדד בשמ נק צםגקךקג 'ןאי ש עקמקרשך ךןמקשר גטמשצןבשך דטדאקצ גןדברקאןזקג ןמ איק אןצק גםצשןמץ שא קשבי גןדברקאק אןצק ןמברקצקמאת איק ארוק דאשאק $x_k$ is evolved from the previews state $x_{k-1}$ according to: $$ x_{k}=Ax_{k-1} + Bu_{k} + w_{k} $$ Where, $A$ is the state transition model which is applied to the previous state $x_{k-1}$, $B$ is the control-input model which is applied to the control vector $u_k$, and $w_k$ is the process and actuation noise which is assumed to be drawn from a zero mean normal distribution with covariance $Q_k$. The observation (or measurement) value $y_k$ at time $k$, of the true state $x_k$, is assumed to be: $$y_k=Cx_k+v_k$$ Where, $C$ is the observation model which maps the true state space into the observed space and $v_k$ is the observation noise which is assumed to be zero mean Gaussian white noise with covariance $R_k$.
+We assume that the controlled process can be modeled with a general linear dynamical system discretized in the time domain. At each discrete time increment, the true state $x_k$ is evolved from the previews state $x_{k-1}$ according to: 
+$$ x_{k}=Ax_{k-1} + Bu_{k} + w_{k} $$
+where $A$ is the state transition model which is applied to the previous state $x_{k-1}$, $B$ is the control-input model which is applied to the control vector $u_k$, and $w_k$ is the process and actuation noise which is assumed to be drawn from a zero mean normal distribution with covariance $Q_k$. The observation (or measurement) value $y_k$ at time $k$, of the true state $x_k$, is assumed to be: 
+$$y_k=Cx_k+v_k$$
+where $C$ is the observation model which maps the true state space into the observed space and $v_k$ is the observation noise which is assumed to be zero mean Gaussian white noise with covariance $R_k$.
 
-The current state-of-the-art cyber-physical control systems, as described e.g. in~\cite{Cervin}, are developed as follows, control engineers first design control tasks (control and estimation tasks) as periodic computations, then they specify the required periodic frequency for the task, and then software engineers design a scheduler that ensures the periodic frequency requirements are met. The last step is usually done using pre-computed knowledge of the expected (maximum) duration of the tasks. Note that in order to ensure that the state of the controlled plant is always properly maintained, for example engine temperature never exceeds maximal safe temperature, the periodic frequency must be tuned for the worst-case condition that the system might be in.
+The current state-of-the-art, as described e.g. in~\cite{Cervin}, is that cyber-physical control systems are developed as follows: first, control engineers first design control and estimation tasks as periodic computations, then they specify the required periodic frequency for the task, and then software engineers design a scheduler that ensures the periodic frequency requirements are met. The last step is usually done using pre-computed knowledge of the expected (maximum) duration of the tasks. Note that in order to ensure performance in all conditions, for example that engine temperature never exceeds maximal safe temperature, the periodic frequency must be tuned for the worst-case condition that the system might be in.
 
 We believe (and our experiments confirm) that scheduling control systems based on periodic tasks is limiting and inefficient for complex systems. Specifically, we show, in this thesis, how to achieve better performance and better resource utilization for control systems by using richer and more flexible requirements model for the tasks. We develop tools and methodologies such that control engineers are able to specify more accurately the requirement features of their control tasks, requirements that the scheduler can use for executing dynamic resource assignment that will, at the same time, guarantee required control performance and will be efficient in its use of computational resources.
 
@@ -397,7 +402,7 @@ As our main case study is in flight control (see Section~\ref{sec:caseStudy}), w
 To allow a reactive scheduler that runs different modes of the software-based controllers depending on their state, we replaced the scheduling table in our version of the APM with automata that specify when to run the tasks. Note that automata allow for specifying the requirements that the table represents, using simple circular automata without guards (see, e.g., \cite{weiss2007automata}). Automata, however, can model more advanced scheduling instructions with very little addition to the complexity of the scheduler, as we will demonstrate in Section~\ref{sec:simulation} and in Section~\ref{sec:caseStudy} below.
 %TODO - were gose the detail of the automaton operations
 
-\begin{figure}[]
+\begin{figure}
     \scriptsize
     \begin{lstlisting}
     /*
@@ -432,20 +437,18 @@ To allow a reactive scheduler that runs different modes of the software-based co
 
 \subsection{Integration With a Kalman Filter}
 \label{sec:Arch-kalman}
-\todo{hey, please read this subsection, I added the detailed explanation of our Kalman filter technique}
 The third layer of the approach we propose is based on the observation that a standard Kalman filter produces information that can be used to guide the automata of the components. 
 
-As we will elaborate in the description of the simulations and of the case study below. We propose to schedule the functions that implement algorithms for sensing and for actuation, based on some measurement of the estimation quality that Kalman filter produce (noted by $P$ in Figure~\ref{fig:general_hybrid_loop}).
-The estimation quality ($P$) is pass to the scheduler, then the scheduler schedule higher quality sensing if $P$ is less then the required value, and lower quality sensing otherwise. And of course the scheduler updates Kalman filter about the current sensing quality (noted by $var(v)$ in Figure~\ref{fig:general_hybrid_loop}).   
-This way we operate different sensing modes in order to \textbf{adjust} the quality of estimation ($P$).
-%, see Section~\ref{sec:kalman} for Kalman-filter characteristics. 
+As we will elaborate in the description of the simulations and of the case study below, we propose to schedule the functions that implement algorithms for sensing and for actuation based on the estimation quality as reported the Kalman filter (denoted by $P$ in Figure~\ref{fig:general_hybrid_loop}).
+The estimation quality ($P$) is passed to the scheduler, then the scheduler schedules higher quality sensing if $P$ is less than the required value and lower quality sensing otherwise. Then, of course, the scheduler reports the current sensing quality to the Kalman filter (denoted by $var(v)$ in Figure~\ref{fig:general_hybrid_loop}).   
+This way, we schedule different sensing modes in order to \textbf{adjust} the quality of estimation ($P$).
 There are two basic values that we can use for the quality of estimation ($P$):
 
-The first option is to use directly the estimate covariance ($P_{k|k}$) that Kalman filter produce (see Section~\ref{sec:kalman}). This technique can be used if we just need to adjust or control the error covariance of the estimation. This is offline scheduling, as $P_{k|k}$ value is not affected by the outer environment state, and the environment noises are assumed to be known and stable.
+The first option is to use directly the estimate covariance ($P_{k|k}$) that the Kalman filter produces (see Section~\ref{sec:kalman}). This technique can be used if we just need to adjust or control the error covariance of the estimation. This is offline scheduling, as the value of $P_{k|k}$ is not affected by the environment, i.e., it is calculates only by the noise covariance, not the measured data.
     
-The second option, is also the technique we implement in this thesis (Section~\ref{sec:Analysis}), is trying to estimate the overall noise of the system, actuating, sensing and process noise together. Here instead of using $P_{k|k}$, the quality measure that is used is $\tilde{y}_{k|k}$, this value represent the difference between the expected measurement (in case that all the noises are zero) and the actual measurement that was observed. By this definition $\tilde{y}_{k|k}$ is an approximation of the overall noises.
+The second option is the technique we implement in this thesis (Section~\ref{sec:Analysis}) is trying to estimate the overall noise of the system, actuating, sensing and process noise together. Here, instead of using $P_{k|k}$, we use the quality measure $\tilde{y}_{k|k}$ which represents the difference between the expected measurement (in case that all the noises are zero) and the actual measurement that was observed. By this definition $\tilde{y}_{k|k}$ is an approximation of the overall noises.
     
-This technique called adoptive scheduling, and is highly powerful, as proved in this thesis, in cases where the system behavior is not monotonic, e.g. may observe different light sources with vision sensing or changing battery state, or in cases that the system behavior is not precisely known.
+We call this technique `adaptive scheduling' or `reactive scheduling'. We show in this thesis that it is powerful in cases where the system behavior is not monotonic, e.g., when we may observe different light sources with vision sensing or changing battery states, or in cases that the system behavior is not precisely known.
 
 
 \section{A demonstration of the approach in simulation}
