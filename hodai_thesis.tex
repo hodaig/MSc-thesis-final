@@ -548,11 +548,11 @@ The part of the controller that we focused on is the vision based position contr
 We first implemented an observer based on the work of Efraim~\cite{Efraim17}. The observer gets the positions of the widow corners from the image (see Section~\ref{sec:Experiment setup-cam} for more details), %enumerated clockwise starting from the top left corner noted by $p_1,p_2,p_3,p_4$, 
 and extracts the following four quantities based on the shape and location of the window corners in the image plane: %$S_x$, $S_y$, $V_d$ and $sz$, as follows.
 \textbf{Center of mass:} $S_x$ and $S_y$ represent the window ``center of mass'' along the $x$ and $y$ axes of the image, respectively, normalized to the range of $[-1,1]$.
-These values are used for controlling the yaw angle and the altitude of the drone, respectively. Means the drone is always facing the center of the window and at the altitude of the center of the window. 
+These values are used for controlling the yaw angle and the altitude of the drone, respectively. The controller tries to drive these variables to zero so that the drone will  always face the center of the window and hover at the altitude of the center of the window. 
 \textbf{Window size:} $sz$ is the sum of the vertical edges of the window. It is used to measure the distance of the drone from the window~\footnote{We used a fixed size window and converted $sz$ to distance (in meters in our case) based on the size of the window. In the general case the units of distance are relative to the window size.}.
-\textbf{Vertical difference:} $V_d = {((y_1-y_4)-(y_2-y_3))}/{((y_1-y_4)+(y_2-y_3))}$, were $y_i$ is the vertical position of the widow corners in the image in the range of $[-1,1]$, enumerated clockwise starting from the top left corner. It is measure the angular position of the drone in relation to the window (parallel to the ground) and used to control the position of the drone among the $x$ axis.
-Note that although $V_d$ is not directly measure the linear $x$ position of the drone, we can estimate the linear $x$ position by simple geometry:
-as show in Figure~\ref{fig:V_d-geomerty} $x = l \cdot \sin (V_d)$ were $l$ (distance from window) can be calculated from $sz$. In our case because $V_d$ is usually relatively small we approximate it by $x = l \cdot V_d$.
+\textbf{Vertical difference:} $V_d = {((y_1-y_4)-(y_2-y_3))}/{((y_1-y_4)+(y_2-y_3))}$, where $y_i$ is the vertical position of the widow corners in the image in the range of $[-1,1]$, enumerated clockwise starting from the top left corner. It is measure the angular position of the drone in relation to the window (parallel to the ground) and used to control the position of the drone among the $x$ axis.
+Note that although $V_d$ does not directly measure the linear $x$ position of the drone, we can estimate the linear $x$ position by simple geometry:
+as shown in Figure~\ref{fig:V_d-geomerty} $x = l \cdot \sin (V_d)$ where $l$ (distance from window) can be calculated from $sz$. In our case because $V_d$ is usually relatively small we approximate it by $x = l \cdot V_d$.
 
 \begin{figure} %[htbp]
     \centerline{\includegraphics[width=80mm]{vd-geometry.jpg}}
@@ -567,27 +567,28 @@ Complementary filters can implement the steady-state (when the Kalman gains conv
 Specifically, in our case study, we implemented a two steps estimator that: (1) \textit{predicts} the current state evolved from the previous state, denoted by $\hat{x}_{k|k-1}$, using a linearized model of the system, and then \textit{updates} the prediction with current state measurement from the image, denoted by $y_k$.
 The result of the estimation, denoted by $\hat{x}_{k|k}$, is a complementary filter of the prediction ($\hat{x}_{k|k-1}$) and the measured state ($C^{-1}y_k$)~\footnote{The matrix $C$ is the measurement matrix as shown in the model at Figure~\ref{fig:simulink}. For simplicity, the text is under the assumption that $C$ is not not singular. If $C$ is singular, one can use the observability matrix in a similar fashion, assuming that the system is observable.}:
 $ \hat{x}_{k|k} = K \hat{x}_{k|k-1} + (1-K) C^{-1}y_k $ were $K$ is a constant that approximates the Kalman filter gain ($K_k$) at a steady-state, see Section~\ref{sec:kalman} for more details.
+The constant $K$ represents the ratio between the variance of the process noise and the variance of the measurement noise. To achieve best performance, we define a different value of $K$ for each mode corresponding with the image resolution and the noise variance.
+
 \todo[inline]{need to add section on the system linearized model? maybe the Figure~\ref{fig:acceleration_static_diagram} is enough}
 
-The image processing algorithms can run in different operation modes, each mode with different accuracy of the window corners position (see Section~\ref{sec:Analysis}).
-The constant $K$ represents the ratio between the variance of the process noise and the variance of the measurement noise. To achieve best performance, we define a different value of $K$ for each mode.
+
 
 \begin{figure} %[htbp]
     \centerline{\includegraphics[width=100mm]{axis.jpg}}
-    \caption{The coordinate system and the rotation axes of the drone, the position axis ($x$, $y$ and $z$) are in relation to the window, ``Yaw'' angle is the horizontal angle of the center of the window related to the front of the drone, ``pitch'' and ``roll'' are angles of the drone itself (calculated from the inertial sensors only).}
+    \caption{The coordinate system and the rotation axes of the drone, the position axis ($x$, $y$ and $z$) are in relation to the window, ``yaw'' angle is the horizontal angle of the center of the window related to the front of the drone, ``pitch'' and ``roll'' are angles of the drone itself (calculated from the inertial sensors only).}
     \label{fig:axis}
 \end{figure}
 
 \subsection{Controller Design}
 \label{sec:Controller Design}
 
-In this experiment, we consider the task of hovering in front of the window. The controller objective is to hover parallel to the window (center of $z$ axis in Figure~\ref{fig:axis}) at the altitude of the window within distance of two meters in front of the window ($y=x=0 , z=2$) and face pointed to the center of the window (yaw angle).
-We consider this point as the desire reference position and the coordinates are according to Figure~\ref{fig:axis}.
+In this experiment, we consider the task of hovering in front of the window. The controller objective is to hover parallel to the window (center of $z$ axis in Figure~\ref{fig:axis}) at the altitude of the window within distance of two meters in front of the window ($y=x=0 , z=2$) and face to the center of the window (yaw angle).
+We consider this point as the desired position and use the coordinate system depicted in Figure~\ref{fig:axis}.
 
 The controller consists of four independent feedback loops: altitude, yaw, pitch, and roll.
-The pitch and the roll controllers are copies of the same attitude controller which gets as input the required pitch or roll angel, respectively. These controllers runs in parallel to a position controller that maintains the required distance ($z$ position) and displacement ($x$ position) relative to the window, the position level controller outputs the required angle (acceleration) to the attitude controller as show in Figure~\ref{fig:controllerStracture}.
-Altitude, yaw, $x$ and $z$ position are regulated relative to the window.
-The inertial pitch and roll feedback for the low level controllers is related to the drone body and is generated by the existing \textit{Attitude and Heading Reference system} (AHRS) library of ArduPilot (see Section~\ref{sec:Experiment setup}) and the position feedback ($x$, $y$, and $z$ position) came directly from the observer described in Section~\ref{sec:Observer Design}.
+The pitch and the roll controllers are copies of the same attitude controller which gets as input the required pitch or roll angel, respectively. These controllers runs in parallel to a position controller that maintains the required distance ($z$ position) and displacement ($x$ position) relative to the window. The position level controller outputs the required angle (acceleration) to the attitude controller as show in Figure~\ref{fig:controllerStracture}.
+Altitude, yaw, $x$, and $z$ position are regulated relative to the window.
+The inertial pitch and roll feedback for the low level controllers is related to the drone body and is generated by the existing \textit{Attitude and Heading Reference system} (AHRS) library of ArduPilot (see Section~\ref{sec:Experiment setup}) and the position feedback ($x$, $y$, and $z$ position) comes from the observer described in Section~\ref{sec:Observer Design}.
 
 \begin{figure} %[htbp]
     \centerline{\includegraphics[width=100mm]{two_level_controller.jpg}}
@@ -597,16 +598,16 @@ The inertial pitch and roll feedback for the low level controllers is related to
 
 %TODO - some conversion proof
 The position controller is as follows:
-The altitude ($y$ position) is obtained directly from the $S_y$ value explained in Section~\ref{sec:Observer Design} and it is regulated by changing the overall ``throttle'' of the rotors, this is good approach assuming the drone pitch and roll angles are close to zero then $S_y$ is almost proportional to the real altitude of the drone and the trust vector is pointed up.
-The $z$ position is assumed to be the distance from the center of the window and is calculated as proportional to the window size $sz$ value, it is regulated by changing the pitch angle. Assuming the drone is always facing the center of the window (yaw angle is zero) the pitch angle produce acceleration to the pitch direction that is to the window direction or from the window meaning its will decrise or increase the $z$ position.
-The $x$ position (displacement) is regulated by changing the roll angle. Similar to $z$ position, assuming the drone is always facing the center of the window the roll angle produce acceleration that increase or decrease the $x$ position depending on the roll angle direction.
+The altitude ($y$ position) is obtained directly from the $S_y$ value explained in Section~\ref{sec:Observer Design} and it is regulated by changing the overall ``throttle'' of the rotors, this approach works well assuming that the drone pitch and roll angles are close to zero. In this case, $S_y$ is almost proportional to the real altitude of the drone and the trust vector is pointed up.
+The $z$ position is assumed to be the distance from the center of the window, which we assume is proportional to the window size ($sz$). It is regulated by changing the pitch angle. Assuming the drone is always facing the center of the window (yaw angle is zero) the pitch angle produces acceleration in the pitch direction, i.e., it can be use to regulate $z$.
+The $x$ position (displacement) is regulated by changing the roll angle. Similar to $z$ position, assuming the drone is always facing the center of the window, the roll angle produces acceleration that increase or decrease the $x$ position depending on the roll angle direction.
 
-As demonstrated in Figure~\ref{fig:acceleration_static_diagram}, the $x$ acceleration is equal to $a_x=g \arctan(\alpha_{roll})$ and $x$ acceleration is equal to $a_z=g \arctan(\alpha_{pitch})$. 
-In practice, during this work we usually assume linear proportional acceleration meaning $a_x=g \cdot \alpha_{roll}$ and $a_z=g \cdot \alpha_{pitch})$.
+As demonstrated in Figure~\ref{fig:acceleration_static_diagram}, the acceleration in the $x$ direction is $a_x=g \arctan(\alpha_{roll})$ and the acceleration in the $z$ direction is equal to $a_z=g \arctan(\alpha_{pitch})$. 
+In practice, in this work we usually assume a linearized proportional acceleration model, i.e., $a_x=g \cdot \alpha_{roll}$ and $a_z=g \cdot \alpha_{pitch}$.
 
-Note that if $x$ is not zero then the drone is not parallel to the window and the roll direction (that used to regulate $x$ position) is also affects the $z$ position.
-Similarly, if the drone is not parallel to the window and the pitch direction (that used to regulate $z$ position) is also affects the $x$ position.
-Although in theory $x$ controller interrupt the $z$ controller and vice versa, in practice even if the drone displacement is relatively large, when all the controllers executed together (and are tuner correctly) they constantly fix those side-afects and because the $x$ position is generally decreased during this process we eventually converge to a stable state were the drone is near-parallel to the window.
+Note that if $x$ is not zero the drone is not parallel to the window and the roll direction (that used to regulate $x$ position) also affects the $z$ position.
+Similarly, if the drone is not parallel to the window and the pitch direction (that used to regulate $z$ position) also affects the $x$ position.
+Although in theory $x$ controller disturb the $z$ controller and vice versa, in practice even if the drone displacement is relatively large, when all the controllers are executed together (and are tuner correctly) they constantly fix those side-afects and because the $x$ position is generally decreased during this process we eventually converge to a stable state were the drone is near-parallel to the window.
 
 \begin{figure} %[htbp]
     \centerline{\includegraphics[width=80mm]{acceleration_static_diagram.jpg}}
@@ -614,7 +615,7 @@ Although in theory $x$ controller interrupt the $z$ controller and vice versa, i
     \label{fig:acceleration_static_diagram}
 \end{figure}
 
-Based on the \textit{principle of separation of estimation and control}~\cite{aastrom2012introduction}, we can use that controller regardless of the measurement quality. We implemented a basic Proportional Integral Derivative (PID~\cite{aastrom2006advanced}) controller and tuned the parameters by trial and error using the highest resolution observer.
+Based on the \textit{principle of separation of estimation and control}~\cite{aastrom2012introduction}, we can use that controller regardless of the measurement quality. Therefore, we implemented a basic Proportional Integral Derivative (PID~\cite{aastrom2006advanced}) controller and tuned the parameters by trial and error using the highest resolution observer.
 
 %%%%%%%%%%% Specification Automata %%%%%%%%%%%%%
 \subsection{Analysis and Specification Automata}
@@ -937,19 +938,15 @@ We also use the OptiTrack information in early stages of the research as the fee
 
 \section{Scheduler Interface}
 \label{sec:scheduler}
+%The most common communication interface between scheduler and embedded real-time component, is by specifying a period, sometimes along with a deadline, which gives the frequency at which the component must be executed.
+%The only requirement in those type of systems is that if the component is always executed exactly within the designed frequency (period), then the control objectives (e.g. stability) are met.
+%%not directly in this article
+%Specifying resource requirements using periods has advantages due to simplicity and analyzability, but has limited expressiveness, as elaborated in~\cite{RTComposer}. 
+%%For example, a specification such as “execute the component every 5ms” does not say whether the scheduler should or should not execute it more frequently if enough computing resources are available, and if a component has multiple, say, for different control tasks, each needing a different period, the requirement cannot be naturally captured by a single period.
+In Section~\ref{sec:architecture} we explained how automata allow for rich component specification for reactive scheduling. While the automata used in the experiments where crafted by hand without automatic composition, we outline in this section how to formally create and compose automata using \buchi game theory. The formalisms described below  allow for automating the composition and the schedule generation using tools such as GOAL~\cite{goal}.
 
-The most common communication interface between scheduler and embedded real-time component, is by specify a period, sometimes along with a deadline, which gives the frequency at which the component must be executed.
-The only requirement in those type of systems is that if the component is always executed exactly within the designed frequency (period), then the control objectives (e.g. stability) are met.
-%not directly in this article
-Specifying resource requirements using periods has advantages due to simplicity and analyzability, but has limited expressiveness, as elaborated in~\cite{RTComposer}. 
-%For example, a specification such as “execute the component every 5ms” does not say whether the scheduler should or should not execute it more frequently if enough computing resources are available, and if a component has multiple, say, for different control tasks, each needing a different period, the requirement cannot be naturally captured by a single period.
-
-In Section~\ref{sec:architecture} we have suggested to use automata for describe the component specification for the scheduler. In this section we elaborate the technical details of the specification automata.
-
-In our framework, similarly to most traditional real time systems, the resource is allocated in discrete \textit{time slots} of fixed duration in the style of time-triggered architecture~\cite{RTComposer}.
-A typical cyber-physical control system have multiple tasks that need to be done in order to control the system.
-Each task is performed by one or more subroutines (code functions).
-We suggest designing control system in the \textit{component} level, where each component is corresponding a specific task in the system, it consists of all the subroutines of the task, along with a \buchi game specify how the task subroutines should be executed.
+In our framework, similarly to most traditional real time systems, the resource is allocated in discrete \textit{time slots} of fixed duration in the style of time-triggered architecture~\cite{RTComposer}. A typical software control system consists of multiple tasks that need to be taken care of simultaneously in order to control the system.
+Each task is implemented by one or more subroutines (code functions). We suggest to design control system in the \textit{component} level, where each component corresponds to a specific task in the system consisting of all the subroutines of the task along with a \buchi game specify how the task subroutines should be executed. This is formalized in the following definition:
 
 \begin{dfn}
     A component is a pair $\langle T,G\rangle$ where $T$ is a set of subroutines (representing, e.g., procedures of a class in C++) and $G=\langle A,\langle P_{schd}, P_{env}\rangle \rangle$ is a generalized B{\"u}chi game (GNBG), over a generalized \buchi automaton $A= \langle Q,\Sigma,\Delta,q_0,\mathcal{F} \rangle $ (see Section~\ref{sec:GNBG}), such that:
@@ -962,24 +959,24 @@ We suggest designing control system in the \textit{component} level, where each 
     \end{enumerate}
 \end{dfn}
 
-The \buchi game $G=\langle A,\langle P_{schd}, P_{env}\rangle \rangle$, of a component, is a scheduler-against-environment game, it is represents the interaction of the controller and the environment in the real world.
-The game goes as follows: before every time slot the environment player ($P_{env}$) play first and take the transition $s_{env} \xrightarrow[]{\sigma_{\vec{y}}} s_{schd}$ such that $\vec{y} \in \R^n$ was the observation values at the beginning of this slot.
-Then the scheduler need to choose a transition $s_{schd} \xrightarrow[]{\sigma_{T'}} s_{env}'$, and then execute all the tasks in $\sigma_{T'}$.
-The environment transition represent the evolution of the system state caused by the actuators and the environment of previous time step, and then the scheduler react to state evolution by the schedule transition.
-This simultaneous walk over the game automata $A$ create
-The scheduler goal is to pass infinitely many times in acceptance state during the execution.
-In other words, if the world, $\omega = \vec{y}_1 , T_1, \vec{y}_2, \dots $, created by this simultaneous walk over the game automata $A$ is accepting world, $\omega \in \mathcal{L}_{\omega}(A)$.
+The \buchi game, $G=\langle A,\langle P_{schd}, P_{env}\rangle \rangle$, of a component is a scheduler-against-environment game. It represents the interaction of the controller with the environment in the real world.
+The game goes as follows: before each time slot the environment player ($P_{env}$) plays first and takes the transition $s_{env} \xrightarrow[]{\sigma_{\vec{y}}} s_{schd}$ signaling that  the observation values at the beginning of this slot is $\vec{y} \in \R^n$.
+Then, the scheduler needs to choose a transition $s_{schd} \xrightarrow[]{\sigma_{T'}} s_{env}'$ and to execute all the tasks in $\sigma_{T'}$.
+The environment transition represents the evolution of the system state caused by the actuators and the environment of the previous time step, and then the scheduler reacts to the state evolution by the schedule transition.
+This simultaneous walk over the game automata $A$ creates \todo{???}
+The scheduler goal is to pass through accepting states infinitely many times during the execution.
+In other words, if the word $\omega = \vec{y}_1 , T_1, \vec{y}_2, \dots $ is created by this simultaneous walk over the game automaton $A$ is an accepting world ($\omega \in \mathcal{L}_{\omega}(A)$) \todo{WTF}.
 Note, the scheduler feedback variable (or observations) is a vector $\vec{y} \in \R^n$ that may includes state variables and internal variable of the components.
 
-An example of a vision based sensor component of a robot is demonstrated in Figure~\ref{fig:exampleGame}. 
-The component estimates the robot position using a camera. It has two operation modes: high (H) or low (L) accuracy.
-The variable $y$ is the estimated position, in this example the component requirement is to ensure that $y$ never exceeds one (in position $y=1$ there is a cliff). \todo{I don't know if this example is helping or not}
+This interface is demonstrated in Figure~~\ref{fig:exampleGame} in the context of a vision based sensor component of a robot. 
+The component we focus on here estimates the robot position using a camera. It has two operation modes: high (H) or low (L) accuracy.
+The variable $y$ is the estimated position. In this example the component requirement is to ensure that $y$ never exceeds one (there is a cliff that starts at $y=1$).
 
 \begin{figure} [h]
     \centerline{\includegraphics[width=100mm]{gameExample.jpg}}
     \caption{Example of a game for vision based sensor component of a robot.
         The robot must maintain position of $y \le 1$ where $H$ is high accuracy and $L$ is low accuracy position measuring tasks, and
-        $g1$ refer to $y \le 0.5$, $g2$ refer to $0.5 < y \le 1$ and $g3$ refer to $1 < y$ }
+        $g1$ refer to $y \le 0.5$, $g2$ refer to $0.5 < y \le 1$ and $g3$ refer to $1 < y$. }
     \label{fig:exampleGame}
 \end{figure}
 
