@@ -320,7 +320,6 @@ In this section we elaborate on the specifics of the proposed approach.
 
 
 \subsection{Architecture}
-% TODO: Use the terminology of the figure
 
 In our methodology, we use rich component specification represented by automata.
 As presented above, the main advantage of this technique is the ability of the scheduler to ``react'' to the state of the system, therefore we need a richer interaction between the \textit{Scheduler} and the control loops, particularly with the estimator.
@@ -328,7 +327,6 @@ The architecture of control system as we believe, is illustrated in Figure~\ref{
 The architecture, that is based on modern controller architecture where the system has multiple controlling tasks, comes to support an efficient scheduling protocols in modern control systems, consisting of a processor that runs all the tasks of many independent control loops in the system. 
 Each control loop (blue components in Figure~\ref{fig:general_hybrid_loop}) will tell the \textit{scheduler} of its level of certainty ($P = var(\hat{x} - x)$) and the scheduler will allocate resource (processor time) based on this data, meaning the \textit{scheduler} allocate resource dynamically based on the system current needs rather than the worst case needs, making the scheduler an active part of the control loop.
 
-%TODO - probably need to be in the Tests section
 Our methodology is general and may be applicable in a wide range of applications. However, in this initial phase of the research, we focus on a specific sub-domain and in handling all technical issues in order to prove the concept.
 %In this thesis we develop and implement a vision based controller for drone (see Section~\ref{sec:tests}) and analyze the concept with it.
 
@@ -374,10 +372,8 @@ In this thesis we focus on the first two motivations in the above list. The thir
 
 \subsection{Implementation in an Auto Pilot Software}
 As our main case study is in flight control (see Section~\ref{sec:caseStudy}), we chose the ArduPilot Mega (APM) platform~\cite{APM} for experiments. To this end, we implemented a basic automata based scheduler for this platform. The built-in task scheduling specification in APM consist of a table as shown in Figure~\ref{fig:apm-scheduler}. This table is easy to maintain and to adjust, but it is used under an assumption that there is enough CPU power to run all the tasks in the specified frequencies. APM does contain a mechanism to handle overruns, by moving tasks to the next window when there is not enough time to run them now, but the system is designed under the assumption that this only happen in rare situations.
-%TODO - maybe add APM section in apendex describing this scheduler with image
 
 To allow a reactive scheduler that runs different modes of the software-based controllers depending on their state, we replaced the scheduling table in our version of the APM with automata that specify when to run the tasks. Note that automata allow for specifying the requirements that the table represents, using simple circular automata without guards (see, e.g., \cite{weiss2007automata}). Automata, however, can model more advanced scheduling instructions with very little addition to the complexity of the scheduler, as we will demonstrate in Section~\ref{sec:simulation} and in Section~\ref{sec:caseStudy} below.
-%TODO - were gose the detail of the automaton operations
 
 \begin{figure}
     \scriptsize
@@ -430,7 +426,6 @@ We call this technique `adaptive scheduling' or `reactive scheduling'. We show i
 
 \section{A demonstration of the approach in simulation}
 \label{sec:simulation}
-%TODO - explain that we developing an idea that culd in the future become a tool
 
 Our approach for using automata for scheduling resources in software based controllers, is based on the observation that in most systems the computational load is in the implementation of the sensors and actuators, not in the implementation of the controllers that usually consist of quick arithmetic manipulation of a small amount of variables. We therefore focus our attention on allowing a trade-off between CPU usage of sensors and actuators and their accuracy. %In this work, as a main motivating example, we focus on the case of visual sensors that employ image processing algorithms.
 
@@ -546,7 +541,7 @@ The result of the estimation, denoted by $\hat{x}_{k|k}$, is a complementary fil
 $ \hat{x}_{k|k} = K \hat{x}_{k|k-1} + (1-K) C^{-1}y_k $ were $K$ is a constant that approximates the Kalman filter gain ($K_k$) at a steady-state, see Section~\ref{sec:kalman} for more details.
 The constant $K$ represents the ratio between the variance of the process noise and the variance of the measurement noise. To achieve best performance, we define a different value of $K$ for each mode corresponding with the image resolution and the noise variance.
 
-\todo[inline]{need to add section on the system linearized model? maybe the Figure~\ref{fig:acceleration_static_diagram} is enough}
+\todo[inline]{need to add paragraph on the system linearized model}
 
 
 
@@ -573,7 +568,7 @@ The inertial pitch and roll feedback for the low level controllers is related to
     \label{fig:controllerStracture}
 \end{figure}
 
-%TODO - some conversion proof
+% some conversion proof
 The position controller is as follows:
 The altitude ($y$ position) is obtained directly from the $S_y$ value explained in Section~\ref{sec:Observer Design} and it is regulated by changing the overall ``throttle'' of the rotors, this approach works well assuming that the drone pitch and roll angles are close to zero. In this case, $S_y$ is almost proportional to the real altitude of the drone and the trust vector is pointed up.
 The $z$ position is assumed to be the distance from the center of the window, which we assume is proportional to the window size ($sz$). It is regulated by changing the pitch angle. Assuming the drone is always facing the center of the window (yaw angle is zero) the pitch angle produces acceleration in the pitch direction, i.e., it can be use to regulate $z$.
@@ -1289,14 +1284,6 @@ The transition and mesurment functions must be differentiable in order to linear
 Extended Kalman filter is not guaranty to be optimal filter.
 
 %TODO - there is "Uncertail KF" that improve the linearity estimation in extream cases (not realy understand it) but could be good example of high computational consumption of well known estimator
-
-
-%TODO - think this need to be in the architecture section
-\commentOut{
-%In order to produce optimal estimation with Kalman filter, one of the parameter that we need to consider in our calculation is the variance of the sensor error.But in our new framework the sensor (vision based sensor) have variable error variance for each time slot, this means that we need to have also variable state estimators correspondingly.In order to adjust the sensor error variance, each time step the scheduler will inform the state estimator about the new error variance, and the state estimator will use corresponding parameters to make the next estimation.
-
-% APM, the control software that we will use, is already using kalman filter as the state estimator, so we only need to adjust the existing module to the variable sensor error variance, and to send the estimation error variance to the scheduler (see Section~\ref{sec:scheduler}).
-}
 
 %\subsection{Complementary-Kalman design (with physical computation)}
 
