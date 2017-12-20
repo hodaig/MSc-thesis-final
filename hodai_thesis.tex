@@ -931,19 +931,19 @@ Each task is implemented by one or more subroutines (code functions). We suggest
         \item The \textit{alphabet} is $\Sigma = 2^{T} \cup \R^n$ where $n$ is the number of scheduler feedback variables in the system (real numbers that the scheduler can base its decision on).
         \item 
         Alternating turns with different parts of the alphabet:
-       	The transitions of $A$ are of the form: $s_{schd} \xrightarrow[]{\sigma_{T}} s_{env}$ where $s_{schd} \in P_{schd}, s_{env} \in P_{env},$ and $\sigma_{T} \subseteq T$ (called  ``scheduler'' transitions ),  or of the form $s_{env} \xrightarrow[]{\sigma_{e}} s_{schd}$, where $s_{schd} \in P_{schd}, s_{env} \in P_{env}$, and $\sigma_{e} \in \R^n$ (called ``environment'' transitions).
+       	The transitions of $A$ are of the form: $q_{schd} \xrightarrow[]{\sigma_{T}} q_{env}$ where $q_{schd} \in P_{schd}, q_{env} \in P_{env},$ and $\sigma_{T} \subseteq T$ (called  ``scheduler'' transitions ),  or of the form $q_{env} \xrightarrow[]{\sigma_{e}} q_{schd}$, where $q_{schd} \in P_{schd}, q_{env} \in P_{env}$, and $\sigma_{e} \in \R^n$ (called ``environment'' transitions).
         \item The environment plays first: $q_0 \in P_{env}$.
     \end{enumerate}
 \end{dfn}
 
-The \buchi game, $G=\langle A,\langle P_{schd}, P_{env}\rangle \rangle$, of a component is a scheduler-against-environment game. It represents the interaction of the controller with the environment in the real world.
-The game goes as follows: before each time slot the environment player ($P_{env}$) plays first and takes the transition $s_{env} \xrightarrow[]{\sigma_{\vec{y}}} s_{schd}$ signaling that  the observation values at the beginning of this slot is $\vec{y} \in \R^n$.
-Then, the scheduler needs to choose a transition $s_{schd} \xrightarrow[]{\sigma_{T'}} s_{env}'$ and to execute all the tasks in $\sigma_{T'}$.
-The environment transition represents the evolution of the system state caused by the actuators and the environment of the previous time step, and then the scheduler reacts to the state evolution by the schedule transition.
-This simultaneous walk over the game automata $A$ creates \todo{???}
-The scheduler goal is to pass through accepting states infinitely many times during the execution.
-In other words, if the word $\omega = \vec{y}_1 , T_1, \vec{y}_2, \dots $ is created by this simultaneous walk over the game automaton $A$ is an accepting world ($\omega \in \mathcal{L}_{\omega}(A)$) \todo{WTF}.
-Note, the scheduler feedback variable (or observations) is a vector $\vec{y} \in \R^n$ that may includes state variables and internal variable of the components.
+The \buchi game, $G=\langle A,\langle P_{schd}, P_{env}\rangle \rangle$, of a component is a game of the scheduler against the environment. It represents the interaction of the controller with the environment in the real world.
+The game goes as follows: before each time slot the environment player ($P_{env}$) plays first and takes the transition $q_{env} \xrightarrow[]{\sigma_{e}} q_{schd}$ signaling that  the observation values at the beginning of this slot is $\sigma_{e} \in \R^n$.
+Then, the scheduler needs to choose a transition $q_{schd} \xrightarrow[]{\sigma_{T}} q_{env}'$ and to execute all the tasks in $\sigma_{T}$.
+The environment transition represents the evolution of the system state during the previous time step, caused by the actuators and the environment noise. The scheduler transition is the scheduler reaction to this state evolution.
+This simultaneous walk over the game automata ($A$) creates infinite path $p_{\omega} = q_0 , q_1, \dots$,
+and the scheduler goal is to pass through (all sets of) accepting states infinitely many times during the execution, formally, the goal is a path that $\forall F \in \mathcal{F} : \inf (p_{\omega}) \cap F \ne \emptyset$.
+In other words, if the word $\omega = \vec{y}_1 , T_1, \vec{y}_2, \dots $ created by this simultaneous walk over the game automaton $A$, is an accepting world (if $\omega \in \mathcal{L}_{\omega}(A)$), then the scheduler is the winner, and the resulting schedule execution achieves the component objectives.
+Note, the scheduler feedback variable (or observations) vector, $\vec{y} \in \R^n$, may includes state variables and internal variable of the components.
 
 This interface is demonstrated in Figure~~\ref{fig:exampleGame} in the context of a vision based sensor component of a robot. 
 The component we focus on here estimates the robot position using a camera. It has two operation modes: high (H) or low (L) accuracy.
@@ -952,8 +952,9 @@ The variable $y$ is the estimated position. In this example the component requir
 \begin{figure} [h]
     \centerline{\includegraphics[width=100mm]{gameExample.jpg}}
     \caption{Example of a game for vision based sensor component of a robot.
-        The robot must maintain position of $y \le 1$ where $H$ is high accuracy and $L$ is low accuracy position measuring tasks, and
-        $g1$ refer to $y \le 0.5$, $g2$ refer to $0.5 < y \le 1$ and $g3$ refer to $1 < y$. }
+        The robot must maintain position of $y \le 1$.
+        The tasks $H$ and $L$ are high accuracy and low accuracy position measuring tasks respectively, and
+        $g1$ refer to every observation that $y \le 0.5$, $g2$ refer to $0.5 < y \le 1$ and $g3$ refer to $1 < y$. }
     \label{fig:exampleGame}
 \end{figure}
 
