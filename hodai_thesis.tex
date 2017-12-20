@@ -1182,12 +1182,9 @@ We manage to extract an estimation of the process and measurement errors from th
 
 
 %TODO - online composition
-
-
-%TODO - we present real life experiments or maybe in conclusion
 %TODO - micro / macro scheduler
 
-
+\todo{Fix cites}
 % hanoch
 The case-study in this thesis, presented in Section~\ref{sec:caseStudy}, \todo{ask hanoch for reference} is based on the work of Hanoch~\cite{Hanoch ??}.
 Hanoch present an iterative technique for calculating the position and attitude of the drone relative to a window.
@@ -1195,7 +1192,31 @@ In this technique the drone is equipped with a camera pointed to the front of th
 Hanoch's algorithm takes the position of the corners and calculate the position and attitude relative to the window.
 In the case-study of this thesis we control and regulate the position and attitude of the drone (see Section~\ref{sec:Observer Design}) using the same techniques developed by Hanoch.
 
+% a paper from our paper review - variable slot-size
+A different type of adaptive scheduling is presented in~\cite{An approach to variable time receding horizon control}\todo{An approach to variable time receding horizon control}.
+This paper proposes a scheduling method that use variable step sizes instead of a fixed sampling frequency. The switching times are incorporated into an optimization problem, thus resulting in an adaptive step-size control process. Similarly to this thesis, the use of variable time steps is shown to require less tuning and reduces the number of expensive model evaluations.
+
+
+
+In the literature there are many researches considering \textit{anytime} vision based algorithms for designing flexible controllers~\cite{many pepers}. 
+The motivation is usually similar, to improve the quality of estimation where the conditions allows.
+Anytime algorithms, are algorithms whose quality of results improves gradually as computation time increases.
+Zilberstein and Russell~\cite{Optimal composition of real-time systems} made an distinction between \textit{contract}-based algorithms, and \textit{interruptible} algorithms.
+\textit{interruptible} algorithms produce results of the even when interrupted unexpectedly, the result quality is constantly improved.
+\textit{interruptible} algorithms, although capable of producing results whose quality varies with time allocation, must be given a particular time allocation in advance, If is interrupted before the contract time, it may yield no useful results.
+
 %TODO - contract based vision papers
+The use of vision based sensors with different CPU against sensing accuracy trade-offs is highly influenced by the \textit{contract-based} controller interface presented in~\cite{Co-design}.
+This paper present a framework for co-designing anytime estimation and control algorithms, and address the computer vision issues of delays and inaccuracies fo real-time systems. 
+it present techniques for creating anytime estimator from standard off-the-shelf Computer Vision algorithms, and show how to obtain a trade-off curve for its delay vs estimate error behavior.
+This trade-off curve was later used to define the contract-based interface between the estimator and controller, a point on this curve define an operation mode of the estimator, denoted by $(\delta , \epsilon)$, where the controller may request for estimation with error bound $\epsilon$, and then the computer vision will require execution time of $\delta$.
+We adopted the $(\delta , \epsilon)$ interface in our implementation of the case-study.
+
+
+% a paper from our paper review - networking
+The scheduling for resources vs estimation-quality trade-offs was also researched from the communication resources aspects. The paper~\cite{Event-Based Sensor Data Scheduling: Trade-Off Between Communication Rate and Estimation Quality} \todo{Event-Based Sensor Data Scheduling: Trade-Off Between Communication Rate and Estimation Quality} consider a sensor data scheduling for remote state estimation, with constrained communication energy and bandwidth.
+A sensor needs to decide whether it should send the measurement to a remote estimator for further processing. 
+The paper propose an event-based sensor data scheduler. The paper illustrate how to achieve a desired balance between the sensor-to-estimator communication rate and the estimation quality, by selecting an appropriate event-triggering threshold.
 
 \section{Conclusions and Future Work}
 % use real vision
