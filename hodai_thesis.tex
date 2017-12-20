@@ -1231,16 +1231,27 @@ In the case-study of this thesis we control and regulate the position and attitu
 % use real vision
 % develop the framwork
 % invent mathematical / automatic technics to create the automata
-%TODO - online composition
-%TODO - simucopter
 
 %TODO - say somthing about the camera driver
-We introduced a new approach for resource allocation that allows dynamic scheduling where resources are only allocated when needed.
 
-We presented a compositional design strategy using rich automata based interface between software components and the task scheduler. We also proposed how to use this design in the context of software control systems using the data provided by standard filters.
-We demonstrated the advantages of the resulting dynamic schedulers in terms of control performance and resource utilization. These advantages are demonstrated both in simulations and with a real case-study.
+We introduced a new approach for allocation of computation resource in control systems that allows dynamic scheduling where resources are allocated only when they are needed. 
+This approach addresses the need of real-time developers to safely integrate advanced technologies of recent time, technologies that usually require large and dynamic amount of computation resources, with traditional control systems.
+We saw for example how APM based systems use external processor for optic flow sensor although theoretically have more than enough computational power.  
+This new approach allows to safely integrate real-time and non real-time computations by properly define their requirements.
 
-The use of automata allows to compose and to analyze the scheduling characteristics. As future work, we plan to apply automata theory and, more specifically, the theory of hybrid automata to develop new techniques and tools for automatic generation of specification automata. The input for this construction can be a specification of the dynamical system that we want to control and a specification of the required close-loop characteristics. 
+We presented a design strategy called ''reactive'' scheduling using automata based interface between software components and the scheduler. We extends the automata based interface presented in RTComposer~\cite{RTComposer} which is a reach interface allows for more accurate definition of resources requirements.
+And by adding guards on the transitions, the scheduler can make scheduling decisions based on the environment conditions, in order to save computational resources if the environment conditions allow it.
+We also suggest how to design such a reactive scheduler in the context of software control systems using the data provided by standard filters (see Section~\ref{sec:Arch-kalman}.
+We demonstrated the advantages of the resulting dynamic schedulers in terms of control performance and resource utilization. These advantages are demonstrated both in simulations (Section~\ref{sec:simulation}) and with a real-life case-study (Section~\ref{sec:caseStudy}).
+We show how to use general tools for automata related operation for automatic compose and create those guarded automata (Section~\ref{sec:scheduler}).
+
+As a future work, we plan to apply automata theory and, more specifically, the theory of hybrid automata to develop new techniques for automatic generation of specification automata. The input for this construction can be a specification of the dynamical system that we want to control and a specification of the required close-loop characteristics. Then create tools that implement those techniques.
+%simucopter
+We also plan to implement our reactive scheduling technique within the \textit{SimuCopter} project~\cite{SimuCopter}, \textit{SimuCopter} is an extension for \textit{Matlab Simulink}~\cite{Simulink} that allows to create controllers in Simulink for drones. 
+
+% online composition
+The approach for online composition of components presented by Merav~\cite{Merav} may also be adopted within our reactive scheduler, to allows safe updates and upgrades of critical systems while they are running. 
+
 
 
 \section{Apendix}
