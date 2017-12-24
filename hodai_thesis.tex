@@ -26,7 +26,7 @@
 
 \usepackage{hyperref} % makes table of contents links
 \hypersetup{
-    colorlinks=true, %set true if you want colored links
+    colorlinks=false, %set true if you want colored links
     linktoc=all,     %set to all if you want both sections and subsections linked
     %linkcolor=blue,  %choose some color if you want links to stand out
     %citecolor=black,
@@ -251,7 +251,6 @@ fill=orange!20!yellow!20]
 \subfile{./Chapters/Abstract}
 
 \newpage
-\todo[inline]{need to update Acknowledgments section}
 \subfile{./Chapters/Acknowledgments}
 
 \newpage
@@ -269,7 +268,9 @@ Cyber-physical systems (CPS) technologies for integrating software and control a
 
 A main challenge in developing mechanisms for the integration of software and control lies in the design of efficient interfaces for integrating the engineering disciplines involved (see, e.g.,~\cite{weiss2007automata}). Components with clearly specified APIs, such as Java library classes, allow designers to build complex systems effectively in many application domains.  The key to such modular development is that each component can be designed, analyzed, and tested without the knowledge of other components or the underlying computing platform. When the system contains components with real-time requirements, the notion of an interface must include the requirements regarding resources, and existing programming languages provide little support for this.  Consequently, current development of real-time embedded software requires significant low-level manual effort for debugging and component assembly (cf.~\cite{Lee00,IEEE03,HS06}). This has motivated researchers to develop compositional approaches and interface notions for real-time scheduling (see, e.g.,~\cite{RS01,dH01,MF01,CAHS03,SL08,SLBS04,TWS06,DBLP:conf/lctrts/AuerbachBIKRRT07}).
 
-In this thesis we present an approach, a proof-of-concept implementation, and a case study in scheduling computations in embedded control systems. The proposed design is based on the automata based scheduling approach, suggested in~\cite{weiss2007automata,RTComposer,AW08,ESNAASHARI20102410,liu2013synthesis}, where automata are proposed as interfaces that allow the dynamicity and efficiency of desktop operating systems with the predictability of real-time operating systems. The approach allows for components to specify the CPU resources that they need in a way that gives an application agnostic scheduler the freedom to choose schedules at run-time such that the needs of all the components are taken into account, even of components that were added only at run-time. The main contributions of this thesis relative to the earlier work in this direction is: (1) We propose an extension of the automata based scheduling framework that allows reactive scheduling where the schedule is directed by the state of the controllers; (2) We propose a technique, based on the theory of Kalman Filters, for designing reactively scheduled controllers; (3) We report on our experience with improving the performance of a real-time, vision-based, control system (a drone that stabilizes itself in front of a window).
+In this thesis we present an approach, a proof-of-concept implementation, and a case study in scheduling computations in embedded control systems. The proposed design is based on the automata based scheduling approach, suggested in~\cite{weiss2007automata,RTComposer,AW08,ESNAASHARI20102410,liu2013synthesis}, where automata are proposed as interfaces that allow the dynamicity and efficiency of desktop operating systems with the predictability of real-time operating systems. The approach allows for components to specify the CPU resources that they need in a way that gives an application agnostic scheduler the freedom to choose schedules at run-time such that the needs of all the components are taken into account.
+%, even of components that were added only at run-time. 
+The main contributions of this thesis relative to the earlier work in this direction is: (1) We propose an extension of the automata based scheduling framework that allows reactive scheduling where the schedule is directed by the state of the controllers; (2) We propose a technique, based on the theory of Kalman filters, for designing reactively scheduled controllers; (3) We report on our experience with improving the performance of a real-time, vision-based, control system (a drone that stabilizes itself in front of a window).
 
 The idea of using reactive schedulers, as described in the preceding paragraph, was first introduced by Merav Bukra in her master thesis~\cite{Merav}. Merav's focus was on the algorithmic issues involved with the composition of components. The focus of this thesis is on the integration of the approach with control engineering and with its implementation in the context of a case-study in vision based control. Merav showed that we can provide tool support for the combination of components (even in a plug-and-play fashion). This thesis provides methods for control engineers for designing controllers that make use of reactive schedulers and a proof-of-concept implementation of such controllers in the context of a real case-study. Our goal in the future is, of course, to combine both theses into a tool suite that supports all these features together.
 
@@ -1182,14 +1183,14 @@ We manage to extract an estimation of the process and measurement errors from th
 
 %TODO - other works on automata based interface
 %TODO - other works on reactiv schedulers
-%There was many other researches proposing automata-based interfaces~\cite{many, Towards Robustness for Cyber-Physical Systems} and LTI~\cite{many} and ...
+%There was many other researches proposing automata-based interfaces~\cite{many, Towards Robustness for Cyber-Physical Systems, AW08,ESNAASHARI20102410,liu2013synthesis} and LTI~\cite{many} and ...
 
 
 %TODO - online composition
 %TODO - micro / macro scheduler
 
 % add pepers pove the need of smart scheduling
-Many researches~\cite{Efraim17, Efraim2017, Shlomo, shakernia1999landing, khalil2005optical, ahrens2009vision, bills2011autonomous, blosch2010vision} and available products~\cite{APM, bristeau2011navigation} begin to integrate sensors that based on visual input, i.e. on-board camera, especially for Micro Aerial Vehicles (MAV), who are usually equipped with a compact and  computer with limited resources.
+Many researches~\cite{Efraim17, Efraim2017, Shlomo, das2002vision, shakernia1999landing, shakernia1999landing, khalil2005optical, ahrens2009vision, bills2011autonomous, blosch2010vision} and available products~\cite{APM, bristeau2011navigation} begin to integrate sensors that based on visual input, i.e. on-board camera, especially for Micro Aerial Vehicles (MAV), who are usually equipped with a compact and  computer with limited resources.
 As vision-based sensors usually required expensive computations for extracting the needed information, the developers often need a high consideration of the resource management.
 In order to integrate, for example, optic-flow sensor in multi-rotors controllers, engineers often preferred to add dedicated processor for simplify the architecture (e.g. PX4FLOW sensor for APM~\cite{APM}), or use better (and expensive) processor.
 For education purposes, i.e. academic researches, even add dedicated remote computer for the expensive vision computations~\cite{Efraim17,Efraim2017}.

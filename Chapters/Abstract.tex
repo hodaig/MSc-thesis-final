@@ -16,11 +16,10 @@ allows a dynamic schedule without breaking the predictability of real-time sched
 alocated resources only when needed, based on the inputs. The saved processing time can be used for other tasks or for lowering the cost of the system.
 
 The main contributions of this thesis relative to the earlier work of RTComposer~\cite{RTComposer} and GameComposer~\cite{Merav}, are twofolds: (1) We develop methodologies for
-creating ``enviroment''-depended component, using Kalman and Complementary filters that provide valuable data that guides these automata. (2) We validate the concepts with a real-life 
+creating ``enviroment''-depended component, using Kalman and complementary filters that provide valuable data that guides these automata. (2) We validate the concepts with a real-life 
 case study and with computer simulations.
 
-The case study we use in this thesis is the development of a software controller that stabilizes a drone in front of a window. We show how a vision based sensor can be used with a varying resolution, i.e.,
-computation load is controlled by taking images in reduced resolution when the state of the controlled loop allows. We developed this controller using the well known 
+The case study we use in this thesis is the development of a software controller that stabilizes a drone in front of a window. We show how a vision based sensor can be used with a varying resolution, i.e., computation load is controlled by taking images in reduced resolution when the state of the controlled loop allows. We developed this controller using the well known 
 open-source autopilot software ArduPilotMega (APM)~\cite{APM} with minimum changes of the original software. This allows us to draw some conclusions regarding the possibility of integrating the extended 
 automata based approach proposed here with the state of the art control systems.
 
