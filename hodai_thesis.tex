@@ -272,7 +272,7 @@ In this thesis we present an approach, a proof-of-concept implementation, and a 
 %, even of components that were added only at run-time. 
 The main contributions of this thesis relative to the earlier work in this direction is: (1) We propose an extension of the automata based scheduling framework that allows reactive scheduling where the schedule is directed by the state of the controllers; (2) We propose a technique, based on the theory of Kalman filters, for designing reactively scheduled controllers; (3) We report on our experience with improving the performance of a real-time, vision-based, control system (a drone that stabilizes itself in front of a window).
 
-The idea of using reactive schedulers, as described in the preceding paragraph, was first introduced by Merav Bukra in her master thesis~\cite{Merav}. Merav's focus was on the algorithmic issues involved with the composition of components. The focus of this thesis is on the integration of the approach with control engineering and with its implementation in the context of a case-study in vision based control. Merav showed that we can provide tool support for the combination of components (even in a plug-and-play fashion). This thesis provides methods for control engineers for designing controllers that make use of reactive schedulers and a proof-of-concept implementation of such controllers in the context of a real case-study. Our goal in the future is, of course, to combine both theses into a tool suite that supports all these features together.
+The idea of using reactive schedulers, as described in the preceding paragraph, was first introduced by Merav Bukra in her master thesis~\cite{Merav}. Bukra's focus was on the algorithmic issues involved with the composition of components. The focus of this thesis is on the integration of the approach with control engineering and with its implementation in the context of a case-study in vision based control. Bukra showed that we can provide tool support for the combination of components (even in a plug-and-play fashion). This thesis provides methods for control engineers for designing controllers that make use of reactive schedulers and a proof-of-concept implementation of such controllers in the context of a real case-study. Our goal in the future is, of course, to combine both theses into a tool suite that supports all these features together.
 
 %The rest of the thesis is organized as follows: In Section~\ref{sec:architecture} we outline the general software approach and the methodologies developed in our research. In
 % Section~\ref{sec:simulation} we present the technical details of the proposed approach using a simulation. The case study is presented in Section~\ref{sec:caseStudy} with a
@@ -537,14 +537,35 @@ as shown in Figure~\ref{fig:V_d-geomerty} $x = l \cdot \sin (V_d)$ where $l$ (di
 As common in engineering practices, we pass these numbers to a filter that gives us a state estimation. 
 Ideally, when the system is linear as in the simulations in Section~\ref{sec:simulation}, we should use a Kalman filter for best state estimation. As we deal with a non-linear system here, and because the process noise distribution is not known (it is significantly affected by the varying state of the battery), and because a Kalman filter adds complexity in the code, we use a complementary filter.
 Complementary filters can implement the steady-state (when the Kalman gains converge) behavior of Kalman filters~\cite{complementaryVSKalman}.
-Specifically, in our case study, we implemented a two steps estimator that: (1) \textit{predicts} the current state evolved from the previous state, denoted by $\hat{x}_{k|k-1}$, using a linearized model of the system, and then \textit{updates} the prediction with current state measurement from the image, denoted by $y_k$.
+We implemented a two steps estimator that: (1) \textit{predicts} the current state evolved from the previous state, denoted by $\hat{x}_{k|k-1}$, using a linearized model of the system, and then \textit{updates} the prediction with current state measurement from the image, denoted by $y_k$.
 The result of the estimation, denoted by $\hat{x}_{k|k}$, is a complementary filter of the prediction ($\hat{x}_{k|k-1}$) and the measured state ($C^{-1}y_k$)~\footnote{The matrix $C$ is the measurement matrix as shown in the model at Figure~\ref{fig:simulink}. For simplicity, the text is under the assumption that $C$ is not not singular. If $C$ is singular, one can use the observability matrix in a similar fashion, assuming that the system is observable.}:
-$ \hat{x}_{k|k} = K \hat{x}_{k|k-1} + (1-K) C^{-1}y_k $ were $K$ is a constant that approximates the Kalman filter gain ($K_k$) at a steady-state, see Section~\ref{sec:kalman} for more details.
-The constant $K$ represents the ratio between the variance of the process noise and the variance of the measurement noise. To achieve best performance, we define a different value of $K$ for each mode corresponding with the image resolution and the noise variance.
+$ \hat{x}_{k|k} = K \hat{x}_{k|k-1} + (1-K) C^{-1}y_k $ were $K$ is a constant matrix that approximates the Kalman filter gain ($K_k$) at a steady-state, see Section~\ref{sec:kalman} for more details.
+The constant $K$ represents the ratio between the covariance of the process noise and the covariance of the measurement noise. To achieve best performance, we define a different value of $K$ for each mode corresponding with the image resolution and the noise variance.
 
+\commentOut{
 \todo[inline]{need to add paragraph on the system linearized model}
 
+In practice, we measure the $V_d$ and $sz$ from the image and calculate the $x$ axis position, we also estimate the $x$ acceleration from the roll angle measurement. The state variables of the $x$ axis are: position ($p_x$), velocity ($v_x$), and acceleration ($a_x$) in the $x$ direction.
+For the prediction step we use the model: $a_{x}[k] = a_{x}[k-1]$ $v_{x}[k] = v_{x}[k-1] + a_{x}[k-1] \cdot dt$ $p_{x}[k] = p_{x}[k-1] + v_{x}[k-1] \cdot dt$ where $dt$ is the time passed from the last iteration. 
+Then for the update step we 
+}
 
+\commentOut{
+$$ x(k) = 
+\begin{pmatrix}
+    p_k\\
+    v_k\\
+    a_k
+\end{pmatrix}
+=
+\begin{pmatrix}
+1 & dt & 0\\
+0 & 1 & dt\\
+0 & 0 & 1
+\end{pmatrix}
+\cdot x(k-1)
+$$
+}
 
 \begin{figure} %[htbp]
     \centerline{\includegraphics[width=100mm]{axis.jpg}}
@@ -1135,7 +1156,7 @@ The environment transitions are annotated with values intervals, which define a 
 With this annotation we can store infinite games (and strategies solutions) in a small computer.
 
 In addition, for successfully calculate the automata operations, such as, compose games with intersect intervals on the transitions, we need to proper define the intervals.
-The solution, which elaborated in details in the work of Merav~\cite{Merav}, is to collect all the scalar numbers in all the component games, and define interval for every two adjacent scalars. Then the alphabet contain only tuples of $n$ intervals for every $n$ intervals combination. 
+The solution, which elaborated in details in the work of Bukra~\cite{Merav}, is to collect all the scalar numbers in all the component games, and define interval for every two adjacent scalars. Then the alphabet contain only tuples of $n$ intervals for every $n$ intervals combination. 
 
 
 % game solver - GOAL
@@ -1151,7 +1172,7 @@ We can perform all those calculations once in the compilation time, and then the
 
 \section{Related Work}
 
-This thesis is mainly based on the RTComposer paper~\cite{RTComposer} and the work that followed on GameComposer by Merav Bukra~\cite{Merav}.
+This thesis is mainly based on the RTComposer paper~\cite{RTComposer} and the work that followed on GameComposer by Bukra~\cite{Merav}.
 In this thesis, like in RTComposer, we present a framework for the design of cyber-phisical systems with dynamic scheduling at real-time.
 RTComposer presents a component-based framework where each component corresponds to a control loop in a complex cyber-phisical system.
 Each component has a clearly specified interface that includes method for sensing, method for actuation, and additional computational methods that can be executed between the time of sensing and actuation. Each component have requirement specification given by a finite automaton over infinite words such that any infinite word that the automaton accepts specifies, for each time slot, the set of computational methods to invoke in that slot.
@@ -1162,12 +1183,12 @@ In this work, unlike RTComposer, we loosen the definition of a component, and re
 
 % game composer inspiered by merav for reactive scheduling
 % merav concentrated in automata and exponential stabilisation and develop great tools
-The GameComposer tool propsed by Merav Bukra~\cite{Merav}, similar to this thesis, extended RTComposer by adding the ability of ``reacting'' to the environment.
+The GameComposer tool propsed by Bukra~\cite{Merav}, similar to this thesis, extended RTComposer by adding the ability of ``reacting'' to the environment.
 Inspired from GameComposer, we use \buchi game as the main component specification. This allows the scheduler to make scheduling decision based on the current characteristics of the plant.
 Such use of games extends the specification automata of RTComposer with the addition of environment player and environment transitions (see Section~\ref{sec:scheduler}).
 The environment may help or interfere with the control operation. We show that it is possible to improve the controller performance by considering this environment influence, See~Section~\ref{sec:results}. 
 
-The difference between this work and the work of Merav Bukra is in the focus. Generally speaking, Merav focus on the technical aspects of the scheduler and automata related algorithms.
+The difference between this work and the work of Bukra is in the focus. Generally speaking, Bukra focus on the technical aspects of the scheduler and automata related algorithms.
 This work focuses on the integration of the automata based scheduling in a cyber-phisical systems.
 
 % rt stabilization vs kalman-filter scheduling
@@ -1194,10 +1215,10 @@ We believe that the lack of dedicated scheduling framework for co-design of real
 Based on a review of the available optic-flow sensors for APM software, we can say that all current optic-flow sensors consist of an additional processor, none run the algorithms on the main processor that is more than capable of doing so. This, we claim, indicates that there is a need for better techniques for integrating computations in a dynamic and safe way.
 
 % hanoch
-The case-study in this thesis, presented in Section~\ref{sec:caseStudy}, is based on the work of Hanoch~\cite{Efraim17}.
-Hanoch presented an iterative technique for calculating the position and attitude of the drone relative to a window.
-In this technique the drone is equipped with a camera pointed to the front of the drone capable of photographing a window and finding the four corners of the window in the image surface. Hanoch's algorithm takes the positions of the corners and calculates the position and attitude relative to the window.
-In the case-study of this thesis we control and regulate the position and attitude of the drone (see Section~\ref{sec:Observer Design}) using the same techniques developed by Hanoch. Hanoch work used an external computer, not the one onboard the quadrotor. He did not care for efficient resource utilization because his version of the demonstration did not use vision sensing at all, only a simulation of the position of the window corners obtained from the OptiTrack system. Our work shows that the method proposed by Hanoch can be implemented with at run-time on the embedded processor with minimal CPU consumption. Also, our experiment runs on a different quadcopter.
+The case-study in this thesis, presented in Section~\ref{sec:caseStudy}, is based on the work of Efraim~\cite{Efraim17}.
+Efraim presented an iterative technique for calculating the position and attitude of the drone relative to a window.
+In this technique the drone is equipped with a camera pointed to the front of the drone capable of photographing a window and finding the four corners of the window in the image surface. Efraim's algorithm takes the positions of the corners and calculates the position and attitude relative to the window.
+In the case-study of this thesis we control and regulate the position and attitude of the drone (see Section~\ref{sec:Observer Design}) using the same techniques developed by Efraim. Efraim work used an external computer, not the one onboard the quadrotor. He did not care for efficient resource utilization because his version of the demonstration did not use vision sensing at all, only a simulation of the position of the window corners obtained from the OptiTrack system. Our work shows that the method proposed in \cite{Efraim17} can be implemented at run-time on the embedded processor with minimal CPU consumption. Also, our experiment runs on a different quadcopter.
 
 % a paper from our paper review - variable slot-size
 A different type of adaptive scheduling is presented in~\cite{kowalska2012approach}.
@@ -1240,10 +1261,10 @@ We also discussed how to use general tools for automata related operation such a
 
 As a future work, we plan to apply automata theory and, more specifically, the theory of hybrid automata to develop new techniques for automatic generation of specification automata. The input for this construction can be a specification of the dynamical system that we want to control and a specification of the required close-loop characteristics. Then, we plan to develop tools that can automatically generate automata from engineering models given, e.g., in MATLAB/Simulink~\cite{matlab}.
 %simucopter
-We also plan to implement our reactive scheduling technique within the \textit{SimuCopter} project~\cite{SimuCopter}. The \textit{SimuCopter} tool is a plug-in for \textit{Matlab Simulink}~\cite{Simulink} that allows to create controllers for drones in Simulink using its code-generation capabilities. 
+We also plan to implement our reactive scheduling technique within the \textit{SimuCopter} project~\cite{SimuCopter}. The \textit{SimuCopter} tool is a plug-in for \textit{MATLAB Simulink}~\cite{Simulink} that allows to create controllers for drones in Simulink using its code-generation capabilities. 
 
 % online composition
-The approach for online composition of components presented by Merav Bukra in~\cite{Merav} may also be adopted within our reactive scheduler, to allow for safe `hot' updates and upgrades of critical systems while they are running. 
+The approach for online composition of components presented by Bukra in~\cite{Merav} may also be adopted within our reactive scheduler, to allow for safe `hot' updates and upgrades of critical systems while they are running. 
 
 \section{Apendix}
 \subsection{Kalman Filter and State Estimation}
@@ -1330,6 +1351,7 @@ Note: for the mater of this thesis, the turns are always alternating, and the \t
 
 %\begin{samepage}
 \bibliographystyle{abbrv}
+%\bibliographystyle{acm}
 \bibliography{hodai_thesis}
 %\end{samepage}
 
