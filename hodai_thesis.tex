@@ -1151,7 +1151,7 @@ We can perform all those calculations once in the compilation time, and then the
 
 \section{Related Work}
 
-This thesis is mainly based on the RTComposer paper~\cite{RTComposer} and the the work that followed on GameComposer by Merav Bukra~\cite{Merav}.
+This thesis is mainly based on the RTComposer paper~\cite{RTComposer} and the work that followed on GameComposer by Merav Bukra~\cite{Merav}.
 In this thesis, like in RTComposer, we present a framework for the design of cyber-phisical systems with dynamic scheduling at real-time.
 RTComposer presents a component-based framework where each component corresponds to a control loop in a complex cyber-phisical system.
 Each component has a clearly specified interface that includes method for sensing, method for actuation, and additional computational methods that can be executed between the time of sensing and actuation. Each component have requirement specification given by a finite automaton over infinite words such that any infinite word that the automaton accepts specifies, for each time slot, the set of computational methods to invoke in that slot.
@@ -1184,9 +1184,9 @@ Specifically, we extract an estimation of the process and measurement errors fro
 %TODO - online composition
 %TODO - micro / macro scheduler
 
-% add pepers pove the need of smart scheduling
+% add pepers prove the need of smart scheduling
 Many researches~\cite{Efraim17, Efraim2017, Shlomo, das2002vision, shakernia1999landing, shakernia1999landing, khalil2005optical, ahrens2009vision, bills2011autonomous, blosch2010vision} and comercial products~\cite{APM, bristeau2011navigation} are beginning to integrate sensors based on visual input, i.e., on-board camera, especially for Micro Aerial Vehicles (MAV), which are usually equipped with a computer with limited resources.
-As vision-based sensors usually required expensive computations for extracting the needed information, the developers are often for special consideration of the resource management.
+As vision-based sensors usually required expensive computations for extracting the needed information, the developers are often need for special consideration of the resource management.
 In order to integrate, for example, optic-flow sensor in multi-rotors controllers, engineers often prefer to add a dedicated processor to simplify the software (e.g., PX4FLOW sensor for APM~\cite{APM}), or use a better (and more expensive) processor.
 For education purposes, i.e., academic researches, people often add a dedicated remote computer for the expensive vision computations~\cite{Efraim17,Efraim2017}.
 All these show the need for flexible, but predictable, techniques for resource managements and scheduling.
@@ -1210,15 +1210,17 @@ Anytime algorithms, are algorithms whose quality of results improves gradually a
 Zilberstein and Russell~\cite{Shlomo} made a distinction between \textit{contract}-based algorithms, and \textit{interruptible} algorithms.
 \textit{interruptible} algorithms produce results even when interrupted unexpectedly and the result quality is constantly improved with the time allowed for the algorithm.
 \textit{Contract-based } algorithms, are also capable of producing results whose quality varies with time allocation, but they must be given a particular time allocation in advance. If is interrupted before the contract time, it may yield no useful results. Such algorithms are particularly amenable for being used in our framework because they can be scheduled in different modes based on the dynamic needs of the system.
-% TODO Gera: added the below. OK?
-In fact, the algorithm that we used for detecting the corners of the windows with varying levels of noise that correspond, inversely, to varying computation times, can be viewed as a contract-based anytime algorithm. This shows that automata based scheduling can be integrated with contract based anytime algorithms to provide for a quick on-the-fly decision mechanism that guarantee control performance with a low amount of resource utilization.
+In fact, the algorithm that we used for detecting the corners of the windows with varying levels of noise that correspond, inversely, to varying computation times, is a contract-based anytime algorithm. We show that automata based scheduling can be integrated with anytime algorithms to provide for a quick on-the-fly decision mechanism that guarantee control performance with a low amount of resource utilization. Note, interruptible anytime algorithms can be easily integrated with our automata based scheduling, by define constant duration operation modes and calculate the estimation quality statistics for every operation mode.
 
 % contract based vision papers
-Our use of vision based sensors with different CPU consumption vs. sensing accuracy trade-offs is highly influenced by the \textit{contract-based} controller interface presented in~\cite{pant2015co}. This paper presents a framework for co-designing anytime estimation and control algorithms, and addresses the computer vision issues of delays and inaccuracies fo real-time systems. It presents techniques for creating anytime estimator from standard off-the-shelf Computer Vision algorithms, and show how to obtain a trade-off curve for its delay vs. estimation error behavior. This trade-off curve was later used to define the contract-based interface between the estimator and controller, a point on this curve define an operation mode of the estimator, denoted by $(\delta , \epsilon)$, where the controller may request for estimation with error bound $\epsilon$, and then the computer vision will require execution time of $\delta$. We adopted the $(\delta , \epsilon)$ interface in our implementation of the case-study.
+Our use of vision based sensors with different CPU consumption vs. sensing accuracy trade-offs is highly influenced by the \textit{contract-based} controller interface presented in~\cite{pant2015co}. This paper presents a framework for co-designing anytime estimation and control algorithms, and addresses the computer vision issues of delays and inaccuracies for real-time systems. It presents techniques for creating anytime estimator from standard off-the-shelf Computer Vision algorithms, and show how to obtain a trade-off curve for its delay vs. estimation error behavior. This trade-off curve was later used to define the contract-based interface between the estimator and controller, a point on this curve define an operation mode of the estimator, denoted by $(\delta , \epsilon)$, where the controller may request for estimation with error bound $\epsilon$, and then the computer vision will require execution time of $\delta$. 
+This paper focus on the techniques for creating anytime estimator.
+We integrate the $(\delta , \epsilon)$ interface in our adaptive scheduler for the implementation of the case-study, and use inputs from Kalman based filters for schedule decisions, which result in environment-depended scheduler.
 
 
 % a paper from our paper review - networking
-The scheduling for resources vs. quality trade-offs was also researched from the communication resources aspects. The paper~\cite{wu2013event} considerד a sensor data scheduling for remote state estimation, with constrained communication energy and bandwidth. A sensor needs to decide whether it should send the measurement to a remote estimator for further processing.  The paper proposeד an event-based sensor data scheduler. The paper illustrates how to achieve a desired balance between the sensor-to-estimator communication rate and the estimation quality, by selecting an appropriate event-triggering threshold.
+The scheduling for resources vs. quality trade-offs was also researched from the communication resources aspects. The paper~\cite{wu2013event} consider a sensor data scheduling for remote state estimation, with constrained communication energy and bandwidth. A sensor needs to decide whether it should send the measurement to a remote estimator for further processing. The paper propose an event-based sensor data scheduler. The paper illustrates how to achieve a desired balance between the sensor-to-estimator communication rate and the estimation quality, by selecting an appropriate event-triggering threshold.
+Although our work focuses in balancing the processing usage, our proposed automata-based interface can be used for encoding the event-triggering threshold, as a composable specification, and this way can serve also for managing network usage.
 
 \section{Conclusions and Future Work}
 % use real vision
