@@ -186,7 +186,7 @@ fill=orange!20!yellow!20]
 \def\mytitle{ {\Huge Reactive Scheduling of Computational Resources in Control Systems} } % title
 \def\mysubtitle{By: {\Large \myauthor} \\
     Supervisor: {\Large \mysupervisor}\\}
-\def\mysubject{ \textsc{Thesis Submitted in Partial Fulfillment for the Master of Sciences Degree} }
+\def\mysubject{ \textsc{Thesis Submitted in Partial Fulfillment \\ for the Master of Sciences Degree} }
 \def\mydate{\printdayoff\today} % date
 
 \def\myTitlePage{
@@ -1150,35 +1150,30 @@ We can perform all those calculations once in the compilation time, and then the
 
 \section{Related Work}
 
-This thesis is mainly based on the RTComposer paper~\cite{RTComposer} and the followed work, GameComposer, of Merav~\cite{Merav}.
-In this thesis like in RTComposer we present a framework for design cyber-phisical systems with dynamic scheduling for real-time.
-RTComposer presents so called component-based framework in the sense that a single component correspond to a single control loop in a complex cyber-phisical system.
-Each component has a clearly specified interface that includes method for sensing, method for actuation, and additional computational methods that can be executed between the time of sensing and actuation.
-Each component have requirement specification given by finite automaton over infinite words, every infinite sequence over the automaton specifies, for every time slot, the set of computational methods to invoke in that slot.
+This thesis is mainly based on the RTComposer paper~\cite{RTComposer} and the the work that followed on GameComposer by Merav Bukra~\cite{Merav}.
+In this thesis, like in RTComposer, we present a framework for the design of cyber-phisical systems with dynamic scheduling at real-time.
+RTComposer presents a component-based framework where each component corresponds to a control loop in a complex cyber-phisical system.
+Each component has a clearly specified interface that includes method for sensing, method for actuation, and additional computational methods that can be executed between the time of sensing and actuation. Each component have requirement specification given by a finite automaton over infinite words such that any infinite word that the automaton accepts specifies, for each time slot, the set of computational methods to invoke in that slot.
 
-In this thesis we also continue the use of automata based scheduler, automata specification is expressive, analyzable, and composable specification framework as stated in Section~\ref{sec:architecture} and in RTComposer paper~\cite{RTComposer}.
-After reviewing few embedded control systems, we conclude that RTComposer component design can be limiting. 
-Most control systems have multiple control loops but they may have shared tasks.
-An example for such system is shown in Section~\ref{sec:caseStudy}, there is a three dimensional flying machine with four control loops (pitch, roll, yaw and throttle) that share a single image based sensing task along with some private tasks like compass sensor used only by the yaw control loop.
-%As elaborate in section~\ref{sec:scheduler} we define component as ...
-In this work, unlike RTComposer, we loosen the definition of a component, and remove the separation of sensing and actuation methods, and remains only with computational methods, then a component is not necessarily correspond to a single control loop (see Section~\ref{sec:scheduler}). 
-In this way we can define a single component for the vision based sensing, ans 4 additional components for pitch, roll, yaw and throttle control loops that gets information from the vision component.
+In this thesis we also continue the use of automata based scheduler, an expressive, analyzable, and composable specification framework described in Section~\ref{sec:architecture} and in RTComposer paper~\cite{RTComposer}. Based on a review of several embedded control systems, we conclude that RTComposer component design may be limiting in some applications. 
+Most control systems have multiple control loops but they may have shared tasks. An example for such system is shown in Section~\ref{sec:caseStudy}: a robot flying in a three dimensional space with four control loops (pitch, roll, yaw, and throttle) that share a single image based sensing task along with tasks like the one that handles the compass sensor, used only by the yaw control loop.
+In this work, unlike RTComposer, we loosen the definition of a component, and remove the separation of sensing and actuation methods, and focus only on computational methods. Then, a component does not necessarily correspond to a single control loop (see Section~\ref{sec:scheduler}). In this way we can define a single component for the vision based sensing, ans four additional components for pitch, roll, yaw, and throttle control loops that get information from the vision component.
 
 % game composer inspiered by merav for reactive scheduling
 % merav concentrated in automata and exponential stabilisation and develop great tools
-The GameComposer by Merav~\cite{Merav}, similarly to this thesis, extends RTComposer by adding the ability of ``reacting'' to the environment.
-Inspired from GameComposer we use \buchi game as the main component specification, which allows the scheduler to make scheduling decision based on the current characteristics of the plant.
-Those games extends the specification automata of RTComposer with the addition of environment player and environment transitions (see Section~\ref{sec:scheduler}).
-The environment may help or interfere with the control operation, we manage to improve the controller performance by consider this environment influence, see Section~\ref{sec:results}.
-General speaking Merav focuses on the technical aspects of the scheduler and automata related algorithms.
-This work focus on the integration of the automata based scheduling in a cyber-phisical systems.
+The GameComposer tool propsed by Merav Bukra~\cite{Merav}, similar to this thesis, extended RTComposer by adding the ability of ``reacting'' to the environment.
+Inspired from GameComposer, we use \buchi game as the main component specification. This allows the scheduler to make scheduling decision based on the current characteristics of the plant.
+Such use of games extends the specification automata of RTComposer with the addition of environment player and environment transitions (see Section~\ref{sec:scheduler}).
+The environment may help or interfere with the control operation. We show that it is possible to improve the controller performance by considering this environment influence, See~Section~\ref{sec:results}. 
+
+The difference between this work and the work of Merav Bukra is in the focus. Generally speaking, Merav focus on the technical aspects of the scheduler and automata related algorithms.
+This work focuses on the integration of the automata based scheduling in a cyber-phisical systems.
 
 % rt stabilization vs kalman-filter scheduling
-RTComposer also describes techniques for generate the specification automata. For example, automata for a traditional periodic tasks, or automata that guaranty stability objectives for a given linear switched system.
-Those RTComposer techniques are all techniques for offline scheduling and they can be also applied in our proposed framework.
-In this work we present online techniques that can take in to account the current state of the system.
-We show how to use information from the classic Kalman fiter observer (Section~\ref{sec:simulation}) and a simplest linear version with complementary filter (Section~\ref{sec:Analysis}.
-We manage to extract an estimation of the process and measurement errors from the filter, and schedule sensing tasks base on this estimation.
+RTComposer also contains tools for generating the specification automata. For example, automata for a traditional periodic tasks, or automata that guaranty stability objectives for a given linear switched system. Those tools are all techniques for off-line scheduling and they can be also applied in our proposed framework.
+In this work we present on-line techniques that can take into account the dynamic state of the system.
+For example, we show how to use information from a Kalman filter based observer (Section~\ref{sec:simulation}) and from a complementary filter (Section~\ref{sec:Analysis}.
+Specifically, we extract an estimation of the process and measurement errors from the filter and use this estimation to schedule sensing tasks of varying qualities (and, in return, varying amount of CPU consumption).
 
 %TODO - other works on automata based interface
 %TODO - other works on reactiv schedulers
@@ -1189,45 +1184,42 @@ We manage to extract an estimation of the process and measurement errors from th
 %TODO - micro / macro scheduler
 
 % add pepers pove the need of smart scheduling
-Many researches~\cite{Efraim17, Efraim2017, Shlomo, shakernia1999landing, khalil2005optical, ahrens2009vision, bills2011autonomous, blosch2010vision} and available products~\cite{APM, bristeau2011navigation} begin to integrate sensors that based on visual input, i.e. on-board camera, especially for Micro Aerial Vehicles (MAV), who are usually equipped with a compact and  computer with limited resources.
-As vision-based sensors usually required expensive computations for extracting the needed information, the developers often need a high consideration of the resource management.
-In order to integrate, for example, optic-flow sensor in multi-rotors controllers, engineers often preferred to add dedicated processor for simplify the architecture (e.g. PX4FLOW sensor for APM~\cite{APM}), or use better (and expensive) processor.
-For education purposes, i.e. academic researches, even add dedicated remote computer for the expensive vision computations~\cite{Efraim17,Efraim2017}.
-All these reinforce the need for flexible but predictable techniques for resource managements and scheduling.
-We believe that lack of dedicated scheduling framework for co-design of real-time and non-real-time computations is the main reason that engineers avoid of including those expensive computations within the existing embedded processors.
-Review of the available optic-flow sensors for APM software, we can see that the optic-flow sensors consist of very lite processor in comparison to the available UAV controllers for the APM software, this indicates that the controllers original processor have enough processing power to perform all the tasks but they still prefer to separate them.
-
+Many researches~\cite{Efraim17, Efraim2017, Shlomo, shakernia1999landing, khalil2005optical, ahrens2009vision, bills2011autonomous, blosch2010vision} and comercial products~\cite{APM, bristeau2011navigation} are beginning to integrate sensors based on visual input, i.e., on-board camera, especially for Micro Aerial Vehicles (MAV), which are usually equipped with a computer with limited resources.
+As vision-based sensors usually required expensive computations for extracting the needed information, the developers are often for special consideration of the resource management.
+In order to integrate, for example, optic-flow sensor in multi-rotors controllers, engineers often prefer to add a dedicated processor to simplify the software (e.g., PX4FLOW sensor for APM~\cite{APM}), or use a better (and more expensive) processor.
+For education purposes, i.e., academic researches, people often add a dedicated remote computer for the expensive vision computations~\cite{Efraim17,Efraim2017}.
+All these show the need for flexible, but predictable, techniques for resource managements and scheduling.
+We believe that the lack of dedicated scheduling framework for co-design of real-time and non-real-time computations is the main reason that engineers avoid running those expensive computations on the main embedded processor.
+Based on a review of the available optic-flow sensors for APM software, we can say that all current optic-flow sensors consist of an additional processor, none run the algorithms on the main processor that is more than capable of doing so. This, we claim, indicates that there is a need for better techniques for integrating computations in a dynamic and safe way.
 
 % hanoch
 The case-study in this thesis, presented in Section~\ref{sec:caseStudy}, is based on the work of Hanoch~\cite{Efraim17}.
-Hanoch present an iterative technique for calculating the position and attitude of the drone relative to a window.
-In this technique the drone is equipped with a camera pointed to the front of the drone, the camera is capable of photographing a window and finding the four corners of the window in the image surface.
-Hanoch's algorithm takes the position of the corners and calculate the position and attitude relative to the window.
+Hanoch presented an iterative technique for calculating the position and attitude of the drone relative to a window.
+In this technique the drone is equipped with a camera pointed to the front of the drone capable of photographing a window and finding the four corners of the window in the image surface. Hanoch's algorithm takes the positions of the corners and calculates the position and attitude relative to the window.
 In the case-study of this thesis we control and regulate the position and attitude of the drone (see Section~\ref{sec:Observer Design}) using the same techniques developed by Hanoch.
+
+% TODO GERA: Say that Hanoch did not do online control. How did we improve on Hanoch work?
 
 % a paper from our paper review - variable slot-size
 A different type of adaptive scheduling is presented in~\cite{kowalska2012approach}.
-This paper proposes a scheduling method that implement time variable step sizes instead of a fixed sampling frequency. The switching times are incorporated into an optimization problem, thus resulting in an adaptive step-size control process. The use of variable time steps is shown to require less tuning and reduces the number of expensive model evaluations.
+This paper proposes a scheduling method that implements time variable step sizes instead of a fixed sampling frequency. The switching times are incorporated into an optimization problem, thus resulting in an adaptive step-size control process. The use of variable time steps is shown to require less tuning and reduces the number of expensive model evaluations. 
+% TODO: gera added the below. OK?
+Clearly, for run-time adaptation, it doesn't make sense to apply an solver that finds and optimal schedule if it takes more CPU than it saves. In our work, we show that automata based scheduling, which does not require any significant run-time computations, can serve for this purpose.
 
 In the literature there are many researches considering \textit{anytime} vision based algorithms for designing flexible controllers~\cite{Shlomo, arzen2000introduction, pant2015co, greco2011design, quevedo2013sequence}. 
 The motivation is usually similar, to improve the quality of estimation where the conditions allows.
 Anytime algorithms, are algorithms whose quality of results improves gradually as computation time increases.
-Zilberstein and Russell~\cite{Shlomo} made an distinction between \textit{contract}-based algorithms, and \textit{interruptible} algorithms.
-\textit{interruptible} algorithms produce results of the even when interrupted unexpectedly, the result quality is constantly improved.
-\textit{interruptible} algorithms, although capable of producing results whose quality varies with time allocation, must be given a particular time allocation in advance, If is interrupted before the contract time, it may yield no useful results.
-
+Zilberstein and Russell~\cite{Shlomo} made a distinction between \textit{contract}-based algorithms, and \textit{interruptible} algorithms.
+\textit{interruptible} algorithms produce results even when interrupted unexpectedly and the result quality is constantly improved with the time allowed for the algorithm.
+\textit{Contract-based } algorithms, are also capable of producing results whose quality varies with time allocation, but they must be given a particular time allocation in advance. If is interrupted before the contract time, it may yield no useful results. Such algorithms are particularly amenable for being used in our framework because they can be scheduled in different modes based on the dynamic needs of the system.
+% TODO Gera: added the below. OK?
+In fact, the algorithm that we used for detecting the corners of the windows with varying levels of noise that correspond, inversely, to varying computation times, can be viewed as a contract-based anytime algorithm.
 % contract based vision papers
-The use of vision based sensors with different CPU consumption Vs. sensing accuracy trade-offs is highly influenced by the \textit{contract-based} controller interface presented in~\cite{pant2015co}.
-This paper present a framework for co-designing anytime estimation and control algorithms, and address the computer vision issues of delays and inaccuracies fo real-time systems. 
-it present techniques for creating anytime estimator from standard off-the-shelf Computer Vision algorithms, and show how to obtain a trade-off curve for its delay vs estimate error behavior.
-This trade-off curve was later used to define the contract-based interface between the estimator and controller, a point on this curve define an operation mode of the estimator, denoted by $(\delta , \epsilon)$, where the controller may request for estimation with error bound $\epsilon$, and then the computer vision will require execution time of $\delta$.
-We adopted the $(\delta , \epsilon)$ interface in our implementation of the case-study.
+Specifically, the use of vision based sensors with different CPU consumption vs. sensing accuracy trade-offs is highly influenced by the \textit{contract-based} controller interface presented in~\cite{pant2015co}. This paper presents a framework for co-designing anytime estimation and control algorithms, and addresses the computer vision issues of delays and inaccuracies fo real-time systems. It presents techniques for creating anytime estimator from standard off-the-shelf Computer Vision algorithms, and show how to obtain a trade-off curve for its delay vs. estimation error behavior. This trade-off curve was later used to define the contract-based interface between the estimator and controller, a point on this curve define an operation mode of the estimator, denoted by $(\delta , \epsilon)$, where the controller may request for estimation with error bound $\epsilon$, and then the computer vision will require execution time of $\delta$. We adopted the $(\delta , \epsilon)$ interface in our implementation of the case-study.
 
 
 % a paper from our paper review - networking
-The scheduling for resources vs. quality trade-offs was also researched from the communication resources aspects. The paper~\cite{wu2013event} consider a sensor data scheduling for remote state estimation, with constrained communication energy and bandwidth.
-A sensor needs to decide whether it should send the measurement to a remote estimator for further processing. 
-The paper propose an event-based sensor data scheduler. The paper illustrate how to achieve a desired balance between the sensor-to-estimator communication rate and the estimation quality, by selecting an appropriate event-triggering threshold.
+The scheduling for resources vs. quality trade-offs was also researched from the communication resources aspects. The paper~\cite{wu2013event} considerד a sensor data scheduling for remote state estimation, with constrained communication energy and bandwidth. A sensor needs to decide whether it should send the measurement to a remote estimator for further processing.  The paper proposeד an event-based sensor data scheduler. The paper illustrates how to achieve a desired balance between the sensor-to-estimator communication rate and the estimation quality, by selecting an appropriate event-triggering threshold.
 
 \section{Conclusions and Future Work}
 % use real vision
@@ -1236,25 +1228,21 @@ The paper propose an event-based sensor data scheduler. The paper illustrate how
 
 %TODO - say somthing about the camera driver
 
-We introduced a new approach for allocation of computation resource in control systems that allows dynamic scheduling where resources are allocated only when they are needed. 
-This approach addresses the need of real-time developers to safely integrate advanced technologies of recent time, technologies that usually require large and dynamic amount of computation resources, with traditional control systems.
-We saw for example how APM based systems use external processor for optic flow sensor although theoretically have more than enough computational power.  
-This new approach allows to safely integrate real-time and non real-time computations by properly define their requirements.
+We introduced a new approach for run-time allocation of computation resource in control systems that allows for dynamic scheduling where resources are allocated only when they are needed. 
+This approach addresses the need of real-time developers to safely integrate modern dynamic scehduling techniques, like those used in desktop operating systems such as Windows and Linux
+with guarantees provided with the traditional scheduling approaches used in control systems. We see, as an example that shows the need for our techniques, that APM based systems use external processor for optic-flow sensor although they theoretically have more than enough computational power.  The approach that we propose allows to safely integrate real-time and non real-time computations by properly define their requirements, allowing, for example, to integrate the optic-flow algorithm on the main board without risking the performance of the real-time processes.
 
-We presented a design strategy called ''reactive'' scheduling using automata based interface between software components and the scheduler. We extends the automata based interface presented in RTComposer~\cite{RTComposer} which is a reach interface allows for more accurate definition of resources requirements.
-And by adding guards on the transitions, the scheduler can make scheduling decisions based on the environment conditions, in order to save computational resources if the environment conditions allow it.
+We presented a design strategy called ''reactive'' scheduling that applies automata based interfaces between software the components and the scheduler. Our proposal is a significant extension of the interface proposed in RTComposer~\cite{RTComposer}. Specifically,  by adding guards on the transitions, the scheduler we propose can make scheduling decisions based on the environment conditions. This allows to save computational resources if the environment conditions allow.
 We also suggest how to design such a reactive scheduler in the context of software control systems using the data provided by standard filters (see Section~\ref{sec:Arch-kalman}.
 We demonstrated the advantages of the resulting dynamic schedulers in terms of control performance and resource utilization. These advantages are demonstrated both in simulations (Section~\ref{sec:simulation}) and with a real-life case-study (Section~\ref{sec:caseStudy}).
-We show how to use general tools for automata related operation for automatic compose and create those guarded automata (Section~\ref{sec:scheduler}).
+We also discussed how to use general tools for automata related operation such as GOAL~\cite{goal} for automatic composition and for creating those guarded automata (Section~\ref{sec:scheduler}).
 
-As a future work, we plan to apply automata theory and, more specifically, the theory of hybrid automata to develop new techniques for automatic generation of specification automata. The input for this construction can be a specification of the dynamical system that we want to control and a specification of the required close-loop characteristics. Then create tools that implement those techniques.
+As a future work, we plan to apply automata theory and, more specifically, the theory of hybrid automata to develop new techniques for automatic generation of specification automata. The input for this construction can be a specification of the dynamical system that we want to control and a specification of the required close-loop characteristics. Then, we plan to develop tools that can automatically generate automata from engineering models given, e.g., in MATLAB/Simulink~\cite{matlab}.
 %simucopter
-We also plan to implement our reactive scheduling technique within the \textit{SimuCopter} project~\cite{SimuCopter}, \textit{SimuCopter} is an extension for \textit{Matlab Simulink}~\cite{Simulink} that allows to create controllers in Simulink for drones. 
+We also plan to implement our reactive scheduling technique within the \textit{SimuCopter} project~\cite{SimuCopter}. The \textit{SimuCopter} tool is a plug-in for \textit{Matlab Simulink}~\cite{Simulink} that allows to create controllers for drones in Simulink using its code-generation capabilities. 
 
 % online composition
-The approach for online composition of components presented by Merav~\cite{Merav} may also be adopted within our reactive scheduler, to allows safe updates and upgrades of critical systems while they are running. 
-
-
+The approach for online composition of components presented by Merav Bukra in~\cite{Merav} may also be adopted within our reactive scheduler, to allow for safe `hot' updates and upgrades of critical systems while they are running. 
 
 \section{Apendix}
 \subsection{Kalman Filter and State Estimation}
