@@ -1,6 +1,6 @@
 \documentclass[ twoside, 12pt ]{article}
-%\linespread{1.5}
-\usepackage[onehalfspacing]{setspace}
+\linespread{1.5}
+%\usepackage[onehalfspacing]{setspace}
 \usepackage[margin=1cm]{caption}
 
 \usepackage[left=4cm,right=1.5cm,top=1.5cm,bottom=1.5cm]{geometry}
@@ -1180,33 +1180,44 @@ In this work we present online techniques that can take in to account the curren
 We show how to use information from the classic Kalman fiter observer (Section~\ref{sec:simulation}) and a simplest linear version with complementary filter (Section~\ref{sec:Analysis}.
 We manage to extract an estimation of the process and measurement errors from the filter, and schedule sensing tasks base on this estimation.
 
+%TODO - other works on automata based interface
+%TODO - other works on reactiv schedulers
+%There was many other researches proposing automata-based interfaces~\cite{many, Towards Robustness for Cyber-Physical Systems} and LTI~\cite{many} and ...
+
 
 %TODO - online composition
 %TODO - micro / macro scheduler
 
-\todo{Fix cites}
+% add pepers pove the need of smart scheduling
+Many researches~\cite{Efraim17, Efraim2017, Shlomo, shakernia1999landing, khalil2005optical, ahrens2009vision, bills2011autonomous, blosch2010vision} and available products~\cite{APM, bristeau2011navigation} begin to integrate sensors that based on visual input, i.e. on-board camera, especially for Micro Aerial Vehicles (MAV), who are usually equipped with a compact and  computer with limited resources.
+As vision-based sensors usually required expensive computations for extracting the needed information, the developers often need a high consideration of the resource management.
+In order to integrate, for example, optic-flow sensor in multi-rotors controllers, engineers often preferred to add dedicated processor for simplify the architecture (e.g. PX4FLOW sensor for APM~\cite{APM}), or use better (and expensive) processor.
+For education purposes, i.e. academic researches, even add dedicated remote computer for the expensive vision computations~\cite{Efraim17,Efraim2017}.
+All these reinforce the need for flexible but predictable techniques for resource managements and scheduling.
+We believe that lack of dedicated scheduling framework for co-design of real-time and non-real-time computations is the main reason that engineers avoid of including those expensive computations within the existing embedded processors.
+Review of the available optic-flow sensors for APM software, we can see that the optic-flow sensors consist of very lite processor in comparison to the available UAV controllers for the APM software, this indicates that the controllers original processor have enough processing power to perform all the tasks but they still prefer to separate them.
+
+
 % hanoch
-The case-study in this thesis, presented in Section~\ref{sec:caseStudy}, \todo{ask hanoch for reference} is based on the work of Hanoch~\cite{Hanoch ??}.
+The case-study in this thesis, presented in Section~\ref{sec:caseStudy}, is based on the work of Hanoch~\cite{Efraim17}.
 Hanoch present an iterative technique for calculating the position and attitude of the drone relative to a window.
 In this technique the drone is equipped with a camera pointed to the front of the drone, the camera is capable of photographing a window and finding the four corners of the window in the image surface.
 Hanoch's algorithm takes the position of the corners and calculate the position and attitude relative to the window.
 In the case-study of this thesis we control and regulate the position and attitude of the drone (see Section~\ref{sec:Observer Design}) using the same techniques developed by Hanoch.
 
 % a paper from our paper review - variable slot-size
-A different type of adaptive scheduling is presented in~\cite{An approach to variable time receding horizon control}\todo{An approach to variable time receding horizon control}.
-This paper proposes a scheduling method that use variable step sizes instead of a fixed sampling frequency. The switching times are incorporated into an optimization problem, thus resulting in an adaptive step-size control process. Similarly to this thesis, the use of variable time steps is shown to require less tuning and reduces the number of expensive model evaluations.
+A different type of adaptive scheduling is presented in~\cite{kowalska2012approach}.
+This paper proposes a scheduling method that implement time variable step sizes instead of a fixed sampling frequency. The switching times are incorporated into an optimization problem, thus resulting in an adaptive step-size control process. The use of variable time steps is shown to require less tuning and reduces the number of expensive model evaluations.
 
-
-
-In the literature there are many researches considering \textit{anytime} vision based algorithms for designing flexible controllers~\cite{many pepers}. 
+In the literature there are many researches considering \textit{anytime} vision based algorithms for designing flexible controllers~\cite{Shlomo, arzen2000introduction, pant2015co, greco2011design, quevedo2013sequence}. 
 The motivation is usually similar, to improve the quality of estimation where the conditions allows.
 Anytime algorithms, are algorithms whose quality of results improves gradually as computation time increases.
-Zilberstein and Russell~\cite{Optimal composition of real-time systems} made an distinction between \textit{contract}-based algorithms, and \textit{interruptible} algorithms.
+Zilberstein and Russell~\cite{Shlomo} made an distinction between \textit{contract}-based algorithms, and \textit{interruptible} algorithms.
 \textit{interruptible} algorithms produce results of the even when interrupted unexpectedly, the result quality is constantly improved.
 \textit{interruptible} algorithms, although capable of producing results whose quality varies with time allocation, must be given a particular time allocation in advance, If is interrupted before the contract time, it may yield no useful results.
 
-%TODO - contract based vision papers
-The use of vision based sensors with different CPU against sensing accuracy trade-offs is highly influenced by the \textit{contract-based} controller interface presented in~\cite{Co-design}.
+% contract based vision papers
+The use of vision based sensors with different CPU consumption Vs. sensing accuracy trade-offs is highly influenced by the \textit{contract-based} controller interface presented in~\cite{pant2015co}.
 This paper present a framework for co-designing anytime estimation and control algorithms, and address the computer vision issues of delays and inaccuracies fo real-time systems. 
 it present techniques for creating anytime estimator from standard off-the-shelf Computer Vision algorithms, and show how to obtain a trade-off curve for its delay vs estimate error behavior.
 This trade-off curve was later used to define the contract-based interface between the estimator and controller, a point on this curve define an operation mode of the estimator, denoted by $(\delta , \epsilon)$, where the controller may request for estimation with error bound $\epsilon$, and then the computer vision will require execution time of $\delta$.
@@ -1214,7 +1225,7 @@ We adopted the $(\delta , \epsilon)$ interface in our implementation of the case
 
 
 % a paper from our paper review - networking
-The scheduling for resources vs estimation-quality trade-offs was also researched from the communication resources aspects. The paper~\cite{Event-Based Sensor Data Scheduling: Trade-Off Between Communication Rate and Estimation Quality} \todo{Event-Based Sensor Data Scheduling: Trade-Off Between Communication Rate and Estimation Quality} consider a sensor data scheduling for remote state estimation, with constrained communication energy and bandwidth.
+The scheduling for resources vs. quality trade-offs was also researched from the communication resources aspects. The paper~\cite{wu2013event} consider a sensor data scheduling for remote state estimation, with constrained communication energy and bandwidth.
 A sensor needs to decide whether it should send the measurement to a remote estimator for further processing. 
 The paper propose an event-based sensor data scheduler. The paper illustrate how to achieve a desired balance between the sensor-to-estimator communication rate and the estimation quality, by selecting an appropriate event-triggering threshold.
 
