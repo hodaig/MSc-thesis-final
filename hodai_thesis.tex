@@ -221,7 +221,6 @@ fill=orange!20!yellow!20]
         \vspace{2cm}
         \printdayoff\today 
     \end{center} 
-
 \end{titlepage}
 
 \begin{titlepage}
@@ -242,12 +241,8 @@ fill=orange!20!yellow!20]
     
 \end{titlepage}
 
+\newpage\null\thispagestyle{empty}\addtocounter{page}{-2}\newpage
 
-\begin{titlepage}
-    \hspace{3cm}
-\end{titlepage}
-
-\newpage
 \subfile{./Chapters/Abstract}
 
 \newpage
@@ -1142,7 +1137,7 @@ Every time the system is executed, the scheduler construct the strategy automato
         $T_{resource}$ contains all the system components subroutines, therefore, $C_s$ also do not contain tasks sets that exceeds a single time step.
         %, therefore a schedule of a longer tasks set is not possible in algorithm~\ref{code:scheduler}.
         
-        \item The system achieves the control objectives: The component $C_s$ is well-formed,and the random walk of Algorithm~\ref{code:scheduler} is constructing a word $\omega \in \L(C_s)$, therefore, by the definition of well-formed components (Definition~\ref{thm:well-formed}), the run of Algorithm~\ref{code:scheduler} that construct the word $\omega$ achieves the system control objectives.
+        \item The system achieves the control objectives: The component $C_s$ is well-formed,and the random walk of Algorithm~\ref{code:scheduler} is constructing a word $\omega \in \mathcal{L}(C_s)$, therefore, by the definition of well-formed components (Definition~\ref{thm:well-formed}), the run of Algorithm~\ref{code:scheduler} that construct the word $\omega$ achieves the system control objectives.
     \end{enumerate}
 \end{proof}
 
@@ -1312,7 +1307,7 @@ $$ P_{k|k-1} = A P_{k-1|k-1} A^T + Q $$
 After the prediction was calculated the update step combine the prediction and measurements to get the Kalman estimation:
 $$ \hat{x}_{k|k} = \hat{x}_{k|k-1} + K_k(y_k - C\hat{x}_{k|k-1})$$
 $K_k$, also called Kalman Gain, represent the contribution of each partial estimation ($\hat{x}_{k|k-1}$ and $y_k$) to the Kalman estimation, and is calculate each time by:
-$$ K_k = {{P_{k|k-1} C^T} \over {C P_{k|k-1} C^T + R} }$$
+$$ K_k = \frac{P_{k|k-1} C^T}{C P_{k|k-1} C^T + R} $$
 Note, if the error covariance ($Q$ and $R$) are constants, $K_k$ is converged to a constant value.
 The Kalman estimation covariance is:
 $$ P_k = (I - K_kC) P_{k|k-1} $$
@@ -1354,12 +1349,12 @@ Note: for the mater of this thesis, the turns are always alternating, and the \t
 \bibliography{hodai_thesis}
 %\end{samepage}
 
-%\begin{titlepage}
-%    \hspace{3cm}
-%\end{titlepage}
 
+\cleardoublepage % make next page on odd page
 \includepdf[]{./Chapters/HebrewAbstract.pdf}
 
+\cleardoublepage % make next page on odd page
 \includepdf[]{./Chapters/HebrewCoverPage.pdf}
+
 
 \end{document}}
