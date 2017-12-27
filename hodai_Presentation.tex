@@ -260,7 +260,27 @@ fill=orange!20!yellow!20]
 
 \frame{
     \frametitle{The Proposed Architecture}
-      {\todoil{explane the flow}}
+    
+    %\begin{center}
+    \begin{columns}
+        \begin{column}{5cm}
+            \scalebox{0.5}{
+                \tikzArch
+            }
+        \end{column}
+        \hfill
+        {\huge +}
+        \hfill
+        \begin{column}{4cm}
+            \todoil{figure of automata}
+        \end{column}
+    \end{columns}
+    %\end{center} 
+}
+
+\frame{
+    \frametitle{The Proposed Architecture - The System Design}
+    {\todoil{Explain that the scheduler is involve in the control loops}}
     \begin{center}
         \scalebox{0.9}{
             \tikzArch
@@ -269,19 +289,15 @@ fill=orange!20!yellow!20]
 }
 
 \frame{
-    \frametitle{The Proposed Architecture - The Scheduler}
-    %\begin{center}
-        \scalebox{0.5}{
-            \tikzArch
-        }
-    %\end{center} 
-    \begin{block}{TODO}
-        {\todoil{explane guided automata}}
-    \end{block}
+    \frametitle{The Proposed Architecture - The Specification interface}
+    {\todoil{explain the advantage of automata}}\\
+    \todoil{maybe add a word about RTcomposer and GameComposer}\\
+    \begin{center}
+        \todoil{Figure os guided automata}
+    \end{center} 
 }
 
-    
-    \todoil{the arch figure and the how the scheduler work}
+
 \subsection{\buchi Games Interface}
     \todoil{\buchi game remainder}
 \subsection{Sub-Summery: Component Definition}
