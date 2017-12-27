@@ -1,4 +1,4 @@
-\documentclass{beamer}
+\documentclass[notes]{beamer}
 
 \usetheme{Darmstadt}
 \usepackage{lmodern}% http://ctan.org/pkg/lm
@@ -45,7 +45,7 @@
 
 %\reversemarginpar
 %\newcommand\todoil[1]{\todo[inline]{ #1}}
-\newcommand\todoil[1]{ {\centering \color{red}\textit{\textbf{TODO:} #1}}\\ }
+\newcommand\todoil[1]{ {\color{red}\textit{\textbf{TODO:} #1}} }
 % % % % % % % end % % % % % % % %
 
 %%%%%%%% Packages for drawing diagrams %%%%%%%%%%%%%%%
@@ -152,30 +152,88 @@ fill=orange!20!yellow!20]
 
 \section{Automata-based Scheduling}
 \subsection{motivation}
-     \frame{
-         \todoil{state of the art??}
-         \begin{figure}[]
-             \centering
-             \begin{tikzpicture}[node distance=1.5cm]
-             \node (in) [eNode] {};
-             \node (control) [recNodeB, right of=in, xshift=0.5cm] {Control Law};
-             \node (sys) [recNodeB, right of=control, xshift=6cm] {Plant};
-             \node (sensor) [recNodeB, below of=sys, xshift=-2cm] {Sensing};
-             \node (estimator) [recNodeB, below of=control, xshift=2cm] {State Estimator};
+\def\tikzFeadback{
+     \begin{tikzpicture}[node distance=1.5cm]
+         \node (in) [eNode] {};
+         \node (control) [recNodeB, right of=in, xshift=0.5cm] {Control Law};
+         \node (sys) [recNodeB, right of=control, xshift=6cm] {Plant};
+         \node (sensor) [recNodeB, below of=sys, xshift=-2cm] {Sensing};
+         \node (estimator) [recNodeB, below of=control, xshift=2cm] {State Estimator};
+         
+         \draw [arrowB] (in) -- node[above] { $r$} (control);
+         \draw [arrowB] (control) -- node[above] { $u$} (sys);
+         \draw [arrowB] (sys) |- node[right] { ($x$)} (sensor);
+         \draw [arrowB] (sensor) -- node[above] { $y$} (estimator);
+         \draw [arrowB] (estimator) -| node[left] { $\hat{x}$} (control);
+     \end{tikzpicture}
+}
+\def\myPerionTable{
+    \begin{tabular}{|c c c|} 
+        \hline
+        Task & Period & Deadline \\ 
+        \hline
+        Check for obstacles & 10ms & 1.5ms \\ 
+        %\hline
+        Check GPS position & 10ms & 0.5ms \\
+        Control Law & 2ms & 0ms \\
+        \multicolumn{3}{|c|}{$\cdots$}\\
+        \hline
+    \end{tabular}
+}
+
+    \frame{
+        \frametitle{An control problem example}
+        \todoil{present the example: robot moving in root with obstacles, mission 1: avoid obstetrical(camera), mission 2: follow the guiding root(GPS)}
+        \begin{figure}
              
-             \draw [arrowB] (in) -- node[above] { $r$} (control);
-             \draw [arrowB] (control) -- node[above] { $u$} (sys);
-             \draw [arrowB] (sys) |- node[right] { ($x$)} (sensor);
-             \draw [arrowB] (sensor) -- node[above] { $y$} (estimator);
-             \draw [arrowB] (estimator) -| node[left] { $\hat{x}$} (control);
-             \end{tikzpicture}
-         \end{figure}
+        \end{figure}
+    }	
+     \frame{
+         \frametitle{The Traditional Solution}
+         \begin{center}
+             \tikzFeadback
+         \end{center}
+         \begin{center}
+             {\Huge \textbf{+}}
+         \end{center}
+         \begin{block}{Constant time steps + periodic tasks}
+             \begin{center}
+                 \todoil{{time steps\\ figure}} + 
+                 \myPerionTable
+             \end{center}
+         \end{block}
      }	
+    \frame{
+        \frametitle{The Main Software Design Problems}
+        \begin{center}
+            \myPerionTable
+        \end{center}
+        \begin{block}{The design problems from our point of view}
+            \begin{itemize}
+                \item \textbf{All the tasks are highly coupled}: \textit{any change or addition of some task require to consider all other tasks requirements}
+                \item \textbf{Static and inefficient scheduling}: \textit{the table is defined for the worst case} \todoil{talk about related work on this direction}
+                \item \textbf{No consideration of the environmental conditions}: it is a cyber-physical system after all
+            \end{itemize}
+        \end{block}
+    }
+     
+    \frame{
+        \frametitle{The Goal}
+        \begin{block}{}
+            In this thesis we design an \textbf{reactive} scheduling framework for real-time systems
+        \end{block}
+        \begin{block}{Required features: \commentOut{of the scheduling framework for real-time systems}}
+            \begin{itemize}
+                \item \textbf{Independent} and \textbf{composable} requirements
+                \item \textbf{Control objective based} requirement interface
+                \item Environment \textbf{adoptive} scheduler
+            \end{itemize}
+        \end{block}
+    }
      
 \subsection{Component-based Architecture}
-    \frame{
-        \frametitle{The Proposed Architecture}
-        \begin{center}
+
+\def\tikzArch{
     \begin{tikzpicture}[node distance=1.2cm]
     \node (in) [eNode] {};
     \node (control) [recNodeB, right of=in, xshift=1.5cm] {Control Law};
@@ -198,8 +256,31 @@ fill=orange!20!yellow!20]
     \draw [arrowG] (sched) --  node[right] {$var(v)$} (estimator);
     
     \end{tikzpicture}
-        \end{center} 
-    }
+}
+
+\frame{
+    \frametitle{The Proposed Architecture}
+      {\todoil{explane the flow}}
+    \begin{center}
+        \scalebox{0.9}{
+            \tikzArch
+        }
+    \end{center} 
+}
+
+\frame{
+    \frametitle{The Proposed Architecture - The Scheduler}
+    %\begin{center}
+        \scalebox{0.5}{
+            \tikzArch
+        }
+    %\end{center} 
+    \begin{block}{TODO}
+        {\todoil{explane guided automata}}
+    \end{block}
+}
+
+    
     \todoil{the arch figure and the how the scheduler work}
 \subsection{\buchi Games Interface}
     \todoil{\buchi game remainder}
