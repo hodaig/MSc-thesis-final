@@ -45,7 +45,7 @@
 
 %\reversemarginpar
 %\newcommand\todoil[1]{\todo[inline]{ #1}}
-\newcommand\todoil[1]{ {\color{red}\textit{\textbf{TODO:} #1}} }
+\newcommand\todoil[1]{ {\color{red}\textit{#1}} }
 % % % % % % % end % % % % % % % %
 
 %%%%%%%% Packages for drawing diagrams %%%%%%%%%%%%%%%
@@ -257,7 +257,104 @@ fill=orange!20!yellow!20]
     
     \end{tikzpicture}
 }
-
+\def\AutoGeneral{
+    \begin{tikzpicture}[
+        auto,
+        semithick,
+        >=stealth
+        ]
+        \node[state,initial](s0) {Mode 1};
+        \node[state](s1) [right of=s0, xshift=4cm] {Mode 2};
+        \node[state](s3) [below of=s0, yshift=-1.5cm] {Mode 3};
+        \node[state, accepting](s2) [right of=s3, xshift=4cm] {Mode 4};
+        \path[->]
+        (s0) edge [loop above=10] node {$\bar{g_1}$} ()
+        (s0) edge [bend left=10] node {$g_1$} (s1)
+        (s1) edge [loop above] node {$\bar{g_2}$} ()
+        (s1) edge [bend left=10] node {$g_2$} (s2)
+        (s2) edge [loop below] node {$\bar{g_3}$} ()
+        (s2) edge [bend left=10] node {$g_3$} (s3)
+        (s3) edge [loop below] node {$\bar{g_4}$} ()
+        (s3) edge [bend left=10] node {$g_4$} (s0)
+        ;
+    \end{tikzpicture}
+}
+\def\AutoCarObs{
+    \begin{tikzpicture}[
+    auto,
+    semithick,
+    >=stealth, text centered
+    ]
+    \node[state,initial, accepting](s0) {Low};
+    \node[state,accepting](s1) [right of=s0, xshift=4cm] {High};
+    \path[->]
+    (s0) edge [loop above=10, text width=2cm] node {no obsticals in frame} ()
+    (s0) edge [bend right] node {} (s1)
+    (s1) edge [bend right, text width=2cm, above] node {no obsticals in frame} (s0)
+    (s1) edge [loop above=10] node {} ()
+    ;
+    \end{tikzpicture}
+}
+\def\AutoCarGPS{
+    \begin{tikzpicture}[
+    auto,
+    semithick,
+    >=stealth, text centered
+    ]
+    \node[state,initial,accepting](gps) {GPS};
+    \node[state](s0) [right of=gps, xshift=1cm] {Non};
+    \node[state](s1) [right of=s0, xshift=1cm] {Non};
+    
+    \path[->]
+    (gps) edge [loop above=10, text width=2cm] node {} ()
+    (s0) edge [bend left] node {} (gps)
+    (s1) edge [bend left] node {} (gps)
+    
+    (gps) edge [bend left] node {} (s0)
+    (s0) edge [bend left] node {} (s1)
+    
+    ;
+    \end{tikzpicture}
+}
+\def\AutoCarComp{
+    \begin{tikzpicture}[
+    auto,
+    semithick,
+    >=stealth
+    ]
+    \node[state,initial,accepting](s0) at (2.46,2.6){s0};
+    \node[state,accepting](s1) at (3.5,4.42){s1};
+    \node[state,accepting](s2) at (5.6,4.42){s2};
+    \node[state,accepting](s3) at (6.66,2.6){s3};
+    \node[state,accepting](s4) at (5.6,0.8){s4};
+    \node[state,accepting](s5) at (3.5,0.8){s5};
+    \path[->]
+    (s0) edge [loop left] node {} ()
+    (s0) edge [bend left=10] node {} (s1)
+    (s0) edge [bend left=10] node {} (s2)
+    (s0) edge [bend left=10] node {} (s3)
+    (s1) edge [bend left=10] node {} (s0)
+    (s1) edge [bend left=10] node {} (s3)
+    (s1) edge [] node {} (s4)
+    (s1) edge [] node {} (s5)
+    (s2) edge [bend left=10] node {} (s0)
+    (s2) edge [bend left=10] node {} (s3)
+    (s2) edge [] node {} (s4)
+    (s2) edge [] node {} (s5)
+    (s3) edge [bend left=10] node {} (s0)
+    (s3) edge [bend left=10] node {} (s1)
+    (s3) edge [bend left=10] node {} (s2)
+    (s3) edge [loop right] node {} ()
+    (s4) edge [] node {} (s0)
+    (s4) edge [] node {} (s3)
+    (s5) edge [] node {} (s0)
+    (s5) edge [] node {} (s3)
+    ;
+    \end{tikzpicture}   
+}
+\def\AutoCarObsGameBased{
+    \todoil{TODO: actual automata of obstacle avoidance component}
+}
 \frame{
     \frametitle{The Proposed Architecture}
     
@@ -272,14 +369,17 @@ fill=orange!20!yellow!20]
         {\huge +}
         \hfill
         \begin{column}{4cm}
-            \todoil{figure of automata}
+            \scalebox{0.5}{
+                \AutoGeneral
+            }
         \end{column}
     \end{columns}
     %\end{center} 
 }
 
 \frame{
-    \frametitle{The Proposed Architecture - The System Design}
+    \frametitle{System Design}
+    \framesubtitle{The Proposed Architecture}
     {\todoil{Explain that the scheduler is involve in the control loops}}
     \begin{center}
         \scalebox{0.9}{
@@ -289,14 +389,81 @@ fill=orange!20!yellow!20]
 }
 
 \frame{
-    \frametitle{The Proposed Architecture - The Specification interface}
-    {\todoil{explain the advantage of automata}}\\
+    \frametitle{Automata-Based Specification Interface}
+    \framesubtitle{The Proposed Architecture}
     \todoil{maybe add a word about RTcomposer and GameComposer}\\
     \begin{center}
-        \todoil{Figure os guided automata}
+        \scalebox{0.4}{
+            \AutoGeneral
+        }
     \end{center} 
+    
+    \begin{block}{Why Automata}
+        \begin{itemize}
+            \item \textbf{Lite:} minimal resource consumption at run-time
+            \item \textbf{Composable}: easy to compose independent components
+            \item \textbf{Automata theory built in:} allows for tools such \emph{GOAL}
+            \item \textbf{Expressiveness}
+        \end{itemize}
+    \end{block}
 }
-
+\frame{
+    \frametitle{Example of Guarded Automata}
+    \framesubtitle{The Proposed Architecture}
+    \begin{center}
+        \begin{columns}
+            \begin{column}{5cm}
+                \begin{block}{Obstacle avoidance component}
+                    \centering
+                    \scalebox{0.6}{
+                        \AutoCarObs
+                    }
+                \end{block}
+                \begin{block}{GPS navigation component}
+                    \centering
+                    \scalebox{0.6}{
+                        \AutoCarGPS
+                    }
+                \end{block}
+            \end{column}
+            \hfill
+            {\Large\textbf{ $\rightarrow$}}
+            \hfill
+            \begin{column}{5cm}
+                \begin{block}{Composed guarded automata}
+                    \centering
+                    \scalebox{0.7}{
+                        \AutoCarComp
+                    }
+                \end{block}
+            \end{column}
+        \end{columns}
+    \end{center}
+}
+\frame{
+    \frametitle{Simplifying the Guarded Automata}
+    \framesubtitle{The Proposed Architecture}
+    
+    
+    \begin{block}{Mode-based guarded automata (for good intuition)}
+        \centering
+        \scalebox{0.6}{
+            \AutoCarObs
+        }
+    \end{block}
+    
+    \begin{center}
+        {\Large $\Downarrow$}
+    \end{center}
+    \begin{block}{The automata in practice (best match $\omega$-word theory)}
+        \centering
+        \scalebox{0.6}{
+            \AutoCarObsGameBased
+        }
+    \end{block}
+    \textbf{Q: How to create the guarded automata?}
+        By wining \buchi games
+}
 
 \subsection{\buchi Games Interface}
     \todoil{\buchi game remainder}
