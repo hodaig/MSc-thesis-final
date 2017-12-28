@@ -128,14 +128,14 @@ fill=orange!20!yellow!20]
 
 \graphicspath{{./img/} {./beamer_img/}}  
 
-\newcommand{\old}[1]{{}}
+\commentOut{
 \AtBeginSubsection[]
 {
 	\begin{frame}<beamer>{Outline}
 		\tableofcontents[currentsection,currentsubsection]
 	\end{frame}
 }
-
+}
 % % % % % % % % % % % % the title page % % % % % % % % % % % %
 
 \title[Reactive Scheduling for Control Systems]{Reactive Scheduling of Computational Resources in Control Systems}
@@ -186,10 +186,24 @@ fill=orange!20!yellow!20]
 
 \frame{
   \frametitle{An control problem example}
-  \todoil{present the example: robot moving in root with obstacles, mission 1: avoid obstetrical(camera), mission 2: follow the guiding root(GPS)}
-  \begin{figure}
+  \begin{center}
+      \includegraphics[width=80mm]{robotInMaze}
       
-  \end{figure}
+      Robot navigation
+  \end{center}
+}	
+\frame{
+    \frametitle{An control problem example}
+    \begin{center}
+        \includegraphics[width=50mm]{robotInMaze}
+    \end{center}
+    \begin{block}{The Objectives}
+        \begin{itemize}
+            \item The robot need to reach the target point \textbf{fast} and \textbf{safely}
+            \item The robot have on-board camera for \textbf{obstacle-avoidance}
+            \item The robot use GPS for general \textbf{navigating}
+        \end{itemize}
+    \end{block}
 }	
 \frame{
     \frametitle{The Traditional Solution}
