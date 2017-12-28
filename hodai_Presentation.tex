@@ -38,14 +38,18 @@
 %\newcommand{\->}{$\rightarrow$}
 
 % % % % % margin notes % % % % % %
+
+%\usepackage{cooltooltips}
+%\def\cool{\texttt{cool}}
+
 %\usepackage[margin=1cm]{caption}
-%\usepackage[colorinlistoftodos,prependcaption
-%%,textsize=tiny
-%]{todonotes}
+\usepackage[colorinlistoftodos,prependcaption
+,textsize=tiny
+]{todonotes}
 
 %\reversemarginpar
 %\newcommand\todoil[1]{\todo[inline]{ #1}}
-\newcommand\todoil[1]{ {\color{red}\textit{#1}} }
+\newcommand\todoil[1]{ {\color{red}\textit{#1}}\todo[disable]{#1}}
 % % % % % % % end % % % % % % % %
 
 %%%%%%%% Packages for drawing diagrams %%%%%%%%%%%%%%%
@@ -149,7 +153,6 @@ fill=orange!20!yellow!20]
 
 \frame{\tableofcontents}
 
-
 \section[Scheduler]{Automata-based Scheduling}
 \subsection{Motivation}
 \def\tikzFeadback{
@@ -167,69 +170,69 @@ fill=orange!20!yellow!20]
     \draw [arrowB] (estimator) -| node[left] { $\hat{x}$} (control);
     \end{tikzpicture}
   }
-  \def\myPerionTable{
-      \begin{tabular}{|c c c|} 
-          \hline
-          Task & Period & Deadline \\ 
-          \hline
-          Check for obstacles & 10ms & 1.5ms \\ 
-          %\hline
-          Check GPS position & 10ms & 0.5ms \\
-          Control Law & 2ms & 0ms \\
-          \multicolumn{3}{|c|}{$\cdots$}\\
-          \hline
-      \end{tabular}
-  }
-  
-  \frame{
-      \frametitle{An control problem example}
-      \todoil{present the example: robot moving in root with obstacles, mission 1: avoid obstetrical(camera), mission 2: follow the guiding root(GPS)}
-      \begin{figure}
-          
-      \end{figure}
-  }	
-  \frame{
-      \frametitle{The Traditional Solution}
-      \begin{center}
-          \tikzFeadback
-      \end{center}
-      \begin{center}
-          {\Huge \textbf{+}}
-      \end{center}
-      \begin{block}{Constant time steps + periodic tasks}
-          \begin{center}
-              \todoil{{time steps\\ figure}} + 
-              \myPerionTable
-          \end{center}
-      \end{block}
-  }	
-  \frame{
-      \frametitle{The Main Software Design Problems}
-      \begin{center}
-          \myPerionTable
-      \end{center}
-      \begin{block}{The design problems from our point of view}
-          \begin{itemize}
-              \item \textbf{All the tasks are highly coupled}: \textit{any change or addition of some task require to consider all other tasks requirements}
-              \item \textbf{Static and inefficient scheduling}: \textit{the table is defined for the worst case} \todoil{talk about related work on this direction}
-              \item \textbf{No consideration of the environmental conditions}: it is a cyber-physical system after all
-          \end{itemize}
-      \end{block}
-  }  
-  \frame{
-      \frametitle{The Goal}
-      \begin{block}{}
-          In this thesis we design an \textbf{reactive} scheduling framework for real-time systems
-      \end{block}
-      \begin{block}{Required features: \commentOut{of the scheduling framework for real-time systems}}
-          \begin{itemize}
-              \item \textbf{Independent} and \textbf{composable} requirements
-              \item \textbf{Control objective based} requirement interface
-              \item Environment \textbf{adoptive} scheduler
-          \end{itemize}
-      \end{block}
-  }
-    
+\def\myPerionTable{
+  \begin{tabular}{|c c c|} 
+      \hline
+      Task & Period & Deadline \\ 
+      \hline
+      Check for obstacles & 10ms & 1.5ms \\ 
+      %\hline
+      Check GPS position & 10ms & 0.5ms \\
+      Control Law & 2ms & 0ms \\
+      \multicolumn{3}{|c|}{$\cdots$}\\
+      \hline
+  \end{tabular}
+}
+
+\frame{
+  \frametitle{An control problem example}
+  \todoil{present the example: robot moving in root with obstacles, mission 1: avoid obstetrical(camera), mission 2: follow the guiding root(GPS)}
+  \begin{figure}
+      
+  \end{figure}
+}	
+\frame{
+    \frametitle{The Traditional Solution}
+    \begin{center}
+        \tikzFeadback
+    \end{center}
+    \begin{center}
+        {\Huge \textbf{+}}
+    \end{center}
+    \begin{block}{Constant time steps + periodic tasks}
+        \begin{center}
+            \todoil{{time steps\\ figure}} + 
+            \myPerionTable
+        \end{center}
+    \end{block}
+}	
+\frame{
+    \frametitle{The Main Software Design Problems}
+    \begin{center}
+        \myPerionTable
+    \end{center}
+    \begin{block}{The design problems from our point of view}
+        \begin{itemize}
+            \item \textbf{All the tasks are highly coupled}: \textit{any change or addition of some task require to consider all other tasks requirements}
+            \item \textbf{Static and inefficient scheduling}: \textit{the table is defined for the worst case} \todoil{talk about related work on this direction}
+            \item \textbf{No consideration of the environmental conditions}: it is a cyber-physical system after all
+        \end{itemize}
+    \end{block}
+}  
+\frame{
+    \frametitle{The Goal}
+    \begin{block}{}
+        In this thesis we design an \textbf{reactive} scheduling framework for real-time systems
+    \end{block}
+    \begin{block}{Required features: \commentOut{of the scheduling framework for real-time systems}}
+        \begin{itemize}
+            \item \textbf{Independent} and \textbf{composable} requirements
+            \item \textbf{Control objective based} requirement interface
+            \item Environment \textbf{adoptive} scheduler
+        \end{itemize}
+    \end{block}
+}
+
 \subsection[Architecture]{Component-based Architecture}
 
 \def\tikzArch{
@@ -287,9 +290,9 @@ fill=orange!20!yellow!20]
     \node[state,initial, accepting](s0) {Low};
     \node[state,accepting](s1) [right of=s0, xshift=4cm] {High};
     \path[->]
-    (s0) edge [loop above=10, text width=2cm] node {no obsticals in frame} ()
+    (s0) edge [loop above=10, text width=2cm] node {no obstacles in frame} ()
     (s0) edge [bend right] node {} (s1)
-    (s1) edge [bend right, text width=2cm, above] node {no obsticals in frame} (s0)
+    (s1) edge [bend right, text width=2cm, above] node {no obstacles in frame} (s0)
     (s1) edge [loop above=10] node {} ()
     ;
     \end{tikzpicture}
@@ -365,8 +368,8 @@ fill=orange!20!yellow!20]
         \node[state,accepting,p0, right of=s2, xshift=4cm](s3){s1};
         \path[->]
         (s1) edge [bend left=10, text width=2cm] node {$\left\{ High \right\}$ $\left\{ Low \right\}$} (s2)
-        (s2) edge [bend left=10, text width=2cm] node {no obsticals in frame} (s1)
-        (s2) edge [bend left=10, text width=2cm] node {obsticals in frame} (s3)
+        (s2) edge [bend left=10, text width=2cm] node {no obstacles in frame} (s1)
+        (s2) edge [bend left=10, text width=2cm] node {obstacles in frame} (s3)
         (s3) edge [bend left=10] node {$\left\{ High \right\}$} (s2)
         ;
     \end{tikzpicture}
@@ -396,7 +399,7 @@ fill=orange!20!yellow!20]
 \frame{
     \frametitle{System Design}
     \framesubtitle{The Proposed Architecture}
-    {\todoil{Explain that the scheduler is involve in the control loops}}
+    \todoil{Explain that the scheduler is involve in the control loops}
     \begin{center}
         \scalebox{0.9}{
             \tikzArch
@@ -484,23 +487,101 @@ fill=orange!20!yellow!20]
 \frame{
     \frametitle{\buchi game remainder}
     \begin{center}
-        \scalebox{0.9}{
-            \includegraphics[width=100mm]{carObsGame.jpg}
-        }
+            \includegraphics[width=90mm]{carObsGame.jpg}
     \end{center}    
 }
 \frame{
     \frametitle{\buchi game remainder}
     \begin{center}
-        \scalebox{0.9}{
-            \includegraphics[width=100mm]{carObsGameStrategy}
-        }
+            \includegraphics[width=90mm]{carObsGameStrategy}
     \end{center}    
 }
 
-\subsection[Component Definition]{Sub-Summery: Component Definition}
-    \todoil{technical}
+%TODO \subsection[Component Definition]{Sub-Summery: Component Definition}
+\frame{ %component definition
+    \frametitle{A Component in the System}
+    \begin{center}
+            \includegraphics[width=60mm]{componentBase}
+    \end{center}
+    \begin{block}{Component Definition ($\langle T,G \rangle$)}
+        \begin{itemize}
+            \item A set of subroutines (functions code)
+            \item A Generalize \buchi Game
+        \end{itemize}
+    \end{block}
+}
+\frame{
+    \frametitle{A Component in the System}
+    \begin{center}
+        \includegraphics[width=60mm]{component}
+    \end{center}
+    \begin{block}{The \buchi game ($G=\langle A , \langle P_{sched} , P_{env} \rangle \rangle$)}
+        \begin{itemize}
+            \item Is played in turns by the \textbf{environment} and the \textbf{scheduler}
+            \item Represent the \textbf{interaction} between the scheduler and the environment reaction
+        \end{itemize}
+    \end{block}
+}
+\frame{
+    \frametitle{Scheduling \buchi Game}
+    \framesubtitle{A Component in the System}
     
+    \includegraphics[width=30mm]{gameExample}
+    
+    \begin{block}{Scheduling \buchi Game}
+        \begin{itemize}
+            \item \textbf{Alternating turns}
+            \item Scheduler alphabet is $\Sigma_{schd} = 2^T$
+            \item Environment alphabet is $\Sigma_{env} = \mathbb{R}^n$ {\tiny (\textit{scheduler feedback variables})}
+            \item There is an Edge for any \textbf{possible} environmental outcome 
+            \item The \textbf{scheduler feedback variables} can be any environment-depended value
+            \item Environment player plays first
+        \end{itemize}
+    \end{block}
+}
+\frame{ % game example
+    \frametitle{Example - \buchi Game}
+    \framesubtitle{A Component in the System}
+    {The \buchi Game of the obstacles avoidance component:}
+    
+    \begin{center}
+        \includegraphics[width=80mm]{carObsGame}
+    \end{center}
+    
+    \begin{block}{}
+        \begin{itemize}
+            \item The objectives of the component is to avoid obstacles
+            \item The scheduler \textbf{win} $\Leftrightarrow$ the corresponding word $\omega \in \L(A)$ $\Leftrightarrow$ the component achieved his \textbf{objectives}
+        \end{itemize}
+    \end{block}
+}
+\frame{ % composition
+    \frametitle{Component Composition}
+    \begin{center}
+        \includegraphics[width=100mm]{componentComp}
+    \end{center}
+}
+\frame{
+    \frametitle{Component Composition}
+    \begin{center}
+        \includegraphics[width=40mm]{componentComp}
+    \end{center}
+    
+    \begin{block}{Requirements}
+        \begin{itemize}
+            \item A game ($G=\langle A , \langle P_{s} , P_{e} \rangle \rangle$) correspond to all the components
+            \item The game of Component is $G_i=\langle A_i , \langle P^i_{s} , P^i_{e} \rangle \rangle$
+            \item $\omega \in \L(A) \Leftrightarrow \forall i : \omega(i) \in \L(A_i)$ 
+        \end{itemize}
+    \end{block}
+}
+\frame{
+    \todoil{TODO: how to present the composition details?}\\
+}
+\frame{
+    \todoil{TODO: show the scheduler work: 1. find wining strategy 2. simultaneously walk through the strategy automata}\\
+}
+
     
 \section[Kalman Filter]{Integration with Kalman}
 \subsection{Guiding Concept}
@@ -537,4 +618,5 @@ fill=orange!20!yellow!20]
     \Huge{Thanks} 
 \end{center}
 }
+
 \end{document}

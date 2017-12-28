@@ -10,6 +10,7 @@
         <Proposition>Low</Proposition>
         <Proposition>O</Proposition>
         <Proposition>crash</Proposition>
+        <Proposition>obstacles</Proposition>
         <Proposition>obstical</Proposition>
     </Alphabet>
     <StateSet>
@@ -75,14 +76,14 @@
             <From>1</From>
             <To>0</To>
             <Color>#cccccc</Color>
-            <Label>~obstical</Label>
+            <Label>~obstacles</Label>
             <Properties/>
         </Transition>
         <Transition tid="1">
             <From>1</From>
             <To>6</To>
             <Color>#cccccc</Color>
-            <Label>obstical</Label>
+            <Label>obstacles</Label>
             <Properties/>
         </Transition>
         <Transition tid="2">
@@ -126,14 +127,14 @@
             <From>7</From>
             <To>0</To>
             <Color>#cccccc</Color>
-            <Label>~obstical</Label>
+            <Label>~obstacles</Label>
             <Properties/>
         </Transition>
         <Transition tid="9">
             <From>7</From>
             <To>6</To>
             <Color>#cccccc</Color>
-            <Label>obstical</Label>
+            <Label>obstacles</Label>
             <Properties/>
         </Transition>
         <Transition tid="10">
