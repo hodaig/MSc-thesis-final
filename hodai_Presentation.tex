@@ -122,7 +122,7 @@ fill=orange!20!yellow!20]
 \usepackage{graphicx}
 \usepackage{theorem} 
 
-\graphicspath{{./img/}}  
+\graphicspath{{./img/} {./beamer_img/}}  
 
 \newcommand{\old}[1]{{}}
 \AtBeginSubsection[]
@@ -134,7 +134,7 @@ fill=orange!20!yellow!20]
 
 % % % % % % % % % % % % the title page % % % % % % % % % % % %
 
-\title[Reactive Scheduling]{Reactive Scheduling of Computational Resources in Control Systems}
+\title[Reactive Scheduling for Control Systems]{Reactive Scheduling of Computational Resources in Control Systems}
 \author[Hodai Goldman]{Hodai Goldman}
 \institute{
     { Ben-Gurion University of the Negev\\
@@ -150,88 +150,87 @@ fill=orange!20!yellow!20]
 \frame{\tableofcontents}
 
 
-\section{Automata-based Scheduling}
-\subsection{motivation}
+\section[Scheduler]{Automata-based Scheduling}
+\subsection{Motivation}
 \def\tikzFeadback{
-     \begin{tikzpicture}[node distance=1.5cm]
-         \node (in) [eNode] {};
-         \node (control) [recNodeB, right of=in, xshift=0.5cm] {Control Law};
-         \node (sys) [recNodeB, right of=control, xshift=6cm] {Plant};
-         \node (sensor) [recNodeB, below of=sys, xshift=-2cm] {Sensing};
-         \node (estimator) [recNodeB, below of=control, xshift=2cm] {State Estimator};
-         
-         \draw [arrowB] (in) -- node[above] { $r$} (control);
-         \draw [arrowB] (control) -- node[above] { $u$} (sys);
-         \draw [arrowB] (sys) |- node[right] { ($x$)} (sensor);
-         \draw [arrowB] (sensor) -- node[above] { $y$} (estimator);
-         \draw [arrowB] (estimator) -| node[left] { $\hat{x}$} (control);
-     \end{tikzpicture}
-}
-\def\myPerionTable{
-    \begin{tabular}{|c c c|} 
-        \hline
-        Task & Period & Deadline \\ 
-        \hline
-        Check for obstacles & 10ms & 1.5ms \\ 
-        %\hline
-        Check GPS position & 10ms & 0.5ms \\
-        Control Law & 2ms & 0ms \\
-        \multicolumn{3}{|c|}{$\cdots$}\\
-        \hline
-    \end{tabular}
-}
-
-    \frame{
-        \frametitle{An control problem example}
-        \todoil{present the example: robot moving in root with obstacles, mission 1: avoid obstetrical(camera), mission 2: follow the guiding root(GPS)}
-        \begin{figure}
-             
-        \end{figure}
-    }	
-     \frame{
-         \frametitle{The Traditional Solution}
-         \begin{center}
-             \tikzFeadback
-         \end{center}
-         \begin{center}
-             {\Huge \textbf{+}}
-         \end{center}
-         \begin{block}{Constant time steps + periodic tasks}
-             \begin{center}
-                 \todoil{{time steps\\ figure}} + 
-                 \myPerionTable
-             \end{center}
-         \end{block}
-     }	
-    \frame{
-        \frametitle{The Main Software Design Problems}
-        \begin{center}
-            \myPerionTable
-        \end{center}
-        \begin{block}{The design problems from our point of view}
-            \begin{itemize}
-                \item \textbf{All the tasks are highly coupled}: \textit{any change or addition of some task require to consider all other tasks requirements}
-                \item \textbf{Static and inefficient scheduling}: \textit{the table is defined for the worst case} \todoil{talk about related work on this direction}
-                \item \textbf{No consideration of the environmental conditions}: it is a cyber-physical system after all
-            \end{itemize}
-        \end{block}
-    }
-     
-    \frame{
-        \frametitle{The Goal}
-        \begin{block}{}
-            In this thesis we design an \textbf{reactive} scheduling framework for real-time systems
-        \end{block}
-        \begin{block}{Required features: \commentOut{of the scheduling framework for real-time systems}}
-            \begin{itemize}
-                \item \textbf{Independent} and \textbf{composable} requirements
-                \item \textbf{Control objective based} requirement interface
-                \item Environment \textbf{adoptive} scheduler
-            \end{itemize}
-        \end{block}
-    }
-     
-\subsection{Component-based Architecture}
+    \begin{tikzpicture}[node distance=1.5cm]
+    \node (in) [eNode] {};
+    \node (control) [recNodeB, right of=in, xshift=0.5cm] {Control Law};
+    \node (sys) [recNodeB, right of=control, xshift=6cm] {Plant};
+    \node (sensor) [recNodeB, below of=sys, xshift=-2cm] {Sensing};
+    \node (estimator) [recNodeB, below of=control, xshift=2cm] {State Estimator};
+    
+    \draw [arrowB] (in) -- node[above] { $r$} (control);
+    \draw [arrowB] (control) -- node[above] { $u$} (sys);
+    \draw [arrowB] (sys) |- node[right] { ($x$)} (sensor);
+    \draw [arrowB] (sensor) -- node[above] { $y$} (estimator);
+    \draw [arrowB] (estimator) -| node[left] { $\hat{x}$} (control);
+    \end{tikzpicture}
+  }
+  \def\myPerionTable{
+      \begin{tabular}{|c c c|} 
+          \hline
+          Task & Period & Deadline \\ 
+          \hline
+          Check for obstacles & 10ms & 1.5ms \\ 
+          %\hline
+          Check GPS position & 10ms & 0.5ms \\
+          Control Law & 2ms & 0ms \\
+          \multicolumn{3}{|c|}{$\cdots$}\\
+          \hline
+      \end{tabular}
+  }
+  
+  \frame{
+      \frametitle{An control problem example}
+      \todoil{present the example: robot moving in root with obstacles, mission 1: avoid obstetrical(camera), mission 2: follow the guiding root(GPS)}
+      \begin{figure}
+          
+      \end{figure}
+  }	
+  \frame{
+      \frametitle{The Traditional Solution}
+      \begin{center}
+          \tikzFeadback
+      \end{center}
+      \begin{center}
+          {\Huge \textbf{+}}
+      \end{center}
+      \begin{block}{Constant time steps + periodic tasks}
+          \begin{center}
+              \todoil{{time steps\\ figure}} + 
+              \myPerionTable
+          \end{center}
+      \end{block}
+  }	
+  \frame{
+      \frametitle{The Main Software Design Problems}
+      \begin{center}
+          \myPerionTable
+      \end{center}
+      \begin{block}{The design problems from our point of view}
+          \begin{itemize}
+              \item \textbf{All the tasks are highly coupled}: \textit{any change or addition of some task require to consider all other tasks requirements}
+              \item \textbf{Static and inefficient scheduling}: \textit{the table is defined for the worst case} \todoil{talk about related work on this direction}
+              \item \textbf{No consideration of the environmental conditions}: it is a cyber-physical system after all
+          \end{itemize}
+      \end{block}
+  }  
+  \frame{
+      \frametitle{The Goal}
+      \begin{block}{}
+          In this thesis we design an \textbf{reactive} scheduling framework for real-time systems
+      \end{block}
+      \begin{block}{Required features: \commentOut{of the scheduling framework for real-time systems}}
+          \begin{itemize}
+              \item \textbf{Independent} and \textbf{composable} requirements
+              \item \textbf{Control objective based} requirement interface
+              \item Environment \textbf{adoptive} scheduler
+          \end{itemize}
+      \end{block}
+  }
+    
+\subsection[Architecture]{Component-based Architecture}
 
 \def\tikzArch{
     \begin{tikzpicture}[node distance=1.2cm]
@@ -320,16 +319,17 @@ fill=orange!20!yellow!20]
     \begin{tikzpicture}[
     auto,
     semithick,
-    >=stealth
+    >=stealth,
+    text width=0.9cm
     ]
-    \node[state,initial,accepting](s0) at (2.46,2.6){s0};
-    \node[state,accepting](s1) at (3.5,4.42){s1};
-    \node[state,accepting](s2) at (5.6,4.42){s2};
-    \node[state,accepting](s3) at (6.66,2.6){s3};
-    \node[state,accepting](s4) at (5.6,0.8){s4};
-    \node[state,accepting](s5) at (3.5,0.8){s5};
+    \node[state,initial,accepting](s0) at (2.46,2.6){Low GPS};
+    \node[state,accepting](s1) at (3.5,4.42){Low};
+    \node[state,accepting](s2) at (5.6,4.42){High};
+    \node[state,accepting](s3) at (6.66,2.6){High GPS};
+    \node[state,accepting](s4) at (5.6,0.8){High};
+    \node[state,accepting](s5) at (3.5,0.8){Low};
     \path[->]
-    (s0) edge [loop left] node {} ()
+    (s0) edge [loop above] node {} ()
     (s0) edge [bend left=10] node {} (s1)
     (s0) edge [bend left=10] node {} (s2)
     (s0) edge [bend left=10] node {} (s3)
@@ -344,7 +344,7 @@ fill=orange!20!yellow!20]
     (s3) edge [bend left=10] node {} (s0)
     (s3) edge [bend left=10] node {} (s1)
     (s3) edge [bend left=10] node {} (s2)
-    (s3) edge [loop right] node {} ()
+    (s3) edge [loop above] node {} ()
     (s4) edge [] node {} (s0)
     (s4) edge [] node {} (s3)
     (s5) edge [] node {} (s0)
@@ -353,8 +353,25 @@ fill=orange!20!yellow!20]
     \end{tikzpicture}   
 }
 \def\AutoCarObsGameBased{
-    \todoil{TODO: actual automata of obstacle avoidance component}
+    \begin{tikzpicture}[
+        auto,
+        semithick,
+        >=stealth,
+        ,text centered,
+        p0/.style={circle},p1/.style={rectangle}
+        ]
+        \node[state,accepting,p0](s1) {s2};
+        \node[state,initial,accepting,p1, right of=s1, xshift=4cm](s2) {env1};
+        \node[state,accepting,p0, right of=s2, xshift=4cm](s3){s1};
+        \path[->]
+        (s1) edge [bend left=10, text width=2cm] node {$\left\{ High \right\}$ $\left\{ Low \right\}$} (s2)
+        (s2) edge [bend left=10, text width=2cm] node {no obsticals in frame} (s1)
+        (s2) edge [bend left=10, text width=2cm] node {obsticals in frame} (s3)
+        (s3) edge [bend left=10] node {$\left\{ High \right\}$} (s2)
+        ;
+    \end{tikzpicture}
 }
+
 \frame{
     \frametitle{The Proposed Architecture}
     
@@ -376,7 +393,6 @@ fill=orange!20!yellow!20]
     \end{columns}
     %\end{center} 
 }
-
 \frame{
     \frametitle{System Design}
     \framesubtitle{The Proposed Architecture}
@@ -387,7 +403,6 @@ fill=orange!20!yellow!20]
         }
     \end{center} 
 }
-
 \frame{
     \frametitle{Automata-Based Specification Interface}
     \framesubtitle{The Proposed Architecture}
@@ -426,13 +441,13 @@ fill=orange!20!yellow!20]
                     }
                 \end{block}
             \end{column}
-            \hfill
-            {\Large\textbf{ $\rightarrow$}}
-            \hfill
-            \begin{column}{5cm}
+            %\hfill
+            {\Huge $\Rightarrow$}
+            %\hfill
+            \begin{column}{5.5cm}
                 \begin{block}{Composed guarded automata}
-                    \centering
-                    \scalebox{0.7}{
+                    %\centering
+                    \scalebox{0.65}{
                         \AutoCarComp
                     }
                 \end{block}
@@ -452,39 +467,55 @@ fill=orange!20!yellow!20]
         }
     \end{block}
     
-    \begin{center}
-        {\Large $\Downarrow$}
-    \end{center}
+    %\begin{center}
+        { $\Downarrow$}
+    %\end{center}
+    
     \begin{block}{The automata in practice (best match $\omega$-word theory)}
         \centering
-        \scalebox{0.6}{
+        \scalebox{0.7}{
             \AutoCarObsGameBased
         }
     \end{block}
-    \textbf{Q: How to create the guarded automata?}
-        By wining \buchi games
+    \textbf{Q: How to create the guarded automata?} By wining \buchi games
 }
 
-\subsection{\buchi Games Interface}
-    \todoil{\buchi game remainder}
-\subsection{Sub-Summery: Component Definition}
+\subsection[\buchi Games]{\buchi Games Interface}
+\frame{
+    \frametitle{\buchi game remainder}
+    \begin{center}
+        \scalebox{0.9}{
+            \includegraphics[width=100mm]{carObsGame.jpg}
+        }
+    \end{center}    
+}
+\frame{
+    \frametitle{\buchi game remainder}
+    \begin{center}
+        \scalebox{0.9}{
+            \includegraphics[width=100mm]{carObsGameStrategy}
+        }
+    \end{center}    
+}
+
+\subsection[Component Definition]{Sub-Summery: Component Definition}
     \todoil{technical}
     
     
-\section{Integration with Kalman}
+\section[Kalman Filter]{Integration with Kalman}
 \subsection{Guiding Concept}
     \todoil{Explain the concept of estimate the errors}
 \subsection{Guided Tour Simulation}
     \todoil{the simulation}
     
 
-\section{Experiment with real-life case study}
-\subsection{The mission}
+\section[Experiment]{Experiment with real-life case-study}
+\subsection{The Mission}
     \todoil{1. mission definition}
     \todoil{2. scheduling objectives}
     \todoil{3. how we review the results (the $x$ axis)}
     \todoil{4. add a video}
-\subsection{Simplifying the Kalman filter with complementary filter}
+\subsection[complementary filter]{Simplifying the Kalman filter with complementary filter}
     \todoil{1. why not Kalman}
     \todoil{2. how we use complementary filter}
     \todoil{3. the linearize model in $x$ / roll axis}
@@ -492,14 +523,14 @@ fill=orange!20!yellow!20]
 \subsection{Results}
     \todoil{the automata and their results}
 
-\section{Related Work}
-    \todoil{review of similar papers: A table with few papers}
 
 % % % % Conclusion  % % % %
 % % % % % % % % % % % % % %
 \section{Conclusion}
 \subsection{Conclusion}
     \todoil{instead of with Related Work}
+\subsection{Related Work}
+    \todoil{review of similar papers: A table with few papers}
 \frame{
 %        \frametitle{Thanks}
 \begin{center} 
