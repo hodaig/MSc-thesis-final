@@ -153,6 +153,29 @@ fill=orange!20!yellow!20]
 
 \frame{\tableofcontents}
 
+\section{Overview}
+\frame{
+    \frametitle{Overview - \todoil{TODO: clean this slide}}
+    \begin{block}{Contributions}
+        \begin{itemize}
+            \item Development of control and scheduling co-design framework %endless related work here
+            \item \textbf{Reactive} scheduling (environment condition adaptation)
+            \item \textbf{Independent}, \textbf{adaptive}, and \textbf{composable} interface (Based on automata theory)
+            \item \todoil{What we do better?}
+            \item Prepare the ground for automata-based \textbf{scheduling tool}
+            \item Development of scheduling technique based on \textbf{Kalman filter}
+        \end{itemize}
+    \end{block}
+    \begin{block}{Achievements of this thesis}
+        \begin{itemize}
+            \item Continue the work of \textbf{RTComposer}
+            \item Proof of concept with \textbf{simulation}
+            \item Proof of concept with \textbf{real-life case-study}
+            \item \textbf{Bridge} the gaps between control and software engineering
+        \end{itemize}
+    \end{block}
+}	
+
 \section[Scheduler]{Automata-based Scheduling}
 \subsection{Motivation}
 \def\tikzFeadback{
@@ -593,23 +616,129 @@ fill=orange!20!yellow!20]
     \todoil{TODO: how to present the composition details?}\\
 }
 \frame{
+    \todoil{TODO: show the resource component}\\
+}
+\frame{
     \todoil{TODO: show the scheduler work: 1. find wining strategy 2. simultaneously walk through the strategy automata}\\
 }
 
     
 \section[Kalman Filter]{Integration with Kalman}
 \subsection{Guiding Concept}
-    \todoil{Explain the concept of estimate the errors}
-\subsection{Guided Tour Simulation}
-    \todoil{the simulation}
+\frame{
+    \frametitle{Integration with Kalman}
     
+    \begin{center}
+        \includegraphics[width=40mm]{SimulinkModel}
+        \hfill
+        %\includegraphics[width=40mm]{SimulinkModel}
+        \todoil{Kalman filter figure}
+    \end{center}
+
+    \begin{block}{Resource utilization with Kalman filter}
+        \begin{itemize}
+            \item Novel technique for on-line trade-off between estimation quality and resource consumption
+            \item Evaluate the overall errors using Kalman filter
+            \item Schedule sensing-tasks based on the estimation quality
+        \end{itemize}
+    \end{block}
+}
+\frame{
+    \frametitle{Integration with Kalman}
+    \todoil{Explain the concept of estimate the errors}
+    
+    \begin{center}
+        \includegraphics[width=40mm]{SimulinkModel}
+    \end{center}
+}
+   
+\subsection{Guided Tour Simulation}
+
+\frame{
+    \todoil{TODO}
+}
 
 \section[Experiment]{Experiment with real-life case-study}
 \subsection{The Mission}
-    \todoil{1. mission definition}
-    \todoil{2. scheduling objectives}
-    \todoil{3. how we review the results (the $x$ axis)}
-    \todoil{4. add a video}
+\frame{
+    \frametitle{Mission Definition}
+    \todoil{Explain the window motivation}
+    \begin{center}
+        \includegraphics[width=100mm]{axis}
+    \end{center}
+}
+\frame{
+    \frametitle{Concrete Control Objectives}
+    \begin{center}
+        \includegraphics[width=70mm]{axis}
+    \end{center}
+    \begin{block}{ Control \& Scheduling Objectives }
+        \begin{itemize}
+            \item Minimize the $x$-deviation
+            \item Minimize the CPU usage of image processing task
+        \end{itemize}
+    \end{block}
+}
+\frame{
+    \frametitle{Traditional Controller Design}
+    \begin{center}
+        \includegraphics[width=90mm]{two_level_controller}
+    \end{center}
+    \begin{block}{ Attitude and position controller }
+        \begin{itemize}
+            \item \textbf{vision} component estimate the $x$-position
+            \item Position controller output a desired roll angle
+            \item Attitude controller is a traditional attitude controller
+        \end{itemize}
+    \end{block}
+}
+
+\subsection{Vision Component}
+\frame{
+    \frametitle{Vision Component}
+    \begin{center}
+        \includegraphics[width=60mm]{window_lights}
+    \end{center}
+    \begin{block}{ Image Processing Algorithm }
+        \begin{enumerate}
+            \item Find the window corners (brute force search)
+            \item Calculate the drone position
+        \end{enumerate}
+    \end{block}
+}
+\frame{
+    \frametitle{Calculate the Drone Position}
+    \framesubtitle{Vertical Difference}
+    \begin{center}
+        \todoil{take a picture}
+        \includegraphics[width=60mm]{window_lights}
+    \end{center}
+    \begin{block}{ }
+        \centering \Large $V_d = \frac{((y_1-y_4)-(y_2-y_3))}{((y_1-y_4)+(y_2-y_3))}$
+    \end{block}
+}
+\frame{
+    \frametitle{Calculate the Drone Position}
+    \framesubtitle{Center of Mass}
+    \begin{center}
+        \todoil{take a picture}
+        \includegraphics[width=60mm]{window_lights}
+    \end{center}
+    \begin{block}{ }
+        \centering \Large $S_x = \frac{x_1 + x_2 + x_3 + x_4}{4}$
+    \end{block}
+}
+\frame{
+    \frametitle{Calculate the Drone Position}
+    \begin{center}
+        \todoil{take a picture}
+        \includegraphics[width=50mm]{vd-geometry}
+    \end{center}
+    \begin{block}{ }
+        $x = l \cdot \sin(V_d) \approx l \cdot V_d$
+    \end{block}
+}
+
 \subsection[complementary filter]{Simplifying the Kalman filter with complementary filter}
     \todoil{1. why not Kalman}
     \todoil{2. how we use complementary filter}
