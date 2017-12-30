@@ -95,6 +95,7 @@ fill=orange!20!yellow!20]
 
 \newcommand{\buchi}{B\"uchi }
 
+\usepackage{array}
 
 \def\A{{\cal A}}
 \def\B{{\cal B}}
@@ -697,6 +698,7 @@ fill=orange!20!yellow!20]
 \frame{
     \frametitle{Vision Component}
     \begin{center}
+        \todoil{front picture}
         \includegraphics[width=60mm]{window_lights}
     \end{center}
     \begin{block}{ Image Processing Algorithm }
@@ -706,32 +708,32 @@ fill=orange!20!yellow!20]
         \end{enumerate}
     \end{block}
 }
-\frame{
+\frame{ % $V_d$
     \frametitle{Calculate the Drone Position}
     \framesubtitle{Vertical Difference}
     \begin{center}
-        \todoil{take a picture}
+        \todoil{side picture}\\
         \includegraphics[width=60mm]{window_lights}
     \end{center}
     \begin{block}{ }
         \centering \Large $V_d = \frac{((y_1-y_4)-(y_2-y_3))}{((y_1-y_4)+(y_2-y_3))}$
     \end{block}
 }
-\frame{
+\frame{ % $S_x$
     \frametitle{Calculate the Drone Position}
     \framesubtitle{Center of Mass}
     \begin{center}
-        \todoil{take a picture}
+        \todoil{shifted picture}\\
         \includegraphics[width=60mm]{window_lights}
     \end{center}
     \begin{block}{ }
         \centering \Large $S_x = \frac{x_1 + x_2 + x_3 + x_4}{4}$
     \end{block}
 }
-\frame{
+\frame{ % $x = l V_d$
     \frametitle{Calculate the Drone Position}
+    \framesubtitle{Aproximate $x$ Position}
     \begin{center}
-        \todoil{take a picture}
         \includegraphics[width=50mm]{vd-geometry}
     \end{center}
     \begin{block}{ }
@@ -739,13 +741,322 @@ fill=orange!20!yellow!20]
     \end{block}
 }
 
-\subsection[complementary filter]{Simplifying the Kalman filter with complementary filter}
-    \todoil{1. why not Kalman}
-    \todoil{2. how we use complementary filter}
-    \todoil{3. the linearize model in $x$ / roll axis}
-    \todoil{4. update state (equations)}
-\subsection{Results}
-    \todoil{the automata and their results}
+\subsection[Filtering]{Simplifying the Kalman Filter with Complementary Filter}
+\frame{
+    \frametitle{Two Step Filter}
+    \begin{block}{ Why not Kalman filter }
+        \begin{itemize}
+            \item It's a Non-linear system
+            \item The process noise distribution is unknown, and unstable
+            \item Kalman filter adds complexity in the code
+        \end{itemize}
+    \end{block}
+    \begin{block}{ Two step filter }
+        \begin{enumerate}
+            \item Predicts - with a linearized model
+            \item Update - with the vision and other sensors
+        \end{enumerate}
+    \end{block}
+}
+\frame{
+    \frametitle{The Linearized Model}
+    \begin{columns}
+        \begin{column}{5cm}
+            \includegraphics[width=50mm]{acceleration_static_diagram}
+        \end{column}
+        \begin{column}{5cm}
+            \begin{block}{ }
+                \[ A = 
+                \left( \begin{array}{ccc}
+                1 & dt & 0 \\
+                0 & 1 & dt \\
+                0 & 0 & 0 \end{array} \right)\] 
+                
+                \[ B = 
+                \left( \begin{array}{c}
+                0 \\
+                0 \\
+                g \end{array} \right)\] 
+            \end{block}
+        \end{column}
+    \end{columns}
+    \begin{block}{ Basic equations of motion on $x$ axis}
+        Assume stable hover:
+        \begin{itemize}
+            \item \textbf{Position}: $\bar{r_x}[k+1] = r_x[k] + dt \cdot v_x[k]$
+            \item \textbf{Velocity}: $\bar{v_x}[k+1] = v_x[k] + dt \cdot a_x[k]$
+            \item \textbf{Acceleration}: $\bar{a_x}[k+1] = \Sigma F_x / m \approx roll \cdot g $
+        \end{itemize}
+    \end{block}
+}
+\frame{
+    \frametitle{The Measurement vector}
+    \begin{columns}
+        \begin{column}{5cm}
+            \includegraphics[width=40mm]{vd-geometry}
+        \end{column}
+        \begin{column}{5cm}
+            \begin{block}{ }
+                \[ C = 
+                \left( \begin{array}{ccc}
+                1 & 0 & 0 \\
+                0 & 1 & 0 \\
+                0 & 0 & 1/g \end{array} \right)\] 
+            \end{block}
+        \end{column}
+    \end{columns}
+    \begin{block}{ Measurement vector}
+        \begin{itemize}
+            \item \textbf{Position}: from vision algorithm
+            \item \textbf{Velocity}: $ \frac{\partial r_x}{\partial t}$
+            \item \textbf{Acceleration}: roll angle from the AHRS of APM
+        \end{itemize}
+    \end{block}
+}
+\frame{
+    \frametitle{The Update Step}
+    \begin{block}{ }
+        $ x[k] = K \cdot \bar{x}[k] + (1-K) \cdot C^{-1} \cdot y[k] $
+    \end{block}
+    \begin{block}{ }
+        $ x_r = K_r \cdot \bar{x_r}[k] + (1-K_r) \cdot y_r[k] $\\
+        $ x_v = K_v \cdot \bar{x_v}[k] + (1-K_v) \cdot y_v[k] $\\
+        $ x_a = \bar{x_a}$
+    \end{block}
+    \begin{block}{ Overall noise estimation }
+        $ \tilde{y}_{k|k} = \bar{x_r}[k] - y_r[k] $
+    \end{block}
+}
+
+\subsection[Results]{Test and Results}
+\def\tikzGPU{
+    \begin{tikzpicture}[node distance=4.5cm]
+    \node (cam) [recNodeB, text width=3.5cm] {Camera Component 1280$\times$960 @ 30fps};
+    \node (sp) [recNodeB, text width=2cm, right of=cam, minimum height=5.5cm] {Spliter Component};
+    \node (r1) [recNodeB, text width=2cm, right of=sp, yshift=2.25cm] {Resizer 320$\times$240 };
+    \node (r2) [recNodeB, text width=2cm, right of=sp, yshift=0.75cm] {Resizer 640$\times$480};
+    \node (r3) [recNodeB, text width=2cm, right of=sp, yshift=-0.75cm] {Resizer 960$\times$720};
+    \node (r4) [recNodeB, text width=2cm, right of=sp, yshift=-2.25cm] {Passthru (1280$\times$960)};
+    
+    \draw [arrowB] (cam) -- node[above] {} (sp);
+    \draw [arrowB] (sp.east) |- node[] {  } (r1.west);
+    \draw [arrowB] (sp.east) |- node[] {  } (r2.west);
+    \draw [arrowB] (sp.east) |- node[] {  } (r3.west);
+    \draw [arrowB] (sp.east) |- node[] {  } (r4.west);
+    
+    \node (p1) [eNode, text width=2cm, right of=r1, xshift=-1cm] {Port 1};
+    \node (p2) [eNode, text width=2cm, right of=r2, xshift=-1cm] {Port 2};
+    \node (p3) [eNode, text width=2cm, right of=r3, xshift=-1cm] {Port 3};
+    \node (p4) [eNode, text width=2cm, right of=r4, xshift=-1cm] {Port 4};
+    
+    \draw [arrowB] (r1) |- node[] {  } (p1);
+    \draw [arrowB] (r2) |- node[] {  } (p2);
+    \draw [arrowB] (r3) |- node[] {  } (p3);
+    \draw [arrowB] (r4) |- node[] {  } (p4);
+    \end{tikzpicture}
+}
+\def\AutoErr{
+    \begin{tikzpicture}[node distance=2.5cm,auto]
+        \node (A) [state, accepting] {$\{L\}$};
+        \node (B) [state, accepting] [right of=A] {$\{H\}$};
+        
+        \path[->] (A) edge [loop above] node {$|\tilde{y}_{k|k}| < T_l$} (A);
+        \path[->] (A) edge [bend left] node {$|\tilde{y}_{k|k}| > T_l$} (B);
+        \path[->] (B) edge [bend left] node {$|\tilde{y}_{k|k}| < T_h$} (A);
+        \path[->] (B) edge [loop above] node {$|\tilde{y}_{k|k}| > T_h$} (B);
+        %\path[->] (B) edge [bend left] node {$s_{0.7} \wedge est_1$} (A);
+    \end{tikzpicture}    
+}
+\def\AutoX{
+    \begin{tikzpicture}[node distance=2.5cm,auto]
+    \node (A) [state, accepting] {$\{L\}$};
+    \node (B) [state, accepting] [right of=A] {$\{H\}$};
+    
+    \path[->] (A) edge [loop above] node {$|x| < T_x$} (A);
+    \path[->] (A) edge [bend left] node {$|x| > T_x$} (B);
+    \path[->] (B) edge [bend left] node {$|x| < T_x$} (A);
+    \path[->] (B) edge [loop above] node {$|x| > T_x$} (B);
+    %\path[->] (B) edge [bend left] node {$s_{0.7} \wedge est_1$} (A);
+    \end{tikzpicture}
+}
+\def\AutoCompA{
+    \begin{tikzpicture}[node distance=3.5cm,auto]
+    \node (A) [state, accepting] {$\{L\}$};
+    \node (B) [state, accepting] [right of=A] {$\{L\}$};
+    \node (C) [state, accepting] [right of=B] {$\{H\}$};
+    
+    \path[->] (A) edge [loop below] node {$|x| < T_x$} (A);
+    \path[->] (A) edge [bend left] node {$|x| > T_x$} (B);
+    \path[->] (B) edge [bend left, above] node {$|x| < T_x$} (A);
+    \path[->] (B) edge [loop below] node {$|x| > T_x \wedge |\tilde{y}_{k|k}| < T_l$} (B);
+    
+    \path[->] (B) edge [bend left] node {$|x| > T_x \wedge |\tilde{y}_{k|k}| < T_l$} (C);
+    \path[->] (C) edge [bend left, above] node {$ |\tilde{y}_{k|k}| < T_h$} (B);
+    \path[->] (C) edge [loop below] node {$ |\tilde{y}_{k|k}| > T_h$} (C);
+    %\path[->] (B) edge [bend left] node {$s_{0.7} \wedge est_1$} (A);
+    \end{tikzpicture}
+}
+\def\AutoCompB{
+    \begin{tikzpicture}[node distance=3.5cm,auto]
+    \node (A) [state, accepting] {$\{L\}$};
+    \node (B) [state, accepting] [right of=A] {$\{L\}$};
+    \node (C) [state, accepting] [right of=B] {$\{H\}$};
+    \node (D) [state, accepting] [below=1cm of B] {$\{H\}$};
+    
+    \path[->] (A) edge [loop below] node {$|x| < T_{x1}$} (A);
+    \path[->] (A) edge [bend left] node {$|x| > T_{x1}$} (B);
+    \path[->] (B) edge [bend left, above] node {$|x| < T_{x1}$} (A);
+    
+    \path[->] (B) edge [loop above] node {$else$} (B);
+    
+    \path[->] (B) edge [bend left] node {$|x| > T_{x2}$} (C);
+    \path[->] (C) edge [bend left, above] node {$|x| < T_{x2}$} (B);
+    \path[->] (C) edge [loop below] node {$|x| > T_{x2}$} (C);
+    
+    \path[->] (B) edge [bend left] node {$|\tilde{y}_{k|k}| > T_l$} (D);
+    \path[->] (D) edge [bend left] node {$|\tilde{y}_{k|k}| < T_h$} (B);
+    \path[->] (D) edge [loop left] node {$|\tilde{y}_{k|k}| > T_h$} (D);
+    \end{tikzpicture}
+}
+\frame{
+    \frametitle{Experiment Setup}
+    \begin{block}{ }
+        \todoil{this slide is needed?}
+    \end{block}
+}
+\frame{
+    \frametitle{Vision Mode}
+    \begin{center}
+        \scalebox{0.6}{
+            \tikzGPU
+        }
+    \end{center}
+    \begin{block}{ Image resolution switching }
+        \begin{itemize}
+            \item Change camera resolution in run time adds large \textbf{delay}
+            \item Use \textbf{hardware resizer} for fast mode switch
+        \end{itemize}
+    \end{block}
+}
+\frame{
+    \frametitle{Constant Vision Mode}
+    \begin{block}{ Always low quality mode }
+        \begin{itemize}
+            \item 240p resolution
+            \item mean error tolerance of 30cm (\todoil{not really stable})
+            \item 2.1\% CPU usage
+        \end{itemize}
+    \end{block}
+    \begin{block}{ Always high quality mode }
+        \begin{itemize}
+            \item 960p resolution
+            \item mean error tolerance of 9.5cm
+            \item 30\% CPU usage
+        \end{itemize}
+    \end{block}
+}
+\frame{
+    \frametitle{Manual Mode flight}
+    \begin{center}
+        \includegraphics[width=90mm]{errorVsPosition}
+    \end{center}
+}
+\frame{
+    \frametitle{Reactive Schedulers}
+    \begin{center}
+        \begin{columns}
+            \hfill
+            \begin{column}{5cm}
+                \begin{block}{$$ A_{err} $$}
+                    \scalebox{1}{
+                        \AutoErr
+                    }
+                \end{block}
+            \end{column}
+            \hfill
+            \begin{column}{5cm}
+                \begin{block}{$$ A_x $$}
+                    \scalebox{1}{
+                        \AutoX
+                    }
+                \end{block}
+            \end{column}
+            \hfill
+        \end{columns}
+    \end{center}
+}
+\frame{
+    \frametitle{Reactive Schedulers}
+    \begin{block}{$$ A_{Comp1} $$}
+        \begin{center}
+            \scalebox{1}{
+                \AutoCompA
+            }
+        \end{center}
+    \end{block}
+}
+\frame{
+    \frametitle{Reactive Schedulers}
+    \begin{block}{$$ A_{Comp2} $$}
+        \begin{center}
+            \scalebox{1}{
+                \AutoCompB
+            }
+        \end{center}
+    \end{block}
+}
+\frame{
+    \frametitle{Results}
+    \begin{tabular}{m{15em} |  m{4em} | m{5em} }
+        \hline
+        \textbf{Schedule}& \textbf{\% CPU}  & \textbf{mean($|x|$) (cm)} \\
+        \hline
+        Only High & 30.9\% & 9.5\\
+        \hline
+        Only Low & 2.1\% & 30.0\\
+        \hline
+        $A_{x}$  ($T_x=10$) & 16.6\% & 10.9\\
+        \hline
+        $A_{x}$  ($T_x=20$)  & 14.0\% & 14.1  \\
+        \hline
+        $A_{x}$  ($T_x=30$)  & 8.9\% & 17.4  \\
+        \hline
+        $A_{err}$ \newline ($T_l=10 , T_h=20$) & 10.3\% & 14.9 \\
+        \hline
+        $A_{err}$ \newline ($T_l=10 , T_h=15$) & 11.7\% & 11.3 \\
+        \hline
+        $A_{comp1}$ \newline ($T_x=10$ , $T_l=10$ , $T_h=15$)  & 8.8\% & 12.9 \\
+        \hline
+        $A_{comp2}$ \newline {\footnotesize ($T_{x1}=10$ , $T_{x2}=30$ , $T_l=10$ , $T_h=15$)}   & 10.4\% & 12.7 \\
+        \hline
+    \end{tabular}
+}
+\frame{
+    \frametitle{Adaptive Results}
+    \begin{center}
+        \AutoErr 
+    \end{center}
+    \begin{block}{}
+        \begin{tabular}{m{15em} |  m{4em} | m{5em} }
+            \hline
+            \textbf{conditions}& \textbf{\% CPU}  & \textbf{mean($|x|$) (cm)} \\
+            \hline
+            Fan off & 11.7\% & 11.3\\
+            \hline
+            Fan on & 13.2\% & 11.8\\
+            \hline
+        \end{tabular}
+    \end{block}
+}
+\frame{
+    \frametitle{Adaptive Results}
+    \begin{center}
+        \scalebox{1}{
+            \includegraphics[width=90mm]{windPlot15}
+        }
+    \end{center}
+}
+
 
 
 % % % % Conclusion  % % % %
