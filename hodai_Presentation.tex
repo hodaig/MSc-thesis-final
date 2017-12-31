@@ -130,6 +130,13 @@ fill=orange!20!yellow!20]
 
 \graphicspath{{./img/} {./beamer_img/}}  
 
+
+%\usetikzlibrary{automata,calc}
+%\usetikzlibrary{arrows}
+\newcommand{\HH}{\textbf{\textcolor{blue}{H}}}
+\newcommand{\LL}{\textbf{\textcolor{red}{L}}}
+\newcommand{\qq}{\textbf{\textcolor{cyan}{q}}}
+
 \commentOut{
 \AtBeginSubsection[]
 {
@@ -195,7 +202,7 @@ fill=orange!20!yellow!20]
     \draw [arrowB] (estimator) -| node[left] { $\hat{x}$} (control);
     \end{tikzpicture}
   }
-\def\myPerionTable{
+\def\myPeriodTable{
   \begin{tabular}{|c c c|} 
       \hline
       Task & Period & Deadline \\ 
@@ -208,67 +215,157 @@ fill=orange!20!yellow!20]
       \hline
   \end{tabular}
 }
-
-\frame{
-  \frametitle{An control problem example}
+\def\tikzSensorGameBase{    
+    \node[state,initial,p1](env1) at (6.44,2.24){$env_1$};
+    \node[state,accepting,p0](s1) at (6.44,-0.98){$s_1$};
+    \node[state,accepting,p0](s2) at (10.52,2.2){$s_2$};
+    \node[state,p0,grayed](sink) at (17.04,2.18){$sink$};
+    \node[state,accepting,p0](s3) at (14.04,-0.98){$s_3$};
+    \node[state,p1,grayed](env3) at (14.02,2.18){$env_3$};
+    \node[state,p1](env2) at (10.52,-1.0){$env_2$};
+    \path[->]
+    (env1) edge [bend left=10] node {$0 \leq$ \qq $\leq 1$} (s1)
+    (env1) edge [bend left=10] node {$1 \leq$ \qq $\leq 2$} (s2)
+    (s1) edge [bend left=10] node {\HH,\ \LL} (env1)
+    (s2) edge [bend left=10] node {\HH} (env1)
+    (s2) edge [bend right=10] node [left] {\LL} (env2)
+    (s3) edge [bend left=10,grayed] node {\LLL} (env3)
+    (env3) edge [grayed] node {$1 \leq$ \qqq $\leq 2$} (s2)
+    (env3) edge [grayed] node {\qqq $ > 3$} (sink)
+    (env3) edge [bend left=10,grayed] node {$2 \leq$ \qqq $\leq 3$} (s3)
+    (env2) edge [] node {$0 \leq$ \qq $\leq 1$} (s1)
+    (env2) edge [bend right=10] node [right] {$1 \leq$ \qq $\leq 2$} (s2)
+    (env2) edge [] node {$2 \leq$ \qq $\leq 3$} (s3)
+    ;
+    \path[->,draw] (s3) --  node {\HH} ++(0,-1) -- ++(-9,0) -- ++(0,3) -- (env1);
+}
+\def\tikzSensorGame{		
+    \begin{tikzpicture}[
+    auto,
+    initial text=,
+    semithick,
+    >=stealth,
+    ,
+    p0/.style={circle,fill=yellow,thick},p1/.style={rectangle,fill=green,thick}
+    ,grayed/.style={} %{fill=white, draw=lightgray,text=lightgray}
+    ]
+    \def\qqq{\qq}
+    \def\LLL{\LL}
+    \tikzSensorGameBase
+    \end{tikzpicture}
+}
+\def\tikzSensorGameStrategy{		
+    \begin{tikzpicture}[
+    auto,
+    initial text=,
+    semithick,
+    >=stealth,
+    ,
+    p0/.style={circle,fill=yellow,thick},p1/.style={rectangle,fill=green,thick}
+    ,grayed/.style={fill=white, draw=lightgray,text=lightgray}
+    ]
+    \def\qqq{q}
+    \def\LLL{L}
+    \tikzSensorGameBase
+    \end{tikzpicture}
+}
+\newcommand\tikzSensorGameMark[1]{		
+    \begin{tikzpicture}[
+    auto,
+    initial text=,
+    semithick,
+    >=stealth,
+    ,
+    p0/.style={circle,fill=yellow,thick},p1/.style={rectangle,fill=green,thick}
+    ,grayed/.style={} %{fill=white, draw=lightgray,text=lightgray}
+    ]
+    \def\qqq{\qq}
+    \def\LLL{\LL}
+    \tikzSensorGameBase
+    \draw [ blue, fill=blue!50] (#1) [yshift=0.4cm]  circle (0.2);
+    \end{tikzpicture}
+}
+    
+\frame{ %Example
+  \frametitle{Example}
+  \framesubtitle{A component that ``plays'' a game with its environment}
   \begin{center}
-      \includegraphics[width=80mm]{robotInMaze}
-      
-      Robot navigation
+      \scalebox{0.8}{
+          \tikzSensorGame
+        }
   \end{center}
-}	
-\frame{
-    \frametitle{An control problem example}
-    \begin{center}
-        \includegraphics[width=50mm]{robotInMaze}
-    \end{center}
-    \begin{block}{The Objectives}
-        \begin{itemize}
-            \item The robot need to reach the target point \textbf{fast} and \textbf{safely}
-            \item The robot have on-board camera for \textbf{obstacle-avoidance}
-            \item The robot use GPS for general \textbf{navigating}
+  \begin{block}{}
+      \begin{itemize}
+          \item A sensor with two modes: \HH igh quality, \LL ow quality.
+          \item After \HH, the estimation quality (\qq) is best, after \LL it may degrade.
+
         \end{itemize}
-    \end{block}
-}	
-\frame{
-    \frametitle{The Traditional Solution}
+  \end{block}
+}
+\frame{ %Example
+    \frametitle{Example}
+    \framesubtitle{A solution of the game}
     \begin{center}
-        \tikzFeadback
+        \scalebox{0.8}{
+            \tikzSensorGameStrategy
+        }
     \end{center}
-    \begin{center}
-        {\Huge \textbf{+}}
-    \end{center}
-    \begin{block}{Constant time steps + periodic tasks}
-        \begin{center}
-            \todoil{{time steps\\ figure}} + 
-            \myPerionTable
-        \end{center}
-    \end{block}
-}	
-\frame{
-    \frametitle{The Main Software Design Problems}
-    \begin{center}
-        \myPerionTable
-    \end{center}
-    \begin{block}{The design problems from our point of view}
-        \begin{itemize}
-            \item \textbf{All the tasks are highly coupled}: \textit{any change or addition of some task require to consider all other tasks requirements}
-            \item \textbf{Static and inefficient scheduling}: \textit{the table is defined for the worst case} \todoil{talk about related work on this direction}
-            \item \textbf{No consideration of the environmental conditions}: it is a cyber-physical system after all
-        \end{itemize}
-    \end{block}
-}  
-\frame{
-    \frametitle{The Goal}
     \begin{block}{}
-        In this thesis we design an \textbf{reactive} scheduling framework for real-time systems
-    \end{block}
-    \begin{block}{Required features: \commentOut{of the scheduling framework for real-time systems}}
         \begin{itemize}
-            \item \textbf{Independent} and \textbf{composable} requirements
-            \item \textbf{Control objective based} requirement interface
-            \item Environment \textbf{adoptive} scheduler
+            \item We must not schedule \H~ when in $s_3$
         \end{itemize}
+    \end{block}
+}
+\frame{ %Example
+    \frametitle{Example}
+    \framesubtitle{Simultaneous Games (composition)}
+    \begin{columns}
+        \begin{column}{0.6\textwidth}
+            \scalebox{0.5}{
+                \only<1>{\tikzSensorGameMark{env1}
+                }\only<2>{\tikzSensorGameMark{s1}
+                }\only<3>{\tikzSensorGameMark{env1}
+                }\only<4>{\tikzSensorGameMark{s2}
+                }\only<5>{\tikzSensorGameMark{env1}
+                }\only<6>{\tikzSensorGameMark{s1}
+                }\only<7>{\tikzSensorGameMark{env1}
+                }\only<8>{\tikzSensorGameMark{s2}
+                }\only<9>{\tikzSensorGameMark{env2}
+                }\only<10>{\tikzSensorGameMark{s3}
+                }\only<11->{\tikzSensorGameMark{env1}}
+            }
+            \\ ~ \\
+            \scalebox{0.5}{
+                \only<1>{\tikzSensorGameMark{env1}
+                }\only<2>{\tikzSensorGameMark{s1}
+                }\only<3>{\tikzSensorGameMark{env1}
+                }\only<4>{\tikzSensorGameMark{s1}
+                }\only<5>{\tikzSensorGameMark{env1}
+                }\only<6>{\tikzSensorGameMark{s2}
+                }\only<7>{\tikzSensorGameMark{env1}
+                }\only<8>{\tikzSensorGameMark{s2}
+                }\only<9>{\tikzSensorGameMark{env2}
+                }\only<10>{\tikzSensorGameMark{s3}
+                }\only<11->{\tikzSensorGameMark{env3}}
+            }
+        \end{column}
+        
+        { \small
+        \begin{column}{0.45\textwidth}
+            \begin{block}{}<12->
+                If both components are at $s_2$, at least one \HH\ must be scheduled
+            \end{block}
+            \begin{block}{}<13->
+                    We cannot allow both games to be on $env_{2}$
+            \end{block}
+            \begin{block}{}<14>
+                Adding third component makes the system \textcolor{red}{unschedulable!}
+            \end{block}
+        \end{column}
+        }
+    \end{columns}
+    \begin{block}{}
+        Only one \HH\ per slot allowed
     \end{block}
 }
 
@@ -289,7 +386,7 @@ fill=orange!20!yellow!20]
     \draw [arrowB] (sensor) -- node[above] {sensed data (noisy)} node[below] {$(y = Cx +v$)} (estimator);
     \draw [arrowB] (estimator) -- node[left,text width=2cm] {} node[right] {$\hat{x}$} (control);
     
-    \draw [arrowG] (estimator) |- node[left,text width=2cm] {quality of estimation ($P$)} (sched);
+    \draw [arrowG] (estimator) |- node[left,text width=2cm] {quality of estimation (\qq)} (sched);
     
     \draw [arrowG] (sched) -| node[below,text width=2cm] { \% CPU $\langle time,var(v) \rangle$} (sensor);
     %\draw [arrowG] (sched) -| node[right] {$\langle time,var(v) \rangle$} (sensor);
@@ -298,249 +395,30 @@ fill=orange!20!yellow!20]
     
     \end{tikzpicture}
 }
-\def\AutoGeneral{
-    \begin{tikzpicture}[
-        auto,
-        semithick,
-        >=stealth
-        ]
-        \node[state,initial](s0) {Mode 1};
-        \node[state](s1) [right of=s0, xshift=4cm] {Mode 2};
-        \node[state](s3) [below of=s0, yshift=-1.5cm] {Mode 3};
-        \node[state, accepting](s2) [right of=s3, xshift=4cm] {Mode 4};
-        \path[->]
-        (s0) edge [loop above=10] node {$\bar{g_1}$} ()
-        (s0) edge [bend left=10] node {$g_1$} (s1)
-        (s1) edge [loop above] node {$\bar{g_2}$} ()
-        (s1) edge [bend left=10] node {$g_2$} (s2)
-        (s2) edge [loop below] node {$\bar{g_3}$} ()
-        (s2) edge [bend left=10] node {$g_3$} (s3)
-        (s3) edge [loop below] node {$\bar{g_4}$} ()
-        (s3) edge [bend left=10] node {$g_4$} (s0)
-        ;
-    \end{tikzpicture}
-}
-\def\AutoCarObs{
-    \begin{tikzpicture}[
-    auto,
-    semithick,
-    >=stealth, text centered
-    ]
-    \node[state,initial, accepting](s0) {Low};
-    \node[state,accepting](s1) [right of=s0, xshift=4cm] {High};
-    \path[->]
-    (s0) edge [loop above=10, text width=2cm] node {no obstacles in frame} ()
-    (s0) edge [bend right] node {} (s1)
-    (s1) edge [bend right, text width=2cm, above] node {no obstacles in frame} (s0)
-    (s1) edge [loop above=10] node {} ()
-    ;
-    \end{tikzpicture}
-}
-\def\AutoCarGPS{
-    \begin{tikzpicture}[
-    auto,
-    semithick,
-    >=stealth, text centered
-    ]
-    \node[state,initial,accepting](gps) {GPS};
-    \node[state](s0) [right of=gps, xshift=1cm] {Non};
-    \node[state](s1) [right of=s0, xshift=1cm] {Non};
-    
-    \path[->]
-    (gps) edge [loop above=10, text width=2cm] node {} ()
-    (s0) edge [bend left] node {} (gps)
-    (s1) edge [bend left] node {} (gps)
-    
-    (gps) edge [bend left] node {} (s0)
-    (s0) edge [bend left] node {} (s1)
-    
-    ;
-    \end{tikzpicture}
-}
-\def\AutoCarComp{
-    \begin{tikzpicture}[
-    auto,
-    semithick,
-    >=stealth,
-    text width=0.9cm
-    ]
-    \node[state,initial,accepting](s0) at (2.46,2.6){Low GPS};
-    \node[state,accepting](s1) at (3.5,4.42){Low};
-    \node[state,accepting](s2) at (5.6,4.42){High};
-    \node[state,accepting](s3) at (6.66,2.6){High GPS};
-    \node[state,accepting](s4) at (5.6,0.8){High};
-    \node[state,accepting](s5) at (3.5,0.8){Low};
-    \path[->]
-    (s0) edge [loop above] node {} ()
-    (s0) edge [bend left=10] node {} (s1)
-    (s0) edge [bend left=10] node {} (s2)
-    (s0) edge [bend left=10] node {} (s3)
-    (s1) edge [bend left=10] node {} (s0)
-    (s1) edge [bend left=10] node {} (s3)
-    (s1) edge [] node {} (s4)
-    (s1) edge [] node {} (s5)
-    (s2) edge [bend left=10] node {} (s0)
-    (s2) edge [bend left=10] node {} (s3)
-    (s2) edge [] node {} (s4)
-    (s2) edge [] node {} (s5)
-    (s3) edge [bend left=10] node {} (s0)
-    (s3) edge [bend left=10] node {} (s1)
-    (s3) edge [bend left=10] node {} (s2)
-    (s3) edge [loop above] node {} ()
-    (s4) edge [] node {} (s0)
-    (s4) edge [] node {} (s3)
-    (s5) edge [] node {} (s0)
-    (s5) edge [] node {} (s3)
-    ;
-    \end{tikzpicture}   
-}
-\def\AutoCarObsGameBased{
-    \begin{tikzpicture}[
-        auto,
-        semithick,
-        >=stealth,
-        ,text centered,
-        p0/.style={circle},p1/.style={rectangle}
-        ]
-        \node[state,accepting,p0](s1) {s2};
-        \node[state,initial,accepting,p1, right of=s1, xshift=4cm](s2) {env1};
-        \node[state,accepting,p0, right of=s2, xshift=4cm](s3){s1};
-        \path[->]
-        (s1) edge [bend left=10, text width=2cm] node {$\left\{ High \right\}$ $\left\{ Low \right\}$} (s2)
-        (s2) edge [bend left=10, text width=2cm] node {no obstacles in frame} (s1)
-        (s2) edge [bend left=10, text width=2cm] node {obstacles in frame} (s3)
-        (s3) edge [bend left=10] node {$\left\{ High \right\}$} (s2)
-        ;
-    \end{tikzpicture}
-}
 
 \frame{
     \frametitle{The Proposed Architecture}
-    
-    %\begin{center}
-    \begin{columns}
-        \begin{column}{5cm}
-            \scalebox{0.5}{
+    \framesubtitle{The scheduler is part of the control loop}
+    \begin{center}
+            \scalebox{0.7}{
                 \tikzArch
             }
-        \end{column}
-        \hfill
-        {\huge +}
-        \hfill
-        \begin{column}{4cm}
-            \scalebox{0.5}{
-                \AutoGeneral
-            }
-        \end{column}
-    \end{columns}
-    %\end{center} 
-}
-\frame{
-    \frametitle{System Design}
-    \framesubtitle{The Proposed Architecture}
-    \todoil{Explain that the scheduler is involve in the control loops}
-    \begin{center}
-        \scalebox{0.9}{
-            \tikzArch
-        }
+            \begin{columns}
+                \column{7em}
+                \begin{block}{}
+                    \scalebox{0.2}{
+                        \tikzSensorGame
+                    }
+                \end{block}
+            \end{columns}
     \end{center} 
 }
-\frame{
-    \frametitle{Automata-Based Specification Interface}
-    \framesubtitle{The Proposed Architecture}
-    \todoil{maybe add a word about RTcomposer and GameComposer}\\
-    \begin{center}
-        \scalebox{0.4}{
-            \AutoGeneral
-        }
-    \end{center} 
-    
-    \begin{block}{Why Automata}
-        \begin{itemize}
-            \item \textbf{Lite:} minimal resource consumption at run-time
-            \item \textbf{Composable}: easy to compose independent components
-            \item \textbf{Automata theory built in:} allows for tools such \emph{GOAL}
-            \item \textbf{Expressiveness}
-        \end{itemize}
-    \end{block}
-}
-\frame{
-    \frametitle{Example of Guarded Automata}
-    \framesubtitle{The Proposed Architecture}
-    \begin{center}
-        \begin{columns}
-            \begin{column}{5cm}
-                \begin{block}{Obstacle avoidance component}
-                    \centering
-                    \scalebox{0.6}{
-                        \AutoCarObs
-                    }
-                \end{block}
-                \begin{block}{GPS navigation component}
-                    \centering
-                    \scalebox{0.6}{
-                        \AutoCarGPS
-                    }
-                \end{block}
-            \end{column}
-            %\hfill
-            {\Huge $\Rightarrow$}
-            %\hfill
-            \begin{column}{5.5cm}
-                \begin{block}{Composed guarded automata}
-                    %\centering
-                    \scalebox{0.65}{
-                        \AutoCarComp
-                    }
-                \end{block}
-            \end{column}
-        \end{columns}
-    \end{center}
-}
-\frame{
-    \frametitle{Simplifying the Guarded Automata}
-    \framesubtitle{The Proposed Architecture}
-    
-    
-    \begin{block}{Mode-based guarded automata (for good intuition)}
-        \centering
-        \scalebox{0.6}{
-            \AutoCarObs
-        }
-    \end{block}
-    
-    %\begin{center}
-        { $\Downarrow$}
-    %\end{center}
-    
-    \begin{block}{The automata in practice (best match $\omega$-word theory)}
-        \centering
-        \scalebox{0.7}{
-            \AutoCarObsGameBased
-        }
-    \end{block}
-    \textbf{Q: How to create the guarded automata?} By wining \buchi games
-}
-
-\subsection[\buchi Games]{\buchi Games Interface}
-\frame{
-    \frametitle{\buchi game remainder}
-    \begin{center}
-            \includegraphics[width=90mm]{carObsGame.jpg}
-    \end{center}    
-}
-\frame{
-    \frametitle{\buchi game remainder}
-    \begin{center}
-            \includegraphics[width=90mm]{carObsGameStrategy}
-    \end{center}    
-}
-
+\subsection[Component]{Component definition}
 %TODO \subsection[Component Definition]{Sub-Summery: Component Definition}
 \frame{ %component definition
     \frametitle{A Component in the System}
     \begin{center}
-            \includegraphics[width=60mm]{componentBase}
+            \includegraphics[width=60mm]{component}
     \end{center}
     \begin{block}{Component Definition ($\langle T,G \rangle$)}
         \begin{itemize}
@@ -551,22 +429,12 @@ fill=orange!20!yellow!20]
 }
 \frame{
     \frametitle{A Component in the System}
+    \framesubtitle{Scheduling \buchi Game}
     \begin{center}
-        \includegraphics[width=60mm]{component}
+        \scalebox{0.4}{
+            \tikzSensorGame
+        }
     \end{center}
-    \begin{block}{The \buchi game ($G=\langle A , \langle P_{sched} , P_{env} \rangle \rangle$)}
-        \begin{itemize}
-            \item Is played in turns by the \textbf{environment} and the \textbf{scheduler}
-            \item Represent the \textbf{interaction} between the scheduler and the environment reaction
-        \end{itemize}
-    \end{block}
-}
-\frame{
-    \frametitle{Scheduling \buchi Game}
-    \framesubtitle{A Component in the System}
-    
-    \includegraphics[width=30mm]{gameExample}
-    
     \begin{block}{Scheduling \buchi Game}
         \begin{itemize}
             \item \textbf{Alternating turns}
@@ -578,50 +446,18 @@ fill=orange!20!yellow!20]
         \end{itemize}
     \end{block}
 }
-\frame{ % game example
-    \frametitle{Example - \buchi Game}
-    \framesubtitle{A Component in the System}
-    {The \buchi Game of the obstacles avoidance component:}
-    
-    \begin{center}
-        \includegraphics[width=80mm]{carObsGame}
-    \end{center}
-    
-    \begin{block}{}
+\frame{
+    \frametitle{The Proposed Architecture}
+    \framesubtitle{Automata-Based Specification Interface}
+    %\todoil{maybe add a word about RTcomposer and GameComposer}\\
+    \begin{block}{Automata advantages}
         \begin{itemize}
-            \item The objectives of the component is to avoid obstacles
-            \item The scheduler \textbf{win} $\Leftrightarrow$ the corresponding word $\omega \in \L(A)$ $\Leftrightarrow$ the component achieved his \textbf{objectives}
+            \item \textbf{Lite:} minimal resource consumption at run-time
+            \item \textbf{Expressiveness}
+            \item \textbf{Composable}
+            \item \textbf{Automata theory:} allows for tools such \emph{GOAL}
         \end{itemize}
     \end{block}
-}
-\frame{ % composition
-    \frametitle{Component Composition}
-    \begin{center}
-        \includegraphics[width=100mm]{componentComp}
-    \end{center}
-}
-\frame{
-    \frametitle{Component Composition}
-    \begin{center}
-        \includegraphics[width=40mm]{componentComp}
-    \end{center}
-    
-    \begin{block}{Requirements}
-        \begin{itemize}
-            \item A game ($G=\langle A , \langle P_{s} , P_{e} \rangle \rangle$) correspond to all the components
-            \item The game of Component is $G_i=\langle A_i , \langle P^i_{s} , P^i_{e} \rangle \rangle$
-            \item $\omega \in \L(A) \Leftrightarrow \forall i : \omega(i) \in \L(A_i)$ 
-        \end{itemize}
-    \end{block}
-}
-\frame{
-    \todoil{TODO: how to present the composition details?}\\
-}
-\frame{
-    \todoil{TODO: show the resource component}\\
-}
-\frame{
-    \todoil{TODO: show the scheduler work: 1. find wining strategy 2. simultaneously walk through the strategy automata}\\
 }
 
     
@@ -636,18 +472,20 @@ fill=orange!20!yellow!20]
     \begin{center}
         \includegraphics[width=90mm]{simulinkNew}
     \end{center}
-    \begin{center}
-        \scalebox{1}{
-            \begin{tabular}{ |  l  | c | c | c | }
-                \hline
-                &  High & Low & Aut. Based \\ 
-                \hline %\hline
-                \%CPU  & 85 & 10  & 46 \\ 
-                \hline
-                mean of $|x -\hat{x}|$ & 0.97 & 1.24 & 1.08 \\ \hline
-            \end{tabular}
-        }
-    \end{center}
+    \only<2->{
+        \begin{center}
+            \scalebox{1}{
+                \begin{tabular}{ |  l  | c | c | c | }
+                    \hline
+                    &  High & Low & Aut. Based \\ 
+                    \hline %\hline
+                    \%CPU  & 85 & 10  & 46 \\ 
+                    \hline
+                    mean of $|x -\hat{x}|$ & 0.97 & 1.24 & 1.08 \\ \hline
+                \end{tabular}
+            }
+        \end{center}
+    }
 }
 \frame{
     \frametitle{Integration with Kalman}
@@ -660,7 +498,7 @@ fill=orange!20!yellow!20]
 \subsection{The Mission}
 \frame{
     \frametitle{Mission Definition}
-    \todoil{Explain the window motivation}
+    %\todoil{Explain the window motivation}
     \begin{center}
         \includegraphics[width=100mm]{axis}
     \end{center}
@@ -684,7 +522,7 @@ fill=orange!20!yellow!20]
     \end{center}
     \begin{block}{ Attitude and position controller }
         \begin{itemize}
-            \item \textbf{vision} component estimate the $x$-position
+            \item \textcolor{magenta}{\textbf{vision}} component estimate the $x$-position
             \item Position controller output a desired roll angle
             \item Attitude controller is a traditional attitude controller
         \end{itemize}
@@ -695,8 +533,7 @@ fill=orange!20!yellow!20]
 \frame{
     \frametitle{Vision Component}
     \begin{center}
-        \todoil{front picture}
-        \includegraphics[width=60mm]{window_lights}
+        \includegraphics[width=60mm]{windowFront}
     \end{center}
     \begin{block}{ Image Processing Algorithm }
         \begin{enumerate}
@@ -709,19 +546,19 @@ fill=orange!20!yellow!20]
     \frametitle{Calculate the Drone Position}
     \framesubtitle{Vertical Difference}
     \begin{center}
-        \todoil{side picture}\\
-        \includegraphics[width=60mm]{window_lights}
+        \includegraphics[width=60mm]{windowVd}
     \end{center}
     \begin{block}{ }
-        \centering \Large $V_d = \frac{((y_1-y_4)-(y_2-y_3))}{((y_1-y_4)+(y_2-y_3))}$
+        \centering {\Large $V_d = \frac{((y_1-y_4)-(y_2-y_3))}{((y_1-y_4)+(y_2-y_3))}$}
+        \\~\\
+        {\Large $sz =$} {\small ${((y_1-y_4)-(y_2-y_3))} + {((y_1-y_4)+(y_2-y_3))}$}
     \end{block}
 }
 \frame{ % $S_x$
     \frametitle{Calculate the Drone Position}
     \framesubtitle{Center of Mass}
     \begin{center}
-        \todoil{shifted picture}\\
-        \includegraphics[width=60mm]{window_lights}
+        \includegraphics[width=60mm]{windowYaw}
     \end{center}
     \begin{block}{ }
         \centering \Large $S_x = \frac{x_1 + x_2 + x_3 + x_4}{4}$
