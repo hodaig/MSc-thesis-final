@@ -164,23 +164,21 @@ fill=orange!20!yellow!20]
 
 \section{Overview}
 \frame{
-    \frametitle{Overview - \todoil{TODO: clean this slide}}
+    \frametitle{Overview}
     \begin{block}{Contributions}
         \begin{itemize}
             \item Development of control and scheduling co-design framework %endless related work here
             \item \textbf{Reactive} scheduling (environment condition adaptation)
-            \item \textbf{Independent}, \textbf{adaptive}, and \textbf{composable} interface (Based on automata theory)
-            \item \todoil{What we do better?}
-            \item Prepare the ground for automata-based \textbf{scheduling tool}
+            \item \textbf{composable} interface
             \item Development of scheduling technique based on \textbf{Kalman filter}
         \end{itemize}
     \end{block}
     \begin{block}{Achievements of this thesis}
         \begin{itemize}
-            \item Continue the work of \textbf{RTComposer}
+            \item Extend the work of \textbf{RTComposer}
             \item Proof of concept with \textbf{simulation}
             \item Proof of concept with \textbf{real-life case-study}
-            \item \textbf{Bridge} the gaps between control and software engineering
+            \item \textbf{Bridge} between control and software engineering
         \end{itemize}
     \end{block}
 }	
@@ -282,7 +280,7 @@ fill=orange!20!yellow!20]
     \def\qqq{\qq}
     \def\LLL{\LL}
     \tikzSensorGameBase
-    \draw [ blue, fill=blue!50] (#1) [yshift=0.4cm]  circle (0.2);
+    \draw [ red, fill=blue!50] (#1) [yshift=0.4cm]  circle (0.4);
     \end{tikzpicture}
 }
     
@@ -312,7 +310,7 @@ fill=orange!20!yellow!20]
     \end{center}
     \begin{block}{}
         \begin{itemize}
-            \item We must not schedule \H~ when in $s_3$
+            \item We must not schedule \HH\ when in $s_3$
         \end{itemize}
     \end{block}
 }
@@ -353,13 +351,13 @@ fill=orange!20!yellow!20]
         { \small
         \begin{column}{0.45\textwidth}
             \begin{block}{}<12->
-                If both components are at $s_2$, at least one \HH\ must be scheduled
+                We cannot allow both components to be on $env_{2}$
             \end{block}
             \begin{block}{}<13->
-                    We cannot allow both games to be on $env_{2}$
+                If both components are at $s_2$, at least one \HH\ must be scheduled
             \end{block}
             \begin{block}{}<14>
-                Adding third component makes the system \textcolor{red}{unschedulable!}
+                Adding a third component makes the system \textcolor{red}{unschedulable!}
             \end{block}
         \end{column}
         }
@@ -400,47 +398,41 @@ fill=orange!20!yellow!20]
     \frametitle{The Proposed Architecture}
     \framesubtitle{The scheduler is part of the control loop}
     \begin{center}
-            \scalebox{0.7}{
+            \scalebox{0.9}{
                 \tikzArch
             }
-            \begin{columns}
-                \column{7em}
-                \begin{block}{}
-                    \scalebox{0.2}{
-                        \tikzSensorGame
-                    }
-                \end{block}
-            \end{columns}
     \end{center} 
 }
 \subsection[Component]{Component definition}
 %TODO \subsection[Component Definition]{Sub-Summery: Component Definition}
-\frame{ %component definition
-    \frametitle{A Component in the System}
-    \begin{center}
-            \includegraphics[width=60mm]{component}
-    \end{center}
-    \begin{block}{Component Definition ($\langle T,G \rangle$)}
-        \begin{itemize}
-            \item A set of subroutines (functions code)
-            \item A Generalize \buchi Game
-        \end{itemize}
-    \end{block}
-}
 \frame{
     \frametitle{A Component in the System}
-    \framesubtitle{Scheduling \buchi Game}
     \begin{center}
-        \scalebox{0.4}{
-            \tikzSensorGame
-        }
+        \begin{columns}
+            \begin{column}{0.5\textwidth}
+                \scalebox{0.4}{
+                    \tikzSensorGame
+                }
+            \end{column}
+            \begin{column}{0.2\textwidth}
+                \begin{block}{}
+                    \tiny
+                    High () \{\\
+                    ~~~~ ...\\
+                    \}\\
+                    Low () \{\\
+                    ~~~~ ...\\
+                    \}
+                \end{block}
+            \end{column}
+        \end{columns}
     \end{center}
     \begin{block}{Scheduling \buchi Game}
         \begin{itemize}
             \item \textbf{Alternating turns}
-            \item Scheduler alphabet is $\Sigma_{schd} = 2^T$
-            \item Environment alphabet is $\Sigma_{env} = \mathbb{R}^n$ {\tiny (\textit{scheduler feedback variables})}
-            \item There is an Edge for any \textbf{possible} environmental outcome 
+            \item Scheduler alphabet is $\Sigma_{schd} = 2^T$ {\small (in the example $T=\{H, L\} $)}
+            \item Environment alphabet is $\Sigma_{env} = \mathbb{R}^n$ {\footnotesize (\textit{scheduler feedback variables})}
+            \item There is an transition for any \textbf{possible} environmental outcome 
             \item The \textbf{scheduler feedback variables} can be any environment-depended value
             \item Environment player plays first
         \end{itemize}
@@ -453,11 +445,16 @@ fill=orange!20!yellow!20]
     \begin{block}{Automata advantages}
         \begin{itemize}
             \item \textbf{Lite:} minimal resource consumption at run-time
-            \item \textbf{Expressiveness}
+            \item \textbf{Expressive}
             \item \textbf{Composable}
-            \item \textbf{Automata theory:} allows for tools such \emph{GOAL}
+            \item \textbf{Automata theory:} allows for tools such as \emph{GOAL}
         \end{itemize}
     \end{block}
+    \hfill
+    \begin{center}
+        \includegraphics[width=40mm]{GOAL}\\
+        Graphical tool for Omega-Automata and Logics
+    \end{center}
 }
 
     
@@ -488,14 +485,21 @@ fill=orange!20!yellow!20]
     }
 }
 \frame{
-    \frametitle{Integration with Kalman}
+    \frametitle{Integration with Kalman filter}
     \begin{center}
-        \includegraphics[width=90mm]{kalmanGraph}
+        \includegraphics[width=30mm]{kalmanGraph}
     \end{center}
+    \begin{block}{}
+        \begin{itemize}
+            \item Process \& actuation noise affect the \textit{a-priory} estimation 
+            \item Measurement error affect only the measurement
+            \item The difference between them estimate the over-all errors
+        \end{itemize}
+    \end{block}
 }
 
 \section[Experiment]{Experiment with real-life case-study}
-\subsection{The Mission}
+\subsection{Case study}
 \frame{
     \frametitle{Mission Definition}
     %\todoil{Explain the window motivation}
@@ -504,27 +508,27 @@ fill=orange!20!yellow!20]
     \end{center}
 }
 \frame{
-    \frametitle{Concrete Control Objectives}
+    \frametitle{Control Objectives}
     \begin{center}
         \includegraphics[width=70mm]{axis}
     \end{center}
     \begin{block}{ Control \& Scheduling Objectives }
         \begin{itemize}
-            \item Minimize the $x$-deviation
-            \item Minimize the CPU usage of image processing task
+            \item Minimize deviation in the $x$ axis
+            \item Minimize CPU usage of the image processing task
         \end{itemize}
     \end{block}
 }
 \frame{
-    \frametitle{Traditional Controller Design}
+    \frametitle{Controller Design}
     \begin{center}
         \includegraphics[width=90mm]{two_level_controller}
     \end{center}
     \begin{block}{ Attitude and position controller }
         \begin{itemize}
-            \item \textcolor{magenta}{\textbf{vision}} component estimate the $x$-position
-            \item Position controller output a desired roll angle
-            \item Attitude controller is a traditional attitude controller
+            \item The \textcolor{magenta}{\textbf{vision}} component estimate the position
+            \item Position controller output a desired angle (proportional to acceleration)
+            \item We used a standard PID controllers
         \end{itemize}
     \end{block}
 }
@@ -577,15 +581,15 @@ fill=orange!20!yellow!20]
 
 \subsection[Filtering]{Simplifying the Kalman Filter with Complementary Filter}
 \frame{
-    \frametitle{Two Step Filter}
-    \begin{block}{ Why not Kalman filter }
+    \frametitle{The Filter}
+    \begin{block}{ Limitations of Kalman filter }
         \begin{itemize}
             \item The system is  not linear
             \item The process and actuation noises distribution are unknown and unstable
             \item Kalman filter adds complexity in the code
         \end{itemize}
     \end{block}
-    \begin{block}{ Two step filter }
+    \begin{block}{ Filtering in two steps }
         \begin{enumerate}
             \item \textcolor{purple}{Predicts} - with a linearized model
             \item \textcolor{blue}{Update} - with the vision and other sensors
@@ -616,9 +620,9 @@ fill=orange!20!yellow!20]
     \end{columns}
     \begin{block}{ Basic equations of motion on $x$ axis}
         \begin{itemize}
-            \item \textbf{Position}: $\bar{r_x}[k+1] = r_x[k] + dt \cdot v_x[k]$
-            \item \textbf{Velocity}: $\bar{v_x}[k+1] = v_x[k] + dt \cdot a_x[k]$
-            \item \textbf{Acceleration}: $\bar{a_x}[k+1] = \Sigma F_x / m \approx roll \cdot g $
+            \item \textbf{Position}: $\bar{r}_x[k+1] = r_x[k] + dt \cdot v_x[k]$
+            \item \textbf{Velocity}: $\bar{v}_x[k+1] = v_x[k] + dt \cdot a_x[k]$
+            \item \textbf{Acceleration}: $\bar{a}_x[k+1] = \Sigma F_x / m \approx roll \cdot g $
         \end{itemize}
     \end{block}
 }
@@ -690,7 +694,7 @@ fill=orange!20!yellow!20]
 }
 \def\AutoErr{
     \begin{tikzpicture}[node distance=2.5cm,auto]
-        \node (A) [state, accepting] {$\{L\}$};
+        \node (A) [state, accepting, initial] {$\{L\}$};
         \node (B) [state, accepting] [right of=A] {$\{H\}$};
         
         \path[->] (A) edge [loop above] node {$|\tilde{y}_{k|k}| < T_l$} (A);
@@ -702,7 +706,7 @@ fill=orange!20!yellow!20]
 }
 \def\AutoX{
     \begin{tikzpicture}[node distance=2.5cm,auto]
-    \node (A) [state, accepting] {$\{L\}$};
+    \node (A) [state, accepting, initial] {$\{L\}$};
     \node (B) [state, accepting] [right of=A] {$\{H\}$};
     
     \path[->] (A) edge [loop above] node {$|x| < T_x$} (A);
@@ -714,7 +718,7 @@ fill=orange!20!yellow!20]
 }
 \def\AutoCompA{
     \begin{tikzpicture}[node distance=3.5cm,auto]
-    \node (A) [state, accepting] {$\{L\}$};
+    \node (A) [state, accepting, initial] {$\{L\}$};
     \node (B) [state, accepting] [right of=A] {$\{L\}$};
     \node (C) [state, accepting] [right of=B] {$\{H\}$};
     
@@ -731,7 +735,7 @@ fill=orange!20!yellow!20]
 }
 \def\AutoCompB{
     \begin{tikzpicture}[node distance=3.5cm,auto]
-    \node (A) [state, accepting] {$\{L\}$};
+    \node (A) [state, accepting, initial] {$\{L\}$};
     \node (B) [state, accepting] [right of=A] {$\{L\}$};
     \node (C) [state, accepting] [right of=B] {$\{H\}$};
     \node (D) [state, accepting] [below=1cm of B] {$\{H\}$};
@@ -767,7 +771,7 @@ fill=orange!20!yellow!20]
     \begin{block}{ Image resolution switching }
         \begin{itemize}
             \item Change camera resolution in run time adds large \textbf{delay}
-            \item Use \textbf{hardware resizer} for fast mode switch
+            \item Use \textbf{hardware} (GPU resizer) for fast mode switch 
         \end{itemize}
     \end{block}
 }
@@ -776,14 +780,14 @@ fill=orange!20!yellow!20]
     \begin{block}{ Always low quality mode }
         \begin{itemize}
             \item 240p resolution
-            \item mean error tolerance of 30cm
+            \item mean error of 30cm
             \item 2.1\% CPU usage
         \end{itemize}
     \end{block}
     \begin{block}{ Always high quality mode }
         \begin{itemize}
             \item 960p resolution
-            \item mean error tolerance of 9.5cm
+            \item mean error of 9.5cm
             \item 30\% CPU usage
         \end{itemize}
     \end{block}
@@ -800,7 +804,7 @@ fill=orange!20!yellow!20]
         \begin{columns}
             \hfill
             \begin{column}{5cm}
-                \begin{block}{$$ A_{err} $$ - estimation error based}
+                \begin{block}{$ A_{err} $ - estimation error based}
                     \scalebox{1}{
                         \AutoErr
                     }
@@ -808,7 +812,7 @@ fill=orange!20!yellow!20]
             \end{column}
             \hfill
             \begin{column}{5cm}
-                \begin{block}{$$ A_x $$ - position based}
+                \begin{block}{$ A_x $ - position based}
                     \scalebox{1}{
                         \AutoX
                     }
@@ -848,7 +852,7 @@ fill=orange!20!yellow!20]
         \hline
         Only Low & 2.1\% & 30.0\\
         \hline
-        $A_{x}$  ($T_x=10$) & 16.6\% & 10.9\\
+        $A_{x}$  ($T_x=10$) & \textbf{16.6\%} & \textbf{10.9}\\
         \hline
         $A_{x}$  ($T_x=20$)  & 14.0\% & 14.1  \\
         \hline
@@ -856,18 +860,19 @@ fill=orange!20!yellow!20]
         \hline
         $A_{err}$ \newline ($T_l=10 , T_h=20$) & 10.3\% & 14.9 \\
         \hline
-        $A_{err}$ \newline ($T_l=10 , T_h=15$) & 11.7\% & 11.3 \\
+        $A_{err}$ \newline ($T_l=10 , T_h=15$) & \textbf{11.7\%} & \textbf{11.3} \\
         \hline
-        $A_{comp1}$ \newline ($T_x=10$ , $T_l=10$ , $T_h=15$)  & 8.8\% & 12.9 \\
+        $A_{comp1}$ \newline ($T_x=10$ , $T_l=10$ , $T_h=15$)  &\textbf{ 8.8\%} & \textbf{12.9} \\
         \hline
         $A_{comp2}$ \newline {\footnotesize ($T_{x1}=10$ , $T_{x2}=30$ , $T_l=10$ , $T_h=15$)}   & 10.4\% & 12.7 \\
         \hline
     \end{tabular}
 }
 \frame{
-    \frametitle{Adaptive Results}
+    \frametitle{Adaptiveness Results}
     \begin{center}
-        \AutoErr 
+        \AutoErr \\
+        $[T_l=10 , T_h=15]$
     \end{center}
     \begin{block}{}
         \begin{tabular}{m{15em} |  m{4em} | m{5em} }
@@ -902,12 +907,6 @@ fill=orange!20!yellow!20]
 \subsection{Related Work}
 \frame{
     \todoil{review of similar papers: A table with few papers}
-}
-\frame{
-%        \frametitle{Thanks}
-\begin{center} 
-    \Huge{Thanks} 
-\end{center}
 }
 
 \end{document}
