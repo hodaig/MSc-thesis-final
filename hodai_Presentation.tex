@@ -580,15 +580,15 @@ fill=orange!20!yellow!20]
     \frametitle{Two Step Filter}
     \begin{block}{ Why not Kalman filter }
         \begin{itemize}
-            \item It's a Non-linear system
-            \item The process noise distribution is unknown, and unstable
+            \item The system is  not linear
+            \item The process and actuation noises distribution are unknown and unstable
             \item Kalman filter adds complexity in the code
         \end{itemize}
     \end{block}
     \begin{block}{ Two step filter }
         \begin{enumerate}
-            \item Predicts - with a linearized model
-            \item Update - with the vision and other sensors
+            \item \textcolor{purple}{Predicts} - with a linearized model
+            \item \textcolor{blue}{Update} - with the vision and other sensors
         \end{enumerate}
     \end{block}
 }
@@ -615,7 +615,6 @@ fill=orange!20!yellow!20]
         \end{column}
     \end{columns}
     \begin{block}{ Basic equations of motion on $x$ axis}
-        Assume stable hover:
         \begin{itemize}
             \item \textbf{Position}: $\bar{r_x}[k+1] = r_x[k] + dt \cdot v_x[k]$
             \item \textbf{Velocity}: $\bar{v_x}[k+1] = v_x[k] + dt \cdot a_x[k]$
@@ -777,7 +776,7 @@ fill=orange!20!yellow!20]
     \begin{block}{ Always low quality mode }
         \begin{itemize}
             \item 240p resolution
-            \item mean error tolerance of 30cm (\todoil{not really stable})
+            \item mean error tolerance of 30cm
             \item 2.1\% CPU usage
         \end{itemize}
     \end{block}
@@ -801,7 +800,7 @@ fill=orange!20!yellow!20]
         \begin{columns}
             \hfill
             \begin{column}{5cm}
-                \begin{block}{$$ A_{err} $$}
+                \begin{block}{$$ A_{err} $$ - estimation error based}
                     \scalebox{1}{
                         \AutoErr
                     }
@@ -809,7 +808,7 @@ fill=orange!20!yellow!20]
             \end{column}
             \hfill
             \begin{column}{5cm}
-                \begin{block}{$$ A_x $$}
+                \begin{block}{$$ A_x $$ - position based}
                     \scalebox{1}{
                         \AutoX
                     }
@@ -897,9 +896,13 @@ fill=orange!20!yellow!20]
 % % % % % % % % % % % % % %
 \section{Conclusion}
 \subsection{Conclusion}
+\frame{
     \todoil{instead of with Related Work}
+}
 \subsection{Related Work}
+\frame{
     \todoil{review of similar papers: A table with few papers}
+}
 \frame{
 %        \frametitle{Thanks}
 \begin{center} 
