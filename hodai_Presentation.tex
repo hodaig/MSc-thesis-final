@@ -96,6 +96,7 @@ fill=orange!20!yellow!20]
 \newcommand{\buchi}{B\"uchi }
 
 \usepackage{array}
+\usepackage[english]{babel}
 
 \def\A{{\cal A}}
 \def\B{{\cal B}}
@@ -625,6 +626,22 @@ fill=orange!20!yellow!20]
 
     
 \section[Kalman Filter]{Integration with Kalman}
+\def\AutoSimu{
+    \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=6cm,
+    semithick]
+    
+    \node[initial,state] (A)                 {$0$};
+    \node[state]         (B) [right of=A]    {$1$};
+    
+    \path (A) edge [bend left]             node {$|\tilde{y}_{k|k}|\geq1$} (B)
+    (A) edge [loop below] node {$|\tilde{y}_{k|k}|<1$} (A);
+    
+    \path (B) edge [bend left]             node {$|\tilde{y}_{k|k}|\leq 1/2$} (A)
+    (B) edge [loop above] node {$|\tilde{y}_{k|k}|>1/2$} (B);
+    
+    \end{tikzpicture}
+}
+
 \subsection{Guiding Concept}
 \frame{
     \frametitle{Integration with Kalman}
@@ -657,6 +674,39 @@ fill=orange!20!yellow!20]
 
 \frame{
     \todoil{TODO}
+    
+    \begin{center}
+        \includegraphics[width=90mm]{SimulinkModel}
+    \end{center}
+    \begin{block}{}
+        \begin{itemize}
+            \item Unit variance process \& actuation noise
+            \item High sensing mode variance 0.25
+            \item Low sensing mode variance 1
+        \end{itemize}
+    \end{block}
+}
+\frame{
+    \frametitle{Results}
+    \begin{block}{}
+        \begin{center}
+            \scalebox{1}{
+                \AutoSimu
+            }
+        \end{center}
+    \end{block}
+    \begin{center}
+        \scalebox{1}{
+            \begin{tabular}{ |  l  | c | c | c | }
+                \hline
+                &  High & Low & Aut. Based \\ 
+                \hline %\hline
+                \%CPU  & 85 & 10  & 46 \\ 
+                \hline
+                mean of $|x -\hat{x}|$ & 0.97 & 1.24 & 1.08 \\ \hline
+            \end{tabular}
+        }
+    \end{center}
 }
 
 \section[Experiment]{Experiment with real-life case-study}
