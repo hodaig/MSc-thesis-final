@@ -625,76 +625,17 @@ fill=orange!20!yellow!20]
 }
 
     
-\section[Kalman Filter]{Integration with Kalman}
-\def\AutoSimu{
-    \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=6cm,
-    semithick]
-    
-    \node[initial,state] (A)                 {$0$};
-    \node[state]         (B) [right of=A]    {$1$};
-    
-    \path (A) edge [bend left]             node {$|\tilde{y}_{k|k}|\geq1$} (B)
-    (A) edge [loop below] node {$|\tilde{y}_{k|k}|<1$} (A);
-    
-    \path (B) edge [bend left]             node {$|\tilde{y}_{k|k}|\leq 1/2$} (A)
-    (B) edge [loop above] node {$|\tilde{y}_{k|k}|>1/2$} (B);
-    
-    \end{tikzpicture}
-}
-
-\subsection{Guiding Concept}
-\frame{
-    \frametitle{Integration with Kalman}
-    
-    \begin{center}
-        \includegraphics[width=40mm]{SimulinkModel}
-        \hfill
-        %\includegraphics[width=40mm]{SimulinkModel}
-        \todoil{Kalman filter figure}
-    \end{center}
-
-    \begin{block}{Resource utilization with Kalman filter}
-        \begin{itemize}
-            \item Novel technique for on-line trade-off between estimation quality and resource consumption
-            \item Evaluate the overall errors using Kalman filter
-            \item Schedule sensing-tasks based on the estimation quality
-        \end{itemize}
-    \end{block}
-}
-\frame{
-    \frametitle{Integration with Kalman}
-    \todoil{Explain the concept of estimate the errors}
-    
-    \begin{center}
-        \includegraphics[width=40mm]{SimulinkModel}
-    \end{center}
-}
-   
-\subsection{Guided Tour Simulation}
+\section[Kalman Filter]{Simulation with Kalman}
 
 \frame{
-    \todoil{TODO}
+    \frametitle{Simulation}
     
+    \begin{block}{} %{Resource utilization with Kalman filter}
+         Schedule sensing-tasks based on the estimation quality
+    \end{block}
     \begin{center}
-        \includegraphics[width=90mm]{SimulinkModel}
+        \includegraphics[width=90mm]{simulinkNew}
     \end{center}
-    \begin{block}{}
-        \begin{itemize}
-            \item Unit variance process \& actuation noise
-            \item High sensing mode variance 0.25
-            \item Low sensing mode variance 1
-        \end{itemize}
-    \end{block}
-}
-\frame{
-    \frametitle{Results}
-    \begin{block}{}
-        \begin{center}
-            \scalebox{1}{
-                \AutoSimu
-            }
-        \end{center}
-    \end{block}
     \begin{center}
         \scalebox{1}{
             \begin{tabular}{ |  l  | c | c | c | }
@@ -706,6 +647,12 @@ fill=orange!20!yellow!20]
                 mean of $|x -\hat{x}|$ & 0.97 & 1.24 & 1.08 \\ \hline
             \end{tabular}
         }
+    \end{center}
+}
+\frame{
+    \frametitle{Integration with Kalman}
+    \begin{center}
+        \includegraphics[width=90mm]{kalmanGraph}
     \end{center}
 }
 
