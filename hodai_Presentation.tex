@@ -396,7 +396,7 @@ fill=orange!20!yellow!20]
 
 \frame{
     \frametitle{The Proposed Architecture}
-    \framesubtitle{The scheduler is part of the control loop}
+    \framesubtitle{The scheduler is ``in the loop''}
     \begin{center}
             \scalebox{0.9}{
                 \tikzArch
@@ -409,19 +409,21 @@ fill=orange!20!yellow!20]
     \frametitle{A Component in the System}
     \begin{center}
         \begin{columns}
-            \begin{column}{0.5\textwidth}
-                \scalebox{0.4}{
-                    \tikzSensorGame
-                }
+            \begin{column}{0.4\textwidth}
+                \begin{block}{A \buchi game}
+                    \centering
+                    \scalebox{0.25}{
+                        \tikzSensorGame
+                    }
+                \end{block}
             \end{column}
-            \begin{column}{0.2\textwidth}
-                \begin{block}{}
+            \begin{column}{0.4\textwidth}
+                \begin{block}{A set of methods ($T$)}
                     \tiny
-                    High () \{\\
-                    ~~~~ ...\\
-                    \}\\
-                    Low () \{\\
-                    ~~~~ ...\\
+                    class ComponentA \{\\
+                    ~~~~void \HH () \{ ... \}\\
+                    ~~~~void \LL () \{ ... \}\\
+                    ~~~~...\\
                     \}
                 \end{block}
             \end{column}
@@ -487,7 +489,7 @@ fill=orange!20!yellow!20]
 \frame{
     \frametitle{Integration with Kalman filter}
     \begin{center}
-        \includegraphics[width=0.6\textwidth]{kalmanGraph}
+        \includegraphics[width=0.7\textwidth]{kalman}
     \end{center}
     \begin{block}{}
         \begin{itemize}
@@ -591,7 +593,7 @@ fill=orange!20!yellow!20]
     \end{block}
     \begin{block}{ We propose an alternative that also filters in two steps: }
         \begin{enumerate}
-            \item \textcolor{purple}{Predicts} with a linearized model
+            \item \textcolor{red}{Predicts} with a linearized model
             \item \textcolor{blue}{Updates} with the vision and other sensors
         \end{enumerate}
     \end{block}
@@ -620,9 +622,9 @@ fill=orange!20!yellow!20]
     \end{columns}
     \begin{block}{ Basic equations of motion on $x$ axis}
         \begin{itemize}
-            \item \textbf{Position}: $\bar{r}_x[k+1] = r_x[k] + dt \cdot v_x[k]$
-            \item \textbf{Velocity}: $\bar{v}_x[k+1] = v_x[k] + dt \cdot a_x[k]$
-            \item \textbf{Acceleration}: $\bar{a}_x[k+1] = \Sigma F_x / m \approx roll \cdot g $
+            \item \textbf{Position}: $\textcolor{red}{\bar{x}[k+1]} = x[k] + dt \cdot x[k]$
+            \item \textbf{Velocity}: $\textcolor{red}{\bar{v}[k+1]} = v[k] + dt \cdot a[k]$
+            \item \textbf{Acceleration}: $\textcolor{red}{\bar{a}[k+1]} = \Sigma F_x / m \approx roll \cdot g $
         \end{itemize}
     \end{block}
 }
@@ -645,7 +647,7 @@ fill=orange!20!yellow!20]
     \begin{block}{ Measurement vector}
         \begin{itemize}
             \item \textbf{Position}: from vision algorithm
-            \item \textbf{Velocity}: $ \frac{\partial r_x}{\partial t}$
+            \item \textbf{Velocity}: $ \frac{\partial x}{\partial t}$
             \item \textbf{Acceleration}: roll angle from the AHRS of APM
         \end{itemize}
     \end{block}
@@ -653,16 +655,19 @@ fill=orange!20!yellow!20]
 \frame{
     \frametitle{The Update Step}
     \begin{block}{ }
-        $ x[k] = K \cdot \bar{x}[k] + (1-K) \cdot C^{-1} \cdot y[k] $
+        $ \X[k] = K \cdot \textcolor{red}{\bar{\X}[k]} + (1-K) \cdot C^{-1} \cdot \textcolor{blue}{y[k]} $
     \end{block}
     \begin{block}{ }
-        $ x_r = K_r \cdot \bar{x_r}[k] + (1-K_r) \cdot y_r[k] $\\
-        $ x_v = K_v \cdot \bar{x_v}[k] + (1-K_v) \cdot y_v[k] $\\
-        $ x_a = \bar{x_a}$
+        $ x_r = K_r \cdot \textcolor{red}{\bar{x}[k]} + (1-K_r) \cdot \textcolor{blue}{y_r[k]} $\\
+        $ x_v = K_v \cdot \textcolor{red}{\bar{v}[k]} + (1-K_v) \cdot \textcolor{blue}{y_v[k]} $\\
+        $ x_a = \textcolor{red}{\bar{a}}$
     \end{block}
     \begin{block}{ Overall noise estimation }
-        $ \tilde{y}_{k|k} = \bar{x_r}[k] - y_r[k] $
+        $ \tilde{y}_{k|k} = \textcolor{red}{\bar{x}[k]} - \textcolor{blue}{y_r[k]} $
     \end{block}
+    \begin{itemize}
+        \item $K$ matrix is depended on the vision mode
+    \end{itemize}
 }
 
 \subsection[Results]{Test and Results}
@@ -757,9 +762,9 @@ fill=orange!20!yellow!20]
 }
 \frame{
     \frametitle{Experiment Setup}
-    \begin{block}{ }
-        \todoil{this slide is needed?}
-    \end{block}
+    \begin{center}
+        \includegraphics[width=90mm]{setup}
+    \end{center}
 }
 \frame{
     \frametitle{Vision Mode}
@@ -851,18 +856,18 @@ fill=orange!20!yellow!20]
         Only High & 30.9\% & 9.5\\
         \hline
         Only Low & 2.1\% & 30.0\\
-        \hline
-        $A_{x}$  ($T_x=10$) & \textbf{16.6\%} & \textbf{10.9}\\
+        \hline \hline
+        $A_{x}$  ($T_x=10$) & \textbf{\colorbox{yellow}{16.6\%}} & \textbf{\colorbox{yellow}{10.9}}\\
         \hline
         $A_{x}$  ($T_x=20$)  & 14.0\% & 14.1  \\
         \hline
         $A_{x}$  ($T_x=30$)  & 8.9\% & 17.4  \\
-        \hline
+        \hline \hline
         $A_{err}$ \newline ($T_l=10 , T_h=20$) & 10.3\% & 14.9 \\
         \hline
-        $A_{err}$ \newline ($T_l=10 , T_h=15$) & \textbf{11.7\%} & \textbf{11.3} \\
-        \hline
-        $A_{comp1}$ \newline ($T_x=10$ , $T_l=10$ , $T_h=15$)  &\textbf{ 8.8\%} & \textbf{12.9} \\
+        $A_{err}$ \newline ($T_l=10 , T_h=15$) & \textbf{\colorbox{yellow}{11.7\%}} & \textbf{\colorbox{yellow}{11.3}} \\
+        \hline \hline
+        $A_{comp1}$ \newline ($T_x=10$ , $T_l=10$ , $T_h=15$)  &\textbf{\colorbox{yellow}{ 8.8\%}} & \textbf{\colorbox{yellow}{12.9}} \\
         \hline
         $A_{comp2}$ \newline {\footnotesize ($T_{x1}=10$ , $T_{x2}=30$ , $T_l=10$ , $T_h=15$)}   & 10.4\% & 12.7 \\
         \hline
@@ -899,14 +904,37 @@ fill=orange!20!yellow!20]
 
 % % % % Conclusion  % % % %
 % % % % % % % % % % % % % %
-\section{Conclusion}
+\section{Conclusion}	
+%\subsection{Related Work}
+%\frame{
+%    \begin{block}{I presented:}
+%        \begin{itemize}
+%            \item RTComposer
+%            \item GameComposer
+%            \item 
+%        \end{itemize}
+%    \end{block}
+%    
+%}
 \subsection{Conclusion}
 \frame{
-    \todoil{instead of with Related Work}
-}
-\subsection{Related Work}
-\frame{
-    \todoil{review of similar papers: A table with few papers}
+    \frametitle{Conclusion}
+    \begin{block}{Contributions}
+        \begin{itemize}
+            \item Control and scheduling \textbf{co-design} framework %endless related work here
+            \item Improve CPU utilization with \textbf{Reactive} scheduling
+            \item \textbf{Composable} interface
+            \item \textbf{Kalman filter}
+        \end{itemize}
+    \end{block}
+    \begin{block}{I presented:}
+        \begin{itemize}
+            \item Extension of \textbf{RTComposer}
+            \item Proof of concept with \textbf{simulation}
+            \item Proof of concept with a \textbf{real-life case-study}
+            \item A \textbf{bridge} between control and software engineering
+        \end{itemize}
+    \end{block}
 }
 
 \end{document}
