@@ -167,18 +167,18 @@ fill=orange!20!yellow!20]
     \frametitle{Overview}
     \begin{block}{Contributions}
         \begin{itemize}
-            \item Development of control and scheduling co-design framework %endless related work here
+            \item Development of control and scheduling \textbf{co-design} framework %endless related work here
             \item \textbf{Reactive} scheduling (adaptation)
-            \item \textbf{composable} interface (based on automata theory)
-            \item Development of scheduling technique based on \textbf{Kalman filter}
+            \item \textbf{Composable} interface (based on automata theory)
+            \item A \textbf{Kalman filter} based feedback for schedulers
         \end{itemize}
     \end{block}
-    \begin{block}{Achievements of this thesis}
+    \begin{block}{I will show:}
         \begin{itemize}
-            \item Extend the work of \textbf{RTComposer}
+            \item Extension of \textbf{RTComposer} and of \textbf{ArduPilotMega}
             \item Proof of concept with \textbf{simulation}
-            \item Proof of concept with \textbf{real-life case-study}
-            \item \textbf{Bridge} between control and software engineering
+            \item Proof of concept with a \textbf{real-life case-study}
+            \item A \textbf{bridge} between control and software engineering
         \end{itemize}
     \end{block}
 }	
@@ -294,8 +294,8 @@ fill=orange!20!yellow!20]
   \end{center}
   \begin{block}{}
       \begin{itemize}
-          \item A sensor with two modes: \HH igh quality, \LL ow quality.
-          \item After \HH, the estimation quality (\qq) is best, after \LL it may degrade.
+          \item A sensor with two modes: \HH igh quality, \LL ow quality
+          \item After \HH, estimation quality (\qq) is best, after \LL it may degrade
 
         \end{itemize}
   \end{block}
@@ -430,10 +430,10 @@ fill=orange!20!yellow!20]
     \begin{block}{Scheduling \buchi Game}
         \begin{itemize}
             \item \textbf{Alternating turns}
-            \item Scheduler alphabet is $\Sigma_{schd} = 2^T$ {\small (in the example $T=\{H, L\} $)}
-            \item Environment alphabet is $\Sigma_{env} = \mathbb{R}^n$ {\footnotesize (\textit{scheduler feedback variables})}
+            \item Scheduler alphabet is $\Sigma_{schd} = 2^T$ {(here $T=\{H, L\} $)}
+            \item Environment alphabet is $\Sigma_{env} = \mathbb{R}^n$ (feedback variables)
             \item There is an transition for any \textbf{possible} environmental outcome 
-            \item The \textbf{scheduler feedback variables} can be any environment-depended value
+            \item Any variable can be used as feedback 
             \item Environment player plays first
         \end{itemize}
     \end{block}
@@ -444,10 +444,10 @@ fill=orange!20!yellow!20]
     %\todoil{maybe add a word about RTcomposer and GameComposer}\\
     \begin{block}{Automata advantages}
         \begin{itemize}
-            \item \textbf{Lite:} minimal resource consumption at run-time
+            \item \textbf{Lite} (minimal resource consumption at run-time)
             \item \textbf{Expressive}
             \item \textbf{Composable}
-            \item \textbf{Automata theory:} allows for tools such as \emph{GOAL}
+            \item \textbf{Automata theory} allows for tools such as \emph{GOAL}
         \end{itemize}
     \end{block}
     \hfill
@@ -487,13 +487,13 @@ fill=orange!20!yellow!20]
 \frame{
     \frametitle{Integration with Kalman filter}
     \begin{center}
-        \includegraphics[width=30mm]{kalmanGraph}
+        \includegraphics[width=0.6\textwidth]{kalmanGraph}
     \end{center}
     \begin{block}{}
         \begin{itemize}
-            \item Process \& actuation noise affect the \textit{a-priory} estimation 
-            \item Measurement error affect only the measurement
-            \item The difference between them estimate the over-all errors
+            \item Process \& actuation noises affect the \textit{a-priory} estimation 
+            \item Measurement errors affect only the measurement
+            \item Their difference is an indicator for the over-all errors
         \end{itemize}
     \end{block}
 }
@@ -526,9 +526,9 @@ fill=orange!20!yellow!20]
     \end{center}
     \begin{block}{ Attitude and position controller }
         \begin{itemize}
-            \item The \textcolor{magenta}{\textbf{vision}} component estimate the position
-            \item Position controller output a desired angle (proportional to acceleration)
-            \item We used a standard PID controllers
+            \item The {\textbf{vision}} component estimates the position
+            \item Position controller outputs a desired angle \\(proportional to acceleration)
+            \item We used standard PID controllers
         \end{itemize}
     \end{block}
 }
@@ -553,7 +553,7 @@ fill=orange!20!yellow!20]
         \includegraphics[width=60mm]{windowVd}
     \end{center}
     \begin{block}{ }
-        \centering {\Large $V_d = \frac{((y_1-y_4)-(y_2-y_3))}{((y_1-y_4)+(y_2-y_3))}$}
+        \centering {\Large $V_d = \frac{(y_1-y_4)-(y_2-y_3)}{(y_1-y_4)+(y_2-y_3)}$}
         \\~\\
         {\Large $sz =$} {\small ${((y_1-y_4)-(y_2-y_3))} + {((y_1-y_4)+(y_2-y_3))}$}
     \end{block}
@@ -582,17 +582,17 @@ fill=orange!20!yellow!20]
 \subsection[Filtering]{Simplifying the Kalman Filter with Complementary Filter}
 \frame{
     \frametitle{The Filter}
-    \begin{block}{ Kalman filter constrains }
+    \begin{block}{ Limitation of Kalman filter  }
         \begin{itemize}
             \item The system is  not linear
-            \item The process and actuation noises distribution are unknown and unstable
+            \item Noise distributions are unknown and unstable
             \item Kalman filter adds complexity in the code
         \end{itemize}
     \end{block}
-    \begin{block}{ Filtering in two steps }
+    \begin{block}{ We propose an alternative that also filters in two steps: }
         \begin{enumerate}
-            \item \textcolor{purple}{Predicts} - with a linearized model
-            \item \textcolor{blue}{Update} - with the vision and other sensors
+            \item \textcolor{purple}{Predicts} with a linearized model
+            \item \textcolor{blue}{Updates} with the vision and other sensors
         \end{enumerate}
     \end{block}
 }
